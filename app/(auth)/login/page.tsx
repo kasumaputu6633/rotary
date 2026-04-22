@@ -12,9 +12,10 @@ export default function LoginPage() {
   const [isPending, startTransition] = useTransition();
   const [contact, setContact] = useState("");
   const [password, setPassword] = useState("");
+  const [agreed, setAgreed] = useState(false);
   const [error, setError] = useState("");
 
-  const isValid = contact.trim() !== "" && password.trim() !== "";
+  const isValid = contact.trim() !== "" && password.trim() !== "" && agreed;
 
   function handleSubmit() {
     setError("");
@@ -60,13 +61,21 @@ export default function LoginPage() {
             Lupa Kata Sandi?
           </Link>
 
-          <p className="font-poppins text-[14px] text-black leading-relaxed">
-            Dengan masuk, anda menyetujui{" "}
-            <Link href="/terms" className="text-[#17458f] underline">Ketentuan Penggunaan</Link>
-            {" "}dan{" "}
-            <Link href="/privacy" className="text-[#17458f] underline">Pemberitahuan Privasi</Link>
-            {" "}Kami.
-          </p>
+          <label className="flex items-start gap-2 cursor-pointer mt-1">
+            <input
+              type="checkbox"
+              checked={agreed}
+              onChange={(e) => setAgreed(e.target.checked)}
+              className="mt-0.75 shrink-0 accent-[#17458f] w-4 h-4 cursor-pointer"
+            />
+            <span className="font-poppins text-[14px] text-black leading-relaxed">
+              Dengan masuk, anda menyetujui{" "}
+              <Link href="/terms" className="text-[#17458f] underline">Ketentuan Penggunaan</Link>
+              {" "}dan{" "}
+              <Link href="/privacy" className="text-[#17458f] underline">Pemberitahuan Privasi</Link>
+              {" "}Kami.
+            </span>
+          </label>
 
           <Link href="/help" className="font-poppins text-[14px] text-[#17458f] underline">
             Perlu Bantuan?

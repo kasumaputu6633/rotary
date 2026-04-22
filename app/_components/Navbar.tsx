@@ -1,6 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
 import { cookies } from "next/headers";
+import { eq } from "drizzle-orm";
+import { db } from "@/db";
+import { users } from "@/db/schema";
 import NavbarSearch from "./NavbarSearch";
 import NavbarAuthButtons from "./NavbarAuthButtons";
 
@@ -8,7 +11,16 @@ const navLinks = ["Kategori", "Belanja", "Donasi", "About Us", "Customer Service
 
 export default async function Navbar() {
   const cookieStore = await cookies();
-  const isLoggedIn = !!cookieStore.get("session_user_id")?.value;
+  const userId = cookieStore.get("session_user_id")?.value ?? null;
+
+  let userName: string | null = null;
+  if (userId) {
+    const user = await db.query.users.findFirst({
+      where: eq(users.id, userId),
+      columns: { name: true },
+    });
+    userName = user?.name ?? null;
+  }
 
   return (
     <header className="w-full bg-white border-b border-gray-200">
@@ -22,6 +34,7 @@ export default async function Navbar() {
             height={42}
             priority
             sizes="110px"
+            style={{ width: 110, height: "auto" }}
           />
         </Link>
 
@@ -59,17 +72,17 @@ export default async function Navbar() {
                 strokeLinejoin="round"
               />
             </svg>
-            <span className="absolute -top-0.5 -right-0.5 bg-[#f7a81b] text-white text-[8px] font-bold rounded-full w-[14px] h-[14px] flex items-center justify-center font-poppins">
+            <span className="absolute -top-0.5 -right-0.5 bg-[#f7a81b] text-white text-[8px] font-bold rounded-full w-3.5 h-3.5 flex items-center justify-center font-poppins">
               0
             </span>
           </button>
 
-          <NavbarAuthButtons isLoggedIn={isLoggedIn} />
+          <NavbarAuthButtons userName={userName} />
         </div>
 
         <div className="border-t border-gray-100" />
 
-        <div className="h-[44px] flex items-center justify-start border-t border-gray-100 px-28">
+        <div className="h-11 flex items-center justify-start border-t border-gray-100 px-28">
           {navLinks.flatMap((link, i) => {
             const cell = (
               <Link
