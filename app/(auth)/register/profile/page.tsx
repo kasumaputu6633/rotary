@@ -6,6 +6,7 @@ import AuthIllustration from "../../_components/AuthIllustration";
 import AuthCard from "../../_components/AuthCard";
 import AuthInput from "../../_components/AuthInput";
 import AuthButton from "../../_components/AuthButton";
+import PasswordRequirements, { passwordValid } from "../../_components/PasswordRequirements";
 import { updateProfileAction } from "../../actions";
 
 export default function RegisterProfilePage() {
@@ -16,7 +17,7 @@ export default function RegisterProfilePage() {
   const [error, setError] = useState("");
 
   const passwordMismatch = confirmPassword !== "" && password !== confirmPassword;
-  const isValid = name.trim() !== "" && password.length >= 8 && password === confirmPassword;
+  const isValid = name.trim() !== "" && passwordValid(password) && password === confirmPassword;
 
   function handleSubmit() {
     setError("");
@@ -27,7 +28,7 @@ export default function RegisterProfilePage() {
   }
 
   return (
-    <div className="flex gap-[60px] items-center justify-center w-full max-w-5xl py-10">
+    <div className="flex gap-15 items-center justify-center w-full max-w-5xl py-10">
       <AuthIllustration src="/auth/form.png" />
 
       <AuthCard>
@@ -35,7 +36,7 @@ export default function RegisterProfilePage() {
           Lengkapi Profil
         </h1>
 
-        <div className="flex flex-col gap-[10px] items-start pt-[45px] pb-[42px] w-full">
+        <div className="flex flex-col gap-2.5 items-start pt-11.25 pb-10.5 w-full">
           <AuthInput
             id="name"
             label="Nama Lengkap"
@@ -49,10 +50,12 @@ export default function RegisterProfilePage() {
             id="password"
             label="Kata Sandi"
             type="password"
-            placeholder="Minimal 8 karakter"
+            placeholder="Buat kata sandi"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
+
+          <PasswordRequirements password={password} />
 
           <AuthInput
             id="confirmPassword"

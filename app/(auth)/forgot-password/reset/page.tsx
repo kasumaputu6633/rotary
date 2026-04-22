@@ -6,6 +6,7 @@ import AuthIllustration from "../../_components/AuthIllustration";
 import AuthCard from "../../_components/AuthCard";
 import AuthInput from "../../_components/AuthInput";
 import AuthButton from "../../_components/AuthButton";
+import PasswordRequirements, { passwordValid } from "../../_components/PasswordRequirements";
 import { resetPasswordAction } from "../../actions";
 
 export default function ForgotPasswordResetPage() {
@@ -15,7 +16,7 @@ export default function ForgotPasswordResetPage() {
   const [error, setError] = useState("");
 
   const passwordMismatch = confirmPassword !== "" && password !== confirmPassword;
-  const isValid = password.length >= 8 && password === confirmPassword;
+  const isValid = passwordValid(password) && password === confirmPassword;
 
   function handleSubmit() {
     setError("");
@@ -26,7 +27,7 @@ export default function ForgotPasswordResetPage() {
   }
 
   return (
-    <div className="flex gap-[60px] items-center justify-center w-full max-w-5xl py-10">
+    <div className="flex gap-15 items-center justify-center w-full max-w-5xl py-10">
       <AuthIllustration src="/auth/resetpass.png" />
 
       <AuthCard>
@@ -34,7 +35,7 @@ export default function ForgotPasswordResetPage() {
           Buat Kata Sandi Baru
         </h1>
 
-        <div className="flex flex-col gap-[10px] items-start pt-[45px] pb-[42px] w-full">
+        <div className="flex flex-col gap-2.5 items-start pt-11.25 pb-10.5 w-full">
           <p className="font-poppins text-[14px] text-black leading-relaxed">
             Kata sandi baru harus berbeda dari kata sandi sebelumnya.
           </p>
@@ -43,10 +44,12 @@ export default function ForgotPasswordResetPage() {
             id="password"
             label="Kata Sandi Baru"
             type="password"
-            placeholder="Minimal 8 karakter"
+            placeholder="Buat kata sandi baru"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
+
+          <PasswordRequirements password={password} />
 
           <AuthInput
             id="confirmPassword"
