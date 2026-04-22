@@ -15,6 +15,13 @@
       "when": 1776821233129,
       "tag": "0001_next_thunderbolt",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1776826591107,
+      "tag": "0002_unusual_roulette",
+      "breakpoints": true
     }
   ]
 }

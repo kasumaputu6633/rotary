@@ -6,7 +6,9 @@ import { and, eq, gt } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { sendOtpEmail, type OtpEmailType } from "@/lib/email";
+import { sendOtpEmail, sendPasswordResetEmail, type OtpEmailType } from "@/lib/email";
+import { headers } from "next/headers";
+import { passwordResetTokens } from "@/db/schema";
 
 type ActionResult = { error: string } | undefined;
 
@@ -258,65 +260,70 @@ export async function resendLoginOtpAction(): Promise<ActionResult> {
 
 // ─── Forgot Password ──────────────────────────────────────────────────────────
 
+async function getBaseUrl(): Promise<string> {
+  const h = await headers();
+  const host = h.get("host") ?? "localhost:3000";
+  const proto = h.get("x-forwarded-proto") ?? "http";
+  return `${proto}://${host}`;
+}
+
 export async function forgotPasswordAction(contact: string): Promise<ActionResult> {
   try {
     const user = await db.query.users.findFirst({ where: userWhereClause(contact) });
     if (!user || !user.isVerified) return { error: "Akun tidak ditemukan." };
+    if (!user.email) return { error: "Akun ini tidak memiliki email terdaftar." };
 
-    await createAndSendOtp(contact, "forgot_password", user.name);
-    await setPendingContact(contact);
+    // Hapus token lama, buat yang baru
+    await db.delete(passwordResetTokens).where(eq(passwordResetTokens.userId, user.id));
+
+    const token = crypto.randomUUID().replace(/-/g, "");
+    const expiresAt = new Date(Date.now() + 30 * 60 * 1000);
+    await db.insert(passwordResetTokens).values({ userId: user.id, token, expiresAt });
+
+    const resetUrl = `${await getBaseUrl()}/forgot-password/reset?token=${token}`;
+    await sendPasswordResetEmail(user.email, resetUrl, user.name);
   } catch {
     return { error: DB_ERROR };
   }
-  redirect("/forgot-password/verify");
-}
-
-export async function verifyForgotPasswordOtpAction(code: string): Promise<ActionResult> {
-  const contact = await getPendingContact();
-  if (!contact) return { error: "Sesi habis, silakan mulai ulang." };
-
-  try {
-    const valid = await verifyOtp(contact, code, "forgot_password");
-    if (!valid) return { error: "Kode salah atau sudah kedaluarsa." };
-  } catch {
-    return { error: DB_ERROR };
-  }
-  redirect("/forgot-password/reset");
-}
-
-export async function resendForgotPasswordOtpAction(): Promise<ActionResult> {
-  const contact = await getPendingContact();
-  if (!contact) return { error: "Sesi habis, silakan mulai ulang." };
-  try {
-    const user = await db.query.users.findFirst({
-      where: userWhereClause(contact),
-      columns: { name: true },
-    });
-    await createAndSendOtp(contact, "forgot_password", user?.name);
-  } catch {
-    return { error: DB_ERROR };
-  }
+  redirect("/forgot-password/sent");
 }
 
 // ─── Reset Password ───────────────────────────────────────────────────────────
 
-export async function resetPasswordAction(password: string): Promise<ActionResult> {
-  const contact = await getPendingContact();
-  if (!contact) return { error: "Sesi habis, silakan mulai ulang." };
+export async function validateResetToken(token: string) {
+  const record = await db.query.passwordResetTokens.findFirst({
+    where: and(
+      eq(passwordResetTokens.token, token),
+      eq(passwordResetTokens.used, false),
+      gt(passwordResetTokens.expiresAt, new Date()),
+    ),
+  });
+  return record ?? null;
+}
 
+export async function resetPasswordAction(token: string, password: string): Promise<ActionResult> {
   try {
+    const record = await db.query.passwordResetTokens.findFirst({
+      where: and(
+        eq(passwordResetTokens.token, token),
+        eq(passwordResetTokens.used, false),
+        gt(passwordResetTokens.expiresAt, new Date()),
+      ),
+    });
+
+    if (!record) return { error: "Link tidak valid atau sudah kedaluarsa." };
+
     const passwordHash = await bcrypt.hash(password, 12);
-    await db.update(users).set({ passwordHash, updatedAt: new Date() }).where(userWhereClause(contact));
-    await clearPendingContact();
+    await db.update(users)
+      .set({ passwordHash, updatedAt: new Date() })
+      .where(eq(users.id, record.userId));
+
+    await db.update(passwordResetTokens)
+      .set({ used: true })
+      .where(eq(passwordResetTokens.id, record.id));
   } catch {
     return { error: DB_ERROR };
   }
   redirect("/login");
 }
 
-// ─── Utils ────────────────────────────────────────────────────────────────────
-
-export async function getMaskedContact(): Promise<string> {
-  const contact = await getPendingContact();
-  return contact ? maskContact(contact) : "";
-}

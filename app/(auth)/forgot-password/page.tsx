@@ -24,7 +24,7 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div className="flex gap-[60px] items-center justify-center w-full max-w-5xl py-10">
+    <div className="flex gap-15 items-center justify-center w-full max-w-5xl py-10">
       <AuthIllustration src="/auth/forgotpass.png" />
 
       <AuthCard>
@@ -32,16 +32,16 @@ export default function ForgotPasswordPage() {
           Lupa Kata Sandi
         </h1>
 
-        <div className="flex flex-col gap-[10px] items-start pt-[45px] pb-[42px] w-full">
+        <div className="flex flex-col gap-2.5 items-start pt-11.25 pb-10.5 w-full">
           <p className="font-poppins text-[14px] text-black leading-relaxed">
-            Masukkan No.Telp atau Email yang terdaftar. Kami akan mengirimkan kode verifikasi untuk mereset kata sandi Anda.
+            Masukkan email yang terdaftar. Kami akan mengirimkan link untuk mereset kata sandi Anda.
           </p>
 
           <AuthInput
             id="contact"
-            label="No.Telp atau Email"
+            label="Email"
             type="text"
-            placeholder="No. Telepon atau Email"
+            placeholder="Alamat email Anda"
             value={contact}
             onChange={(e) => setContact(e.target.value)}
             error={error || undefined}
@@ -53,7 +53,7 @@ export default function ForgotPasswordPage() {
         </div>
 
         <AuthButton onClick={handleSubmit} disabled={!isValid} pending={isPending}>
-          Kirim Kode
+          Kirim Link Reset
         </AuthButton>
 
         <p className="font-poppins text-[13px] text-[#505050] mt-5">
