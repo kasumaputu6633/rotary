@@ -3,10 +3,10 @@
 import Link from "next/link";
 import { useState, useTransition } from "react";
 import AuthButton from "../../../_components/AuthButton";
-import { resendForgotPasswordOtpAction, verifyForgotPasswordOtpAction } from "../../../actions";
+import { resendLoginOtpAction, verifyLoginOtpAction } from "../../../actions";
 import { useOtpInput } from "../../../_hooks/useOtpInput";
 
-export default function OtpForm() {
+export default function LoginOtpForm() {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState("");
   const [resent, setResent] = useState(false);
@@ -16,7 +16,7 @@ export default function OtpForm() {
   function handleVerify() {
     setError("");
     startTransition(async () => {
-      const result = await verifyForgotPasswordOtpAction(code);
+      const result = await verifyLoginOtpAction(code);
       if (result?.error) setError(result.error);
     });
   }
@@ -25,7 +25,7 @@ export default function OtpForm() {
     setResent(false);
     setError("");
     startTransition(async () => {
-      const result = await resendForgotPasswordOtpAction();
+      const result = await resendLoginOtpAction();
       if (result?.error) { setError(result.error); return; }
       reset();
       setResent(true);
@@ -70,12 +70,12 @@ export default function OtpForm() {
 
       <div className="w-full mt-4">
         <AuthButton onClick={handleVerify} disabled={!isComplete} pending={isPending}>
-          Verifikasi
+          Verifikasi &amp; Masuk
         </AuthButton>
       </div>
 
       <p className="font-poppins text-[13px] text-[#505050] mt-5">
-        <Link href="/forgot-password" className="text-[#17458f] underline">← Kembali</Link>
+        <Link href="/login" className="text-[#17458f] underline">← Kembali ke Login</Link>
       </p>
     </>
   );

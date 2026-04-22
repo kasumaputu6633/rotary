@@ -8,6 +8,13 @@
       "when": 1776778252860,
       "tag": "0000_colossal_stellaris",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1776821233129,
+      "tag": "0001_next_thunderbolt",
+      "breakpoints": true
     }
   ]
 }
