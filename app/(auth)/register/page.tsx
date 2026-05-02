@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import AuthIllustration from "../_components/AuthIllustration";
 import AuthCard from "../_components/AuthCard";
 import AuthInput from "../_components/AuthInput";
@@ -9,6 +10,7 @@ import AuthButton from "../_components/AuthButton";
 import { registerAction } from "../actions";
 
 export default function RegisterPage() {
+  const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [contact, setContact] = useState("");
   const [agreed, setAgreed] = useState(false);
@@ -20,7 +22,11 @@ export default function RegisterPage() {
     setError("");
     startTransition(async () => {
       const result = await registerAction(contact.trim());
-      if (result?.error) setError(result.error);
+      if (result?.error) {
+        setError(result.error);
+      } else if (result?.redirectTo) {
+        router.push(result.redirectTo);
+      }
     });
   }
 

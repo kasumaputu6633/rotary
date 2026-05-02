@@ -5,13 +5,22 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
   return (
     <div className="flex flex-col min-h-screen bg-white">
       <header className="flex items-center justify-center w-full py-5">
-        <Link href="/" className="relative h-[50px] w-[138px] block">
+        <Link href="/" className="flex items-center gap-3">
           <Image
             src="/rotary-logo.png"
             alt="Rotary"
-            fill
-            sizes="138px"
+            width={138}
+            height={50}
+            style={{ width: 138, height: 50 }}
             className="object-contain"
+            priority
+          />
+          <Image
+            src="/pnb.svg"
+            alt="PNB"
+            width={47}
+            height={47}
+            style={{ width: 47, height: 47 }}
             priority
           />
         </Link>

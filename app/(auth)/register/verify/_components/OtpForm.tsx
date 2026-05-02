@@ -2,11 +2,13 @@
 
 import Link from "next/link";
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import AuthButton from "../../../_components/AuthButton";
 import { resendRegisterOtpAction, verifyRegisterOtpAction } from "../../../actions";
 import { useOtpInput } from "../../../_hooks/useOtpInput";
 
 export default function OtpForm() {
+  const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState("");
   const [resent, setResent] = useState(false);
@@ -17,7 +19,11 @@ export default function OtpForm() {
     setError("");
     startTransition(async () => {
       const result = await verifyRegisterOtpAction(code);
-      if (result?.error) setError(result.error);
+      if (result?.error) {
+        setError(result.error);
+      } else if (result?.redirectTo) {
+        router.push(result.redirectTo);
+      }
     });
   }
 

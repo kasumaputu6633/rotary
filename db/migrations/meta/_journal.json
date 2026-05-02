@@ -22,6 +22,13 @@
       "when": 1776826591107,
       "tag": "0002_unusual_roulette",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1777442302207,
+      "tag": "0003_thankful_invaders",
+      "breakpoints": true
     }
   ]
 }

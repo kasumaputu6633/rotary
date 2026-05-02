@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Poppins, Roboto_Serif } from "next/font/google";
+import DropdownOverlay from "./_components/DropdownOverlay";
 import "./globals.css";
 
 const poppins = Poppins({
@@ -29,7 +30,10 @@ export default function RootLayout({
       lang="id"
       className={`${poppins.variable} ${robotoSerif.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <DropdownOverlay />
+        {children}
+      </body>
     </html>
   );
 }

@@ -14,19 +14,21 @@ export default async function Navbar() {
   const userId = cookieStore.get("session_user_id")?.value ?? null;
 
   let userName: string | null = null;
+  let userRole: string | null = null;
   if (userId) {
     const user = await db.query.users.findFirst({
       where: eq(users.id, userId),
-      columns: { name: true },
+      columns: { name: true, role: true },
     });
     userName = user?.name ?? null;
+    userRole = user?.role ?? null;
   }
 
   return (
-    <header className="w-full bg-white border-b border-gray-200">
+    <header className="w-full bg-white border-b border-gray-200 relative z-[960]">
       <div className="grid grid-cols-[auto_1fr_auto] px-8 gap-x-5 pt-1">
 
-        <Link href="/" className="h-18 flex items-center shrink-0">
+        <Link href="/" className="h-18 flex items-center gap-3 shrink-0">
           <Image
             src="/rotary-logo.png"
             alt="Rotary"
@@ -34,7 +36,16 @@ export default async function Navbar() {
             height={42}
             priority
             sizes="110px"
-            style={{ width: 110, height: "auto" }}
+            style={{ width: 110, height: 42 }}
+          />
+          <Image
+            src="/pnb.svg"
+            alt="PNB"
+            width={47}
+            height={47}
+            priority
+            sizes="47px"
+            style={{ width: 47, height: 47 }}
           />
         </Link>
 
@@ -77,12 +88,12 @@ export default async function Navbar() {
             </span>
           </button>
 
-          <NavbarAuthButtons userName={userName} />
+          <NavbarAuthButtons userName={userName} userRole={userRole} />
         </div>
 
-        <div className="border-t border-gray-100" />
+        <div className="col-span-3 border-t border-gray-100" />
 
-        <div className="h-11 flex items-center justify-start border-t border-gray-100 px-28">
+        <div className="h-11 flex items-center justify-start col-span-3 border-t border-gray-100 px-28">
           {navLinks.flatMap((link, i) => {
             const cell = (
               <Link
@@ -98,7 +109,7 @@ export default async function Navbar() {
           })}
         </div>
 
-        <div className="border-t border-gray-100" />
+        <div className="col-span-3 border-t border-gray-100" />
       </div>
     </header>
   );

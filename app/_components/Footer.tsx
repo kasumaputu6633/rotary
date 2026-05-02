@@ -1,12 +1,17 @@
 import Image from "next/image";
 import Link from "next/link";
 
-const footerLinks = [
+const siteMapLinks = [
   "Tentang Rotary",
-  "Hak Kekayaan Intelektual",
+  "Contact Us",
   "Dampak Kami",
   "Program Kami",
-  "Contact Us",
+];
+
+const legalLinks = [
+  "Hak Kekayaan Intelektual",
+  "Terms of Services",
+  "Privacy Policy",
 ];
 
 const socialIcons = [
@@ -34,53 +39,100 @@ const socialIcons = [
 
 export default function Footer() {
   return (
-    <footer className="w-full bg-white border-t border-gray-200">
-      <div className="max-w-[1140px] mx-auto px-8">
-        {/* Top: Logo + Social icons */}
-        <div className="flex items-center justify-between py-5 border-b border-gray-200">
-          <Image
-            src="/rotary-logo.png"
-            alt="Rotary"
-            width={100}
-            height={38}
-            sizes="100px"
-          />
-          <div className="flex items-center gap-2">
-            {socialIcons.map((icon) => (
-              <a
-                key={icon.label}
-                href="#"
-                aria-label={icon.label}
-                className="w-[28px] h-[28px] rounded-full border border-[#444] flex items-center justify-center text-[#444] hover:border-[#17458f] hover:text-[#17458f] transition-colors"
-              >
-                <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24">
-                  <path d={icon.path} />
-                </svg>
-              </a>
-            ))}
+    <footer className="w-full bg-white">
+      <div className="mx-auto max-w-[1728px] px-8 py-8 lg:px-40">
+        <div className="flex flex-col gap-10 lg:flex-row lg:justify-between">
+          <div className="max-w-[430px]">
+            <div className="flex items-center gap-5">
+              <Image
+                src="/rotary-logo.png"
+                alt="Rotary"
+                width={104}
+                height={39}
+                sizes="104px"
+                className="h-auto w-[104px]"
+              />
+              <Image
+                src="/pnb.svg"
+                alt="PNB"
+                width={39}
+                height={39}
+                sizes="39px"
+                className="h-[39px] w-[39px]"
+              />
+            </div>
+
+            <p className="mt-7 max-w-[400px] font-poppins text-[16px] leading-[1.42] text-black">
+              Lorem ipsum urna enim sapiensdsa vestibulum sed turpis at sed faucibus magna porta quis feugiat potenti.
+            </p>
+
+            <div className="mt-7 flex items-center gap-4.5">
+              {socialIcons.map((icon) => (
+                <a
+                  key={icon.label}
+                  href="#"
+                  aria-label={icon.label}
+                  className="flex h-7.5 w-7.5 items-center justify-center rounded-full border border-[#242424] text-black transition-colors hover:border-[#17458f] hover:text-[#17458f] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#17458f] focus-visible:ring-offset-4"
+                >
+                  <svg width="13" height="13" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d={icon.path} />
+                  </svg>
+                </a>
+              ))}
+            </div>
+
+            <a
+              href="#"
+              className="mt-9 inline-flex h-9.5 items-center gap-3 border border-[#f7a81b] px-3.5 pr-5 font-poppins text-[12px] font-semibold text-black transition-colors hover:bg-[#fff7e8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f7a81b] focus-visible:ring-offset-4"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path
+                  d="M5 15L12 8L19 15M5 22L12 15L19 22"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+              BACK TO TOP
+            </a>
+          </div>
+
+          <div className="grid gap-10 pt-5 sm:grid-cols-[minmax(160px,1fr)_minmax(220px,1fr)] sm:gap-16 lg:w-[620px] lg:gap-24 lg:pt-5">
+            <div>
+              <h2 className="font-poppins text-[14px] font-semibold text-black">Site Map</h2>
+              <nav className="mt-7 flex flex-col gap-6" aria-label="Site Map">
+                {siteMapLinks.map((link) => (
+                  <Link
+                    key={link}
+                    href="#"
+                    className="font-poppins text-[14px] text-black transition-colors hover:text-[#17458f]"
+                  >
+                    {link}
+                  </Link>
+                ))}
+              </nav>
+            </div>
+
+            <div>
+              <h2 className="font-poppins text-[14px] font-semibold text-black">Legal</h2>
+              <nav className="mt-7 flex flex-col gap-6" aria-label="Legal">
+                {legalLinks.map((link) => (
+                  <Link
+                    key={link}
+                    href="#"
+                    className="font-poppins text-[14px] text-black transition-colors hover:text-[#17458f]"
+                  >
+                    {link}
+                  </Link>
+                ))}
+              </nav>
+            </div>
           </div>
         </div>
 
-        {/* Middle: Nav links — compact, centered */}
-        <div className="flex items-center justify-center py-4 border-b border-gray-200">
-          {footerLinks.flatMap((link, i) => {
-            const cell = (
-              <Link
-                key={link}
-                href="#"
-                className="font-poppins text-[13px] text-black hover:text-[#17458f] transition-colors px-5 whitespace-nowrap"
-              >
-                {link}
-              </Link>
-            );
-            if (i === 0) return [cell];
-            return [<div key={`div-${i}`} className="h-4 w-px bg-gray-400 shrink-0" />, cell];
-          })}
-        </div>
-
-        {/* Bottom: Copyright */}
-        <div className="flex items-center justify-center py-4">
-          <p className="font-poppins text-[12px] text-[#888]">
+        <div className="mt-9 border-t border-[#8d8d8d] pt-5 text-center">
+          <p className="font-poppins text-[12px] text-black">
             © 2026 Rotary International. All rights reserved.
           </p>
         </div>

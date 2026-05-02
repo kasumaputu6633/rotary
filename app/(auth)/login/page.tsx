@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import AuthIllustration from "../_components/AuthIllustration";
 import AuthCard from "../_components/AuthCard";
 import AuthInput from "../_components/AuthInput";
@@ -9,6 +10,7 @@ import AuthButton from "../_components/AuthButton";
 import { loginAction } from "../actions";
 
 export default function LoginPage() {
+  const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [contact, setContact] = useState("");
   const [password, setPassword] = useState("");
@@ -20,7 +22,11 @@ export default function LoginPage() {
     setError("");
     startTransition(async () => {
       const result = await loginAction(contact.trim(), password);
-      if (result?.error) setError(result.error);
+      if (result?.error) {
+        setError(result.error);
+      } else if (result?.redirectTo) {
+        router.push(result.redirectTo);
+      }
     });
   }
 
