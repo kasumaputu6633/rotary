@@ -150,7 +150,7 @@ export default function NavbarAuthButtons({
           {isUser && (
             <Link
               href="/jual"
-              className="font-poppins font-semibold text-[14px] text-white bg-[#f7a81b] rounded-[20px] px-5 py-2 hover:bg-[#e09918] transition-colors whitespace-nowrap"
+              className="h-9 inline-flex items-center font-poppins font-semibold text-[13px] text-white bg-[#f7a81b] rounded-full px-5 hover:bg-[#e09918] transition-colors whitespace-nowrap"
             >
               + Jual
             </Link>
@@ -385,13 +385,13 @@ export default function NavbarAuthButtons({
     <div className="flex items-center gap-3">
       <Link
         href="/jual"
-        className="font-poppins font-semibold text-[14px] text-white bg-[#f7a81b] rounded-[20px] px-5 py-2 hover:bg-[#e09918] transition-colors whitespace-nowrap"
+        className="h-9 inline-flex items-center font-poppins font-semibold text-[13px] text-white bg-[#f7a81b] rounded-full px-5 hover:bg-[#e09918] transition-colors whitespace-nowrap"
       >
         + Jual
       </Link>
       <Link
         href="/login"
-        className="font-poppins font-semibold text-[14px] text-[#f7a81b] border-2 border-[#f7a81b] rounded-[20px] px-6 py-2 hover:bg-[#fff8ec] transition-colors whitespace-nowrap"
+        className="h-9 inline-flex items-center font-poppins font-semibold text-[13px] text-[#f7a81b] border border-[#f7a81b] rounded-full px-5 hover:bg-[#fff8ec] transition-colors whitespace-nowrap"
       >
         Register/Masuk
       </Link>
