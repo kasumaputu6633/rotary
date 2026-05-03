@@ -21,6 +21,36 @@ body {
   color: var(--foreground);
 }
 
+@keyframes bannerSlideNext {
+  from {
+    opacity: 0.72;
+    margin-left: 34px;
+  }
+  to {
+    opacity: 1;
+    margin-left: 0;
+  }
+}
+
+@keyframes bannerSlidePrevious {
+  from {
+    opacity: 0.72;
+    margin-left: -34px;
+  }
+  to {
+    opacity: 1;
+    margin-left: 0;
+  }
+}
+
+.banner-slide-next {
+  animation: bannerSlideNext 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.banner-slide-previous {
+  animation: bannerSlidePrevious 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
 @keyframes dropdownSlideIn {
   from {
     opacity: 0;

@@ -12,9 +12,9 @@ import {
   isEmail,
   getPendingContact,
   setPendingContact,
+  clearPendingContact,
   createSession,
   trustDevice,
-  clearPendingLogin,
   createAndSendOtp,
   verifyOtp,
 } from "./shared";

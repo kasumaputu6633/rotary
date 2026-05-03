@@ -27,6 +27,10 @@ export async function getPendingContact() {
   return getCookie("pending_contact");
 }
 
+export async function clearPendingContact() {
+  (await cookies()).delete("pending_contact");
+}
+
 export async function setPendingLoginUserId(userId: string) {
   (await cookies()).set("pending_login_user_id", userId, COOKIE.pending);
 }

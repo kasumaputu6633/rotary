@@ -7,7 +7,8 @@ import bcrypt from "bcryptjs";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { sendPasswordResetEmail } from "@/lib/email";
-import { ActionResult, DB_ERROR, userWhereClause } from "./shared";
+import { ActionResult, DB_ERROR } from "./constants";
+import { userWhereClause } from "./shared";
 
 async function getBaseUrl(): Promise<string> {
   const h = await headers();

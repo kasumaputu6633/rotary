@@ -149,7 +149,7 @@ export default function NavbarAuthButtons({
         <div className="flex items-center gap-3">
           {isUser && (
             <Link
-              href="/jual"
+              href="#"
               className="h-9 inline-flex items-center font-poppins font-semibold text-[13px] text-white bg-[#f7a81b] rounded-full px-5 hover:bg-[#e09918] transition-colors whitespace-nowrap"
             >
               + Jual
@@ -384,7 +384,7 @@ export default function NavbarAuthButtons({
   return (
     <div className="flex items-center gap-3">
       <Link
-        href="/jual"
+        href="#"
         className="h-9 inline-flex items-center font-poppins font-semibold text-[13px] text-white bg-[#f7a81b] rounded-full px-5 hover:bg-[#e09918] transition-colors whitespace-nowrap"
       >
         + Jual
