@@ -16,7 +16,7 @@ const topLinks = ["Tentang Rotary", "Edukasi", "Program", "Bantuan"];
 const navLinks = [
   { label: "Marketplace", href: "/" },
   { label: "Donasi", href: "#" },
-  { label: "Tempat Sampah", href: "/waste" },
+  { label: "Lokasi Penampung", href: "/waste" },
   { label: "Program Komunitas", href: "#" },
   { label: "Customer Service", href: "#" },
 ];

@@ -6,6 +6,7 @@ import Footer from "@/app/_components/Footer";
 import Navbar from "@/app/_components/Navbar";
 import ProductCard from "@/app/_components/ProductCard";
 import { getProductBySlug, getRecommendedProducts } from "@/app/_data/products";
+import ProductContactActions from "./_components/ProductContactActions";
 import ProductGallery from "./_components/ProductGallery";
 import ProductInfoTabs from "./_components/ProductInfoTabs";
 
@@ -114,26 +115,7 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
                   </div>
                 </div>
 
-                <div className="mt-5 grid gap-2">
-                  <button type="button" className="h-10 rounded-lg bg-[#f7a81b] font-poppins text-[13px] font-semibold text-black shadow-[0_8px_18px_rgba(247,168,27,0.25)] transition-all hover:-translate-y-0.5 hover:bg-[#e89a14] hover:shadow-[0_12px_24px_rgba(247,168,27,0.34)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f7a81b] focus-visible:ring-offset-2">
-                    Beli
-                  </button>
-                  <button type="button" className="h-10 rounded-lg border border-[#f7a81b] font-poppins text-[13px] font-semibold text-[#f7a81b] transition-all hover:-translate-y-0.5 hover:bg-[#fff7e8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f7a81b] focus-visible:ring-offset-2">
-                    Tambahkan ke Keranjang
-                  </button>
-                </div>
-
-                <p className="mt-6 text-center font-poppins text-[11px] font-semibold text-[#9ca3af]">
-                  Masuk untuk membuat penawaran
-                </p>
-
-                <div className="mt-5 flex h-10 overflow-hidden rounded-lg border border-[#bfc7d4] font-poppins text-[13px]">
-                  <span className="flex items-center border-r border-[#e5e7eb] px-3 font-semibold text-black">Rp</span>
-                  <input className="min-w-0 flex-1 px-3 outline-none focus:bg-[#fffdf8]" placeholder="0" />
-                  <button type="button" className="w-24 bg-[#f7a81b] font-semibold text-black transition-colors hover:bg-[#e89a14] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f7a81b]">
-                    Tawar
-                  </button>
-                </div>
+                <ProductContactActions product={product} />
 
                 <div className="mt-3 flex border-t border-[#e5e7eb]">
                   <ActionItem icon="lucide:message-square" label="Chat" />

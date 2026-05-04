@@ -71,9 +71,8 @@ export default function NavbarCartButton() {
         ref={buttonRef}
         type="button"
         onClick={() => setShowDropdown((open) => !open)}
-        className={`relative flex h-8 w-8 items-center justify-center rounded-full transition-colors hover:bg-[#fff7e8] ${
-          showDropdown ? "bg-[#fff7e8]" : ""
-        }`}
+        className={`relative flex h-8 w-8 items-center justify-center rounded-full transition-colors hover:bg-[#fff7e8] ${showDropdown ? "bg-[#fff7e8]" : ""
+          }`}
         aria-label="Keranjang"
         aria-expanded={showDropdown}
       >
@@ -140,7 +139,7 @@ export default function NavbarCartButton() {
             </div>
             <button
               type="button"
-              className="h-9 w-full rounded-lg bg-[#f7a81b] font-poppins text-[12px] font-semibold text-black shadow-[0_8px_18px_rgba(247,168,27,0.25)] transition-all hover:-translate-y-0.5 hover:bg-[#e89a14] hover:shadow-[0_12px_24px_rgba(247,168,27,0.34)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f7a81b] focus-visible:ring-offset-2"
+              className="h-9 w-full rounded-lg bg-[#f7a81b] font-poppins text-[12px] font-semibold text-white shadow-[0_8px_18px_rgba(247,168,27,0.25)] transition-all hover:-translate-y-0.5 hover:bg-[#e89a14] hover:shadow-[0_12px_24px_rgba(247,168,27,0.34)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f7a81b] focus-visible:ring-offset-2"
             >
               Checkout Sekarang
             </button>

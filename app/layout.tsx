@@ -17,8 +17,17 @@ const robotoSerif = Roboto_Serif({
 });
 
 export const metadata: Metadata = {
-  title: "Rotary",
-  description: "Solusi Cerdas untuk Barang Bekas & Sampahmu",
+  title: "Rotary | E-Commerce Barang Bekas & Penampung Limbah",
+  description:
+    "Marketplace barang bekas untuk jual, beli, dan donasi, sekaligus direktori lokasi penampung limbah.",
+  applicationName: "Rotary",
+  icons: {
+    icon: [
+      { url: "/favicon.ico" },
+      { url: "/icon.png", type: "image/png", sizes: "512x512" },
+    ],
+    shortcut: "/favicon.ico",
+  },
 };
 
 export default function RootLayout({

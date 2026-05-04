@@ -143,9 +143,10 @@ export default function NavbarAuthButtons({
           {isUser && (
             <Link
               href="#"
-              className="h-9 inline-flex items-center font-poppins font-semibold text-[13px] text-white bg-[#f7a81b] rounded-full px-5 hover:bg-[#e09918] transition-colors whitespace-nowrap"
+              className="group h-9 inline-flex items-center gap-2 rounded-full bg-[#f7a81b] px-4 font-poppins text-[13px] font-semibold text-white shadow-[0_6px_14px_rgba(247,168,27,0.22)] transition-all hover:-translate-y-0.5 hover:bg-[#e09918] hover:shadow-[0_10px_20px_rgba(247,168,27,0.28)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f7a81b] focus-visible:ring-offset-2 whitespace-nowrap"
             >
-              + Jual
+              <Icon icon="lucide:plus-circle" width={15} height={15} className="transition-transform group-hover:rotate-90" aria-hidden="true" />
+              Jual Barang
             </Link>
           )}
 
@@ -308,9 +309,10 @@ export default function NavbarAuthButtons({
     <div className="flex items-center gap-3">
       <Link
         href="#"
-        className="h-9 inline-flex items-center font-poppins font-semibold text-[13px] text-white bg-[#f7a81b] rounded-full px-5 hover:bg-[#e09918] transition-colors whitespace-nowrap"
+        className="group h-9 inline-flex items-center gap-2 rounded-full bg-[#f7a81b] px-4 font-poppins text-[13px] font-semibold text-white shadow-[0_6px_14px_rgba(247,168,27,0.22)] transition-all hover:-translate-y-0.5 hover:bg-[#e09918] hover:shadow-[0_10px_20px_rgba(247,168,27,0.28)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f7a81b] focus-visible:ring-offset-2 whitespace-nowrap"
       >
-        + Jual
+        <Icon icon="lucide:plus-circle" width={15} height={15} className="transition-transform group-hover:rotate-90" aria-hidden="true" />
+        Jual Barang
       </Link>
       <Link
         href="/login"
