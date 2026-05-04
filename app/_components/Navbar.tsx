@@ -7,6 +7,8 @@ import { db } from "@/db";
 import { users } from "@/db/schema";
 import NavbarSearch from "./NavbarSearch";
 import NavbarAuthButtons from "./NavbarAuthButtons";
+import NavbarCartButton from "./NavbarCartButton";
+import NavbarNotificationButton from "./NavbarNotificationButton";
 
 const topLinks = ["Tentang Rotary", "Edukasi", "Program", "Bantuan"];
 
@@ -93,30 +95,19 @@ export default async function Navbar() {
           </div>
 
           <div className="flex items-center gap-4 justify-end">
-            <div className="hidden xl:flex items-center gap-1.5">
-              <Icon icon="lucide:map-pin" width={14} height={14} className="text-[#f7a81b]" aria-hidden="true" />
-              <div>
-                <p className="font-poppins text-[10px] text-[#9ca3af] leading-none whitespace-nowrap">
-                  Dikirim ke
-                </p>
-                <p className="font-poppins text-[12px] font-semibold text-[#6b7280] leading-tight whitespace-nowrap">
-                  Denpasar Barat
-                </p>
-              </div>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                className="relative flex h-8 w-8 items-center justify-center rounded-full transition-colors hover:bg-[#fff7e8]"
+                aria-label="Chat"
+              >
+                <Icon icon="lucide:message-circle" width={21} height={21} className="text-[#555]" aria-hidden="true" />
+              </button>
+
+              <NavbarNotificationButton />
+
+              <NavbarCartButton />
             </div>
-
-            <div className="hidden xl:block w-px h-7 bg-gray-200 shrink-0" />
-
-            <button type="button" className="relative p-1 shrink-0" aria-label="Notifikasi">
-              <Icon icon="lucide:bell" width={21} height={21} className="text-[#555]" aria-hidden="true" />
-            </button>
-
-            <button type="button" className="relative p-1 shrink-0" aria-label="Keranjang">
-              <Icon icon="lucide:shopping-bag" width={21} height={21} className="text-[#555]" aria-hidden="true" />
-              <span className="absolute -top-0.5 -right-0.5 bg-[#f7a81b] text-white text-[8px] font-bold rounded-full w-3.5 h-3.5 flex items-center justify-center font-poppins">
-                0
-              </span>
-            </button>
 
             <NavbarAuthButtons userName={userName} userRole={userRole} />
           </div>

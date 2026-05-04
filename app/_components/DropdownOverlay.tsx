@@ -38,6 +38,7 @@ export default function DropdownOverlay() {
         isOpen ? "opacity-100" : "opacity-0"
       }`}
       onClick={() => {
+        window.dispatchEvent(new Event("navbarDropdownClose"));
         const event = new CustomEvent("profileDropdownToggle", { detail: { isOpen: false } });
         window.dispatchEvent(event);
       }}
