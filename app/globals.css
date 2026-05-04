@@ -51,6 +51,29 @@ body {
   animation: bannerSlidePrevious 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
+@keyframes skeletonShimmer {
+  from {
+    transform: translateX(-120%);
+  }
+  to {
+    transform: translateX(120%);
+  }
+}
+
+.skeleton-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.skeleton-shimmer::after {
+  animation: skeletonShimmer 900ms ease-in-out infinite;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.78), transparent);
+  content: "";
+  inset: 0;
+  position: absolute;
+  transform: translateX(-120%);
+}
+
 @keyframes dropdownSlideIn {
   from {
     opacity: 0;

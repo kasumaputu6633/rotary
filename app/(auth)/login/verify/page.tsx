@@ -1,4 +1,5 @@
 import { cookies } from "next/headers";
+import { Icon } from "@iconify/react";
 import { redirect } from "next/navigation";
 import AuthIllustration from "../../_components/AuthIllustration";
 import AuthCard from "../../_components/AuthCard";
@@ -30,15 +31,7 @@ export default async function LoginVerifyPage() {
 
         <div className="flex flex-col gap-[10px] items-center pt-[45px] pb-[42px] w-full">
           <div className="w-12 h-12 rounded-full bg-[#fff8ec] flex items-center justify-center mb-2">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-              <path
-                d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"
-                stroke="#f7a81b"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
+            <Icon icon="lucide:shield-check" width={24} height={24} className="text-[#f7a81b]" aria-hidden="true" />
           </div>
 
           <p className="font-poppins text-[14px] text-black text-center">

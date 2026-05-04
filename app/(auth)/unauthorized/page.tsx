@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Icon } from "@iconify/react";
 import AuthIllustration from "../_components/AuthIllustration";
 import AuthCard from "../_components/AuthCard";
 
@@ -10,10 +11,7 @@ export default function UnauthorizedPage() {
       <AuthCard>
         <div className="flex flex-col items-center text-center gap-4 py-8 w-full">
           <div className="w-14 h-14 rounded-full bg-red-50 flex items-center justify-center">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-              <circle cx="12" cy="12" r="10" stroke="#ef4444" strokeWidth="1.8" />
-              <path d="M15 9l-6 6M9 9l6 6" stroke="#ef4444" strokeWidth="1.8" strokeLinecap="round" />
-            </svg>
+            <Icon icon="lucide:circle-x" width={28} height={28} className="text-red-500" aria-hidden="true" />
           </div>
           <h1 className="font-roboto-serif font-semibold text-[22px] text-black">
             Akses Ditolak

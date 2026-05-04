@@ -1,5 +1,6 @@
 "use client";
 
+import { Icon } from "@iconify/react";
 import Image from "next/image";
 import type { CSSProperties } from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -66,49 +67,17 @@ function getSlideStyle(position: SlidePosition): CSSProperties {
   };
 }
 
-function ArrowIcon({ direction }: { direction: SlideDirection }) {
+function ArrowIcon({ direction, size = 18 }: { direction: SlideDirection; size?: number }) {
   const isPrevious = direction === "previous";
 
   return (
-    <svg
-      width={18}
-      height={18}
-      viewBox="0 0 24 24"
-      fill="none"
+    <Icon
+      icon={isPrevious ? "lucide:chevron-left" : "lucide:chevron-right"}
+      width={size}
+      height={size}
       aria-hidden="true"
       className={isPrevious ? "-ml-0.5" : "ml-0.5"}
-    >
-      <path
-        d={isPrevious ? "M15 18l-6-6 6-6" : "M9 18l6-6-6-6"}
-        stroke="currentColor"
-        strokeWidth="2.4"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
-function MobileArrowIcon({ direction }: { direction: SlideDirection }) {
-  const isPrevious = direction === "previous";
-
-  return (
-    <svg
-      width={16}
-      height={16}
-      viewBox="0 0 24 24"
-      fill="none"
-      aria-hidden="true"
-      className={isPrevious ? "-ml-0.5" : "ml-0.5"}
-    >
-      <path
-        d={isPrevious ? "M15 18l-6-6 6-6" : "M9 18l6-6-6-6"}
-        stroke="currentColor"
-        strokeWidth="2.4"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
+    />
   );
 }
 
@@ -140,7 +109,7 @@ export default function HomeBannerSlider() {
   }, [goToNext]);
 
   return (
-    <section className="bg-white pt-8 pb-8" aria-label="Promosi Rotary">
+    <section className="bg-white pt-8 pb-5 md:pb-6" aria-label="Promosi Rotary">
       <div className="relative mx-auto max-w-[1728px] overflow-hidden px-8 lg:px-40">
         <div className="relative hidden h-[330px] overflow-hidden md:block">
           {visibleSlides.map((slide) => {
@@ -223,7 +192,7 @@ export default function HomeBannerSlider() {
           className={`flex h-8 w-8 md:hidden ${arrowButtonClass}`}
           aria-label="Banner sebelumnya"
         >
-          <MobileArrowIcon direction="previous" />
+          <ArrowIcon direction="previous" size={16} />
         </button>
 
         <div className="flex items-center gap-2" aria-label="Indikator banner">
@@ -247,7 +216,7 @@ export default function HomeBannerSlider() {
           className={`flex h-8 w-8 md:hidden ${arrowButtonClass}`}
           aria-label="Banner berikutnya"
         >
-          <MobileArrowIcon direction="next" />
+          <ArrowIcon direction="next" size={16} />
         </button>
       </div>
     </section>

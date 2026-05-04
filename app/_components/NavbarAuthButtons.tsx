@@ -1,5 +1,6 @@
 "use client";
 
+import { Icon } from "@iconify/react";
 import Link from "next/link";
 import { useState, useTransition, useRef, useEffect } from "react";
 import { logoutAction } from "@/app/actions";
@@ -33,15 +34,7 @@ function LogoutModal({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="w-14 h-14 rounded-full bg-[#fff8ec] flex items-center justify-center">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-            <path
-              d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"
-              stroke="#f7a81b"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
+          <Icon icon="lucide:log-out" width={28} height={28} className="text-[#f7a81b]" aria-hidden="true" />
         </div>
 
         <div className="text-center">
@@ -170,24 +163,17 @@ export default function NavbarAuthButtons({
               <span className="font-poppins font-semibold text-[13px] text-[#555] whitespace-nowrap max-w-22.5 truncate">
                 {firstName}
               </span>
-              <svg
-                width="12"
-                height="12"
-                viewBox="0 0 12 12"
-                fill="none"
+              <Icon
+                icon="lucide:chevron-down"
+                width={12}
+                height={12}
+                className="text-[#555]"
+                aria-hidden="true"
                 style={{
                   transition: 'transform 0.3s ease-in-out',
                   transform: showDropdown ? 'rotate(180deg)' : 'rotate(0deg)',
                 }}
-              >
-                <path
-                  d="M3 4.5L6 7.5L9 4.5"
-                  stroke="#555"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
+              />
             </button>
 
 
@@ -226,15 +212,7 @@ export default function NavbarAuthButtons({
                     }}
                     className="group w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-[#fff7e8] focus-visible:bg-[#fff7e8] focus-visible:outline-none transition-colors"
                   >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                      <path
-                        d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8z"
-                        className="stroke-[#555] group-hover:stroke-[#17458f] transition-colors"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
+                    <Icon icon="lucide:user" width={16} height={16} className="text-[#555] transition-colors group-hover:text-[#17458f]" aria-hidden="true" />
                     <span className="font-poppins text-[13px] text-[#333] group-hover:text-[#17458f] group-hover:font-semibold transition-colors">
                       Profil Saya
                     </span>
@@ -247,15 +225,7 @@ export default function NavbarAuthButtons({
                     }}
                     className="group w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-[#fff7e8] focus-visible:bg-[#fff7e8] focus-visible:outline-none transition-colors"
                   >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                      <path
-                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
-                        className="stroke-[#555] group-hover:stroke-[#17458f] transition-colors"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
+                    <Icon icon="lucide:clipboard-check" width={16} height={16} className="text-[#555] transition-colors group-hover:text-[#17458f]" aria-hidden="true" />
                     <span className="font-poppins text-[13px] text-[#333] group-hover:text-[#17458f] group-hover:font-semibold transition-colors">
                       Riwayat Transaksi
                     </span>
@@ -268,15 +238,7 @@ export default function NavbarAuthButtons({
                     }}
                     className="group w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-[#fff7e8] focus-visible:bg-[#fff7e8] focus-visible:outline-none transition-colors"
                   >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                      <path
-                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                        className="stroke-[#555] group-hover:stroke-[#17458f] transition-colors"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
+                    <Icon icon="lucide:file-text" width={16} height={16} className="text-[#555] transition-colors group-hover:text-[#17458f]" aria-hidden="true" />
                     <span className="font-poppins text-[13px] text-[#333] group-hover:text-[#17458f] group-hover:font-semibold transition-colors">
                       Listing Saya
                     </span>
@@ -289,15 +251,7 @@ export default function NavbarAuthButtons({
                     }}
                     className="group w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-[#fff7e8] focus-visible:bg-[#fff7e8] focus-visible:outline-none transition-colors"
                   >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                      <path
-                        d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M8.5 11a4 4 0 100-8 4 4 0 000 8zM20 8v6M23 11h-6"
-                        className="stroke-[#555] group-hover:stroke-[#17458f] transition-colors"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
+                    <Icon icon="lucide:user-cog" width={16} height={16} className="text-[#555] transition-colors group-hover:text-[#17458f]" aria-hidden="true" />
                     <span className="font-poppins text-[13px] text-[#333] group-hover:text-[#17458f] group-hover:font-semibold transition-colors">
                       Ubah Password
                     </span>
@@ -310,15 +264,7 @@ export default function NavbarAuthButtons({
                     }}
                     className="group w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-[#fff7e8] focus-visible:bg-[#fff7e8] focus-visible:outline-none transition-colors"
                   >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                      <path
-                        d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"
-                        className="stroke-[#555] group-hover:stroke-[#17458f] transition-colors"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
+                    <Icon icon="lucide:heart" width={16} height={16} className="text-[#555] transition-colors group-hover:text-[#17458f]" aria-hidden="true" />
                     <span className="font-poppins text-[13px] text-[#333] group-hover:text-[#17458f] group-hover:font-semibold transition-colors">
                       Favorit
                     </span>
@@ -331,22 +277,7 @@ export default function NavbarAuthButtons({
                     }}
                     className="group w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-[#fff7e8] focus-visible:bg-[#fff7e8] focus-visible:outline-none transition-colors"
                   >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                      <path
-                        d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"
-                        className="stroke-[#555] group-hover:stroke-[#17458f] transition-colors"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                      <path
-                        d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3M12 17h.01"
-                        className="stroke-[#555] group-hover:stroke-[#17458f] transition-colors"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
+                    <Icon icon="lucide:circle-help" width={16} height={16} className="text-[#555] transition-colors group-hover:text-[#17458f]" aria-hidden="true" />
                     <span className="font-poppins text-[13px] text-[#333] group-hover:text-[#17458f] group-hover:font-semibold transition-colors">
                       Pusat Bantuan
                     </span>
@@ -359,15 +290,7 @@ export default function NavbarAuthButtons({
                     }}
                     className="group w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-red-50 focus-visible:bg-red-50 focus-visible:outline-none transition-colors"
                   >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                      <path
-                        d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"
-                        stroke="#ef4444"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
+                    <Icon icon="lucide:log-out" width={16} height={16} className="text-red-500" aria-hidden="true" />
                     <span className="font-poppins text-[13px] text-red-500 font-medium">
                       Keluar
                     </span>
