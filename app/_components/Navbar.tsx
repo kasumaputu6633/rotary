@@ -8,6 +8,7 @@ import { users } from "@/db/schema";
 import NavbarSearch from "./NavbarSearch";
 import NavbarAuthButtons from "./NavbarAuthButtons";
 import NavbarCartButton from "./NavbarCartButton";
+import NavbarChatButton from "./NavbarChatButton";
 import NavbarNotificationButton from "./NavbarNotificationButton";
 
 const topLinks = ["Tentang Rotary", "Edukasi", "Program", "Bantuan"];
@@ -96,13 +97,7 @@ export default async function Navbar() {
 
           <div className="flex items-center gap-4 justify-end">
             <div className="flex items-center gap-2">
-              <button
-                type="button"
-                className="relative flex h-8 w-8 items-center justify-center rounded-full transition-colors hover:bg-[#fff7e8]"
-                aria-label="Chat"
-              >
-                <Icon icon="lucide:message-circle" width={21} height={21} className="text-[#555]" aria-hidden="true" />
-              </button>
+              <NavbarChatButton />
 
               <NavbarNotificationButton />
 

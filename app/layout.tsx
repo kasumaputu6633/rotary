@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Poppins, Roboto_Serif } from "next/font/google";
 import DropdownOverlay from "./_components/DropdownOverlay";
+import FloatingChat from "./_components/FloatingChat";
 import "./globals.css";
 
 const poppins = Poppins({
@@ -33,6 +34,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col">
         <DropdownOverlay />
         {children}
+        <FloatingChat />
       </body>
     </html>
   );
