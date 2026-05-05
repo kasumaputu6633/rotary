@@ -139,14 +139,15 @@ export default function NavbarAuthButtons({
             isPending={isPending}
           />
         )}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 md:gap-3">
           {isUser && (
             <Link
               href="#"
-              className="group h-9 inline-flex items-center gap-2 rounded-full bg-[#f7a81b] px-4 font-poppins text-[13px] font-semibold text-white shadow-[0_6px_14px_rgba(247,168,27,0.22)] transition-all hover:-translate-y-0.5 hover:bg-[#e09918] hover:shadow-[0_10px_20px_rgba(247,168,27,0.28)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f7a81b] focus-visible:ring-offset-2 whitespace-nowrap"
+              className="group inline-flex h-8 w-8 items-center justify-center rounded-full bg-[#f7a81b] font-poppins text-[12px] font-semibold text-white shadow-[0_6px_14px_rgba(247,168,27,0.22)] transition-all hover:-translate-y-0.5 hover:bg-[#e09918] hover:shadow-[0_10px_20px_rgba(247,168,27,0.28)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f7a81b] focus-visible:ring-offset-2 whitespace-nowrap md:h-9 md:w-auto md:gap-2 md:px-4 md:text-[13px]"
+              aria-label="Jual Barang"
             >
               <Icon icon="lucide:plus-circle" width={15} height={15} className="transition-transform group-hover:rotate-90" aria-hidden="true" />
-              Jual Barang
+              <span className="hidden md:inline">Jual Barang</span>
             </Link>
           )}
 
@@ -161,14 +162,14 @@ export default function NavbarAuthButtons({
                   {getInitials(userName)}
                 </span>
               </div>
-              <span className="font-poppins font-semibold text-[13px] text-[#555] whitespace-nowrap max-w-22.5 truncate">
+              <span className="hidden font-poppins font-semibold text-[13px] text-[#555] whitespace-nowrap max-w-22.5 truncate md:inline">
                 {firstName}
               </span>
               <Icon
                 icon="lucide:chevron-down"
                 width={12}
                 height={12}
-                className="text-[#555]"
+                className="hidden text-[#555] md:block"
                 aria-hidden="true"
                 style={{
                   transition: 'transform 0.3s ease-in-out',
@@ -306,19 +307,21 @@ export default function NavbarAuthButtons({
   }
 
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex items-center gap-2 md:gap-3">
       <Link
         href="#"
-        className="group h-9 inline-flex items-center gap-2 rounded-full bg-[#f7a81b] px-4 font-poppins text-[13px] font-semibold text-white shadow-[0_6px_14px_rgba(247,168,27,0.22)] transition-all hover:-translate-y-0.5 hover:bg-[#e09918] hover:shadow-[0_10px_20px_rgba(247,168,27,0.28)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f7a81b] focus-visible:ring-offset-2 whitespace-nowrap"
+        className="group inline-flex h-8 w-8 items-center justify-center rounded-full bg-[#f7a81b] font-poppins text-[12px] font-semibold text-white shadow-[0_6px_14px_rgba(247,168,27,0.22)] transition-all hover:-translate-y-0.5 hover:bg-[#e09918] hover:shadow-[0_10px_20px_rgba(247,168,27,0.28)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f7a81b] focus-visible:ring-offset-2 whitespace-nowrap md:h-9 md:w-auto md:gap-2 md:px-4 md:text-[13px]"
+        aria-label="Jual Barang"
       >
         <Icon icon="lucide:plus-circle" width={15} height={15} className="transition-transform group-hover:rotate-90" aria-hidden="true" />
-        Jual Barang
+        <span className="hidden md:inline">Jual Barang</span>
       </Link>
       <Link
         href="/login"
-        className="h-9 inline-flex items-center font-poppins font-semibold text-[13px] text-[#f7a81b] border border-[#f7a81b] rounded-full px-5 hover:bg-[#fff8ec] transition-colors whitespace-nowrap"
+        className="inline-flex h-8 items-center rounded-full border border-[#f7a81b] px-3 font-poppins text-[12px] font-semibold text-[#f7a81b] transition-colors hover:bg-[#fff8ec] whitespace-nowrap md:h-9 md:px-5 md:text-[13px]"
       >
-        Register/Masuk
+        <span className="hidden sm:inline">Register/Masuk</span>
+        <span className="sm:hidden">Masuk</span>
       </Link>
     </div>
   );

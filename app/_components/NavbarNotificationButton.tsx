@@ -35,9 +35,10 @@ export default function NavbarNotificationButton() {
   useEffect(() => {
     if (showDropdown && buttonRef.current) {
       const rect = buttonRef.current.getBoundingClientRect();
+      const isMobile = window.innerWidth < 768;
       setDropdownPosition({
         top: rect.bottom + 8,
-        right: Math.max(16, window.innerWidth - rect.right),
+        right: isMobile ? 16 : Math.max(16, window.innerWidth - rect.right),
       });
       setIsPositioned(true);
       document.body.style.overflow = "hidden";
@@ -97,7 +98,7 @@ export default function NavbarNotificationButton() {
 
       {showDropdown && isPositioned && (
         <div
-          className="fixed z-[9999] w-[min(400px,calc(100vw-32px))] overflow-hidden rounded-xl border border-gray-200/80 bg-white animate-[dropdownSlideIn_180ms_cubic-bezier(0.2,0.8,0.2,1)_both]"
+          className="fixed z-[9999] w-[calc(100vw-32px)] overflow-hidden rounded-xl border border-gray-200/80 bg-white animate-[dropdownSlideIn_180ms_cubic-bezier(0.2,0.8,0.2,1)_both] md:w-[min(400px,calc(100vw-32px))]"
           style={{
             top: `${dropdownPosition.top}px`,
             right: `${dropdownPosition.right}px`,

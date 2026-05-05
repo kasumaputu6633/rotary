@@ -36,6 +36,7 @@ export default function FloatingChat() {
   const [isOpen, setIsOpen] = useState(false);
   const [isLauncherLeaving, setIsLauncherLeaving] = useState(false);
   const [isPanelClosing, setIsPanelClosing] = useState(false);
+  const [mobileView, setMobileView] = useState<"list" | "thread">("list");
   const launcherTimerRef = useRef<number | null>(null);
   const panelTimerRef = useRef<number | null>(null);
 
@@ -51,6 +52,7 @@ export default function FloatingChat() {
     setIsPanelClosing(false);
     setIsLauncherLeaving(true);
     launcherTimerRef.current = window.setTimeout(() => {
+      setMobileView("list");
       setIsOpen(true);
       setIsLauncherLeaving(false);
     }, 170);
@@ -80,7 +82,7 @@ export default function FloatingChat() {
   if (shouldHide) return null;
 
   return (
-    <div className="fixed bottom-12 right-8 z-[9800] font-poppins md:bottom-16 md:right-24">
+    <div className="fixed bottom-6 right-5 z-[9800] font-poppins md:bottom-16 md:right-24">
       {!isOpen && (
         <button
           type="button"
@@ -102,21 +104,24 @@ export default function FloatingChat() {
 
       {isOpen && (
         <section
-          className={`floating-chat-panel grid h-[min(540px,calc(100vh-90px))] w-[min(650px,calc(100vw-32px))] overflow-hidden rounded-2xl border border-[#d9e0ea] bg-white shadow-[0_20px_52px_rgba(15,23,42,0.22),0_10px_22px_rgba(23,69,143,0.16)] ${
+          className={`floating-chat-panel fixed inset-x-4 bottom-4 grid h-[min(560px,calc(100dvh-32px))] w-auto overflow-hidden rounded-2xl border border-[#d9e0ea] bg-white shadow-[0_20px_52px_rgba(15,23,42,0.22),0_10px_22px_rgba(23,69,143,0.16)] md:static md:h-[min(540px,calc(100vh-90px))] md:w-[min(650px,calc(100vw-32px))] ${
             isPanelClosing ? "floating-chat-panel-out" : ""
           } md:grid-cols-[230px_minmax(0,1fr)]`}
           aria-label="Panel chat"
         >
-          <aside className="hidden border-r border-[#edf0f5] bg-white md:block">
+          <aside className={`${mobileView === "list" ? "block" : "hidden"} border-r border-[#edf0f5] bg-white md:block`}>
             <div className="flex h-14 items-center justify-between border-b border-[#edf0f5] px-3.5">
               <h2 className="text-[18px] font-semibold text-black">Chat</h2>
-              <button
-                type="button"
-                className="flex h-8 w-8 items-center justify-center rounded-full text-[#6b7280] transition-colors hover:bg-[#fff7e8] hover:text-[#17458f] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#17458f]"
-                aria-label="Pengaturan chat"
-              >
-                <Icon icon="lucide:settings" width={18} height={18} aria-hidden="true" />
-              </button>
+              <div className="flex items-center gap-1 md:hidden">
+                <button
+                  type="button"
+                  onClick={closeChat}
+                  className="flex h-8 w-8 items-center justify-center rounded-full text-[#6b7280] transition-colors hover:bg-[#fff7e8] hover:text-[#17458f] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#17458f] md:hidden"
+                  aria-label="Tutup chat"
+                >
+                  <Icon icon="lucide:chevron-down" width={21} height={21} aria-hidden="true" />
+                </button>
+              </div>
             </div>
 
             <div className="space-y-2 p-2">
@@ -124,6 +129,7 @@ export default function FloatingChat() {
                 <button
                   key={conversation.id}
                   type="button"
+                  onClick={() => setMobileView("thread")}
                   className={`grid w-full grid-cols-[38px_minmax(0,1fr)] items-center gap-2 rounded-xl p-2 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#17458f] ${
                     conversation.active ? "bg-[#fff7e8]" : "hover:bg-[#f8fafc]"
                   }`}
@@ -152,10 +158,18 @@ export default function FloatingChat() {
             </div>
           </aside>
 
-          <div className="grid min-w-0 grid-rows-[64px_minmax(0,1fr)_auto]">
-            <header className="flex items-center justify-between border-b border-[#edf0f5] px-4 md:px-5">
-              <div className="flex min-w-0 items-center gap-3">
-                <span className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#d8dee8] bg-white text-[#17458f]">
+          <div className={`${mobileView === "thread" ? "grid" : "hidden"} min-w-0 grid-rows-[64px_minmax(0,1fr)_auto] md:grid`}>
+            <header className="flex items-center justify-between gap-2 border-b border-[#edf0f5] px-3.5 md:px-5">
+              <div className="flex min-w-0 items-center gap-2.5 md:gap-3">
+                <button
+                  type="button"
+                  onClick={() => setMobileView("list")}
+                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[#17458f] transition-colors hover:bg-[#fff7e8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#17458f] md:hidden"
+                  aria-label="Kembali ke daftar chat"
+                >
+                  <Icon icon="lucide:chevron-left" width={22} height={22} aria-hidden="true" />
+                </button>
+                <span className="relative hidden h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#d8dee8] bg-white text-[#17458f] sm:flex">
                   <Icon icon="lucide:user-round" width={18} height={18} aria-hidden="true" />
                   <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-white bg-[#48b461]" />
                 </span>
@@ -166,11 +180,11 @@ export default function FloatingChat() {
                       Penjual
                     </span>
                   </div>
-                  <p className="truncate text-[11px] text-[#6b7280]">Biasanya membalas dalam beberapa menit</p>
+                  <p className="truncate text-[11px] text-[#6b7280]">Respons cepat</p>
                 </div>
               </div>
 
-              <div className="flex items-center gap-1.5">
+              <div className="flex shrink-0 items-center gap-1.5">
                 <button
                   type="button"
                   className="hidden h-8 w-8 items-center justify-center rounded-full text-[#6b7280] transition-colors hover:bg-[#fff7e8] hover:text-[#17458f] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#17458f] md:flex"

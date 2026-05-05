@@ -38,7 +38,7 @@ export default async function Navbar() {
 
   return (
     <header className="w-full bg-white border-b border-gray-200 relative z-[960]">
-      <div className="px-8">
+      <div className="px-4 md:px-8">
         <div className="hidden h-8 items-center justify-between border-b border-gray-100 md:flex">
           <div className="flex items-center gap-2">
             <Icon icon="lucide:recycle" width={13} height={13} className="text-[#f7a81b]" aria-hidden="true" />
@@ -60,8 +60,8 @@ export default async function Navbar() {
           </nav>
         </div>
 
-        <div className="h-16 grid grid-cols-[144px_72px_minmax(220px,1fr)_auto] items-center gap-x-5">
-          <Link href="/" className="flex items-center gap-2.5 shrink-0">
+        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-3 py-3 md:h-16 md:grid-cols-[144px_72px_minmax(220px,1fr)_auto] md:gap-x-5 md:py-0">
+          <Link href="/" className="flex min-w-0 items-center gap-2 shrink-0 md:gap-2.5">
             <Image
               src="/rotary-logo.png"
               alt="Rotary"
@@ -69,7 +69,7 @@ export default async function Navbar() {
               height={36}
               priority
               sizes="96px"
-              className="h-auto w-24"
+              className="h-auto w-20 shrink-0 sm:w-24"
             />
             <Image
               src="/pnb.svg"
@@ -78,7 +78,7 @@ export default async function Navbar() {
               height={38}
               priority
               sizes="38px"
-              className="h-[38px] w-[38px]"
+              className="h-7 w-7 shrink-0 sm:h-8 sm:w-8 md:h-[38px] md:w-[38px]"
             />
           </Link>
 
@@ -89,15 +89,17 @@ export default async function Navbar() {
             Kategori
           </Link>
 
-          <div className="flex items-center">
+          <div className="col-span-2 row-start-2 flex items-center md:col-span-1 md:col-start-3 md:row-auto">
             <div className="w-full max-w-[860px]">
-            <NavbarSearch />
+              <NavbarSearch />
             </div>
           </div>
 
-          <div className="flex items-center gap-4 justify-end">
-            <div className="flex items-center gap-2">
-              <NavbarChatButton />
+          <div className="col-start-2 row-start-1 flex min-w-0 items-center gap-2 justify-end md:col-start-4 md:row-auto md:gap-4">
+            <div className="flex items-center gap-1.5 md:gap-2">
+              <div className="hidden md:block">
+                <NavbarChatButton />
+              </div>
 
               <NavbarNotificationButton />
 
@@ -108,10 +110,10 @@ export default async function Navbar() {
           </div>
         </div>
 
-        <div className="h-9 grid grid-cols-[144px_72px_minmax(220px,1fr)_auto] items-center gap-x-5 border-t border-gray-100">
-          <div />
-          <div />
-          <nav className="flex items-center gap-8 overflow-hidden" aria-label="Navigasi utama">
+        <div className="-mx-4 h-10 overflow-x-auto border-t border-gray-100 md:mx-0 md:h-9 md:grid md:grid-cols-[144px_72px_minmax(220px,1fr)_auto] md:items-center md:gap-x-5 md:overflow-hidden">
+          <div className="hidden md:block" />
+          <div className="hidden md:block" />
+          <nav className="flex h-full min-w-max items-center gap-7 px-4 md:gap-8 md:overflow-hidden md:px-0" aria-label="Navigasi utama">
             {navLinks.map((link) => (
               <Link
                 key={link.label}
