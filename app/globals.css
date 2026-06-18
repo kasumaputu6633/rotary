@@ -21,6 +21,37 @@ body {
   color: var(--foreground);
 }
 
+html,
+body {
+  overflow-x: clip;
+}
+
+/* Hallmark · genre: utilitarian · macrostructure: workbench · designed-as-app
+ * pre-emit critique: P4 H4 E4 S4 R4 V4
+ */
+.seller-center {
+  --seller-paper: #f7f4ee;
+  --seller-paper-2: #ece7dc;
+  --seller-surface: #fffefd;
+  --seller-surface-2: #f9faf7;
+  --seller-ink: #171717;
+  --seller-muted: #64707d;
+  --seller-rule: #ded8cb;
+  --seller-rule-strong: #cbc2b1;
+  --seller-brand: #17458f;
+  --seller-brand-soft: #e8f0fb;
+  --seller-accent: #f7a81b;
+  --seller-accent-soft: #fff2d6;
+  --seller-success: #2f7d49;
+  --seller-success-soft: #e8f5ec;
+  --seller-danger: #cf3156;
+  --seller-danger-soft: #ffe9ef;
+  --seller-focus: #f7a81b;
+  --seller-shadow: 0 18px 46px rgba(25, 31, 38, 0.08);
+  --seller-shadow-tight: 0 10px 24px rgba(23, 69, 143, 0.1);
+  --seller-ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
 @keyframes bannerSlideNext {
   from {
     opacity: 0.72;

@@ -9,7 +9,6 @@ import {
   DB_ERROR,
 } from "./constants";
 import {
-  userWhereClause,
   getCookie,
   setPendingContact,
   setPendingLoginUserId,
@@ -21,6 +20,8 @@ import {
   createAndSendOtp,
   verifyOtp,
 } from "./shared";
+import { userWhereClause } from "./helpers";
+import { canBypassOtp } from "./otp-bypass";
 
 export async function loginAction(contact: string, password: string): Promise<ActionResult> {
   try {
@@ -35,6 +36,14 @@ export async function loginAction(contact: string, password: string): Promise<Ac
 
     const userRole = user.role ?? "user";
     const deviceToken = await getCookie("rotary_device");
+    const otpContact = user.email ?? user.phone!;
+    const redirectPath = userRole === "admin" ? "/admin/dashboard" : "/";
+
+    if (canBypassOtp(otpContact)) {
+      await createSession(user.id);
+      await trustDevice(user.id);
+      return { redirectTo: redirectPath };
+    }
     
     const isKnownDevice =
       deviceToken !== null &&
@@ -44,11 +53,9 @@ export async function loginAction(contact: string, password: string): Promise<Ac
 
     if (isKnownDevice) {
       await createSession(user.id);
-      const redirectPath = userRole === "admin" ? "/admin/dashboard" : "/";
       return { redirectTo: redirectPath };
     }
 
-    const otpContact = user.email ?? user.phone!;
     await createAndSendOtp(otpContact, "login_verify", user.name);
     await setPendingContact(otpContact);
     await setPendingLoginUserId(user.id);
@@ -64,7 +71,7 @@ export async function verifyLoginOtpAction(code: string): Promise<ActionResult> 
   if (!contact || !userId) return { error: "Sesi habis, silakan masuk kembali." };
 
   try {
-    const valid = await verifyOtp(contact, code, "login_verify");
+    const valid = canBypassOtp(contact) || await verifyOtp(contact, code, "login_verify");
     if (!valid) return { error: "Kode salah atau sudah kedaluarsa." };
 
     await clearPendingLogin();
@@ -89,6 +96,7 @@ export async function resendLoginOtpAction(): Promise<ActionResult> {
   if (!contact || !userId) return { error: "Sesi habis, silakan masuk kembali." };
   
   try {
+    if (canBypassOtp(contact)) return {};
     const user = await db.query.users.findFirst({
       where: eq(users.id, userId),
       columns: { name: true },

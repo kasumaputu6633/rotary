@@ -1,0 +1,13 @@
+{
+  "framework": "Next.js App Router",
+  "frameworkSignal": "package.json:17",
+  "fontStack": "Poppins and Roboto Serif via next/font",
+  "fontSignal": "app/layout.tsx:2",
+  "palette": "Rotary brand blue and yellow custom properties",
+  "paletteSignal": "app/globals.css:3",
+  "motion": "motion-cut, no motion library dependency detected",
+  "motionSignal": "package.json:14",
+  "spacing": "Tailwind CSS v4 utilities",
+  "spacingSignal": "app/globals.css:1",
+  "lastScan": "2026-05-29"
+}

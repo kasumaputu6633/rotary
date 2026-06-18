@@ -3,23 +3,23 @@
 import { Icon } from "@iconify/react";
 import { useEffect, useRef, useState } from "react";
 
-const orderSteps = [
-  { label: "Konfirmasi", icon: "lucide:clock-3" },
-  { label: "Diproses", icon: "lucide:refresh-cw" },
-  { label: "Dikirim", icon: "lucide:truck" },
-  { label: "Sampai", icon: "lucide:map-pin" },
+const listingShortcuts = [
+  { label: "Chat Baru", icon: "lucide:messages-square" },
+  { label: "Peminat", icon: "lucide:user-round-check" },
+  { label: "Listing Saya", icon: "lucide:clipboard-list" },
+  { label: "Favorit", icon: "lucide:heart" },
 ];
 
 const activities = [
   {
-    title: "Pesanan rak buku menunggu konfirmasi",
-    description: "Selesaikan proses dalam 24 jam agar barang tetap tersedia.",
-    icon: "lucide:receipt-text",
+    title: "Ada peminat baru untuk rak buku",
+    description: "Balas chat untuk mengatur titik temu atau pengambilan.",
+    icon: "lucide:user-round-check",
     accent: "text-[#f7a81b]",
   },
   {
     title: "Ada chat baru dari calon pembeli",
-    description: "Balas pertanyaan produk untuk mempercepat transaksi.",
+    description: "Jawab pertanyaan barang agar proses deal lebih jelas.",
     icon: "lucide:message-circle",
     accent: "text-[#17458f]",
   },
@@ -114,7 +114,7 @@ export default function NavbarNotificationButton() {
                   2 baru
                 </span>
               </div>
-              <p className="mt-0.5 font-poppins text-[11px] text-[#6b7280]">Aktivitas jual beli dan pesan penting.</p>
+              <p className="mt-0.5 font-poppins text-[11px] text-[#6b7280]">Chat, minat barang, dan kabar listing.</p>
             </div>
             <button
               type="button"
@@ -128,22 +128,22 @@ export default function NavbarNotificationButton() {
           <div className="max-h-[340px] overflow-y-auto">
             <section className="px-4 py-3">
               <div className="flex items-center justify-between">
-                <h3 className="font-poppins text-[14px] font-semibold text-black">Ringkasan Transaksi</h3>
+                <h3 className="font-poppins text-[14px] font-semibold text-black">Ringkasan Listing</h3>
                 <button type="button" className="font-poppins text-[12px] font-semibold text-[#17458f] hover:text-[#f7a81b]">
                   Lihat Semua
                 </button>
               </div>
 
               <div className="mt-2.5 flex items-center gap-2 rounded-lg border border-gray-100 px-3 py-2 font-poppins text-[12px] text-black">
-                <Icon icon="lucide:wallet-cards" width={17} height={17} className="shrink-0 text-[#f7a81b]" aria-hidden="true" />
+                <Icon icon="lucide:messages-square" width={17} height={17} className="shrink-0 text-[#f7a81b]" aria-hidden="true" />
                 <span className="min-w-0 flex-1">
-                  <span className="block truncate font-semibold">Menunggu pembayaran</span>
-                  <span className="block truncate text-[10px] text-[#6b7280]">Selesaikan transaksi aktif kamu.</span>
+                  <span className="block truncate font-semibold">2 chat perlu dibalas</span>
+                  <span className="block truncate text-[10px] text-[#6b7280]">Lanjutkan obrolan untuk deal di luar aplikasi.</span>
                 </span>
               </div>
 
               <div className="mt-2.5 grid grid-cols-4 gap-1.5">
-                {orderSteps.map((step) => (
+                {listingShortcuts.map((step) => (
                   <button
                     key={step.label}
                     type="button"
@@ -186,8 +186,8 @@ export default function NavbarNotificationButton() {
                   type="button"
                   className="flex h-9 items-center justify-center gap-2 rounded-lg bg-[#f7a81b] font-poppins text-[12px] font-semibold text-white transition-colors hover:bg-[#e89a14]"
                 >
-                  <Icon icon="lucide:shopping-bag" width={15} height={15} aria-hidden="true" />
-                  Cek Belanja
+                  <Icon icon="lucide:messages-square" width={15} height={15} aria-hidden="true" />
+                  Buka Chat
                 </button>
                 <button
                   type="button"

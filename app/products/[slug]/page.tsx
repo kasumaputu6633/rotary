@@ -5,7 +5,10 @@ import { notFound } from "next/navigation";
 import Footer from "@/app/_components/Footer";
 import Navbar from "@/app/_components/Navbar";
 import ProductCard from "@/app/_components/ProductCard";
-import { getProductBySlug, getRecommendedProducts } from "@/app/_data/products";
+import { toggleFavoriteListingAction } from "@/app/dashboard/actions";
+import { getSessionUserId } from "@/lib/auth";
+import { formatPrice } from "@/lib/listing-format";
+import { getListingImages, getPublicListingBySlug, getPublicListings } from "@/lib/listings";
 import ProductContactActions from "./_components/ProductContactActions";
 import ProductGallery from "./_components/ProductGallery";
 import ProductInfoTabs from "./_components/ProductInfoTabs";
@@ -16,7 +19,7 @@ type ProductDetailPageProps = {
 
 export async function generateMetadata({ params }: ProductDetailPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const product = getProductBySlug(slug);
+  const product = await getPublicListingBySlug(slug);
 
   return {
     title: product ? `${product.title} | Rotary` : "Detail Barang | Rotary",
@@ -40,25 +43,18 @@ function MapPlaceholder() {
   );
 }
 
-function ActionItem({ icon, label }: { icon: string; label: string }) {
-  return (
-    <button
-      type="button"
-      className="group flex flex-1 items-center justify-center gap-1.5 border-r border-[#e5e7eb] py-2 font-poppins text-[11px] font-semibold text-[#6b7280] transition-colors last:border-r-0 hover:bg-[#fff7e8] hover:text-[#17458f] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#17458f]"
-    >
-      <Icon icon={icon} width={17} height={17} className="transition-transform group-hover:-translate-y-0.5" aria-hidden="true" />
-      {label}
-    </button>
-  );
-}
-
 export default async function ProductDetailPage({ params }: ProductDetailPageProps) {
   const { slug } = await params;
-  const product = getProductBySlug(slug);
+  const userId = await getSessionUserId();
+  const product = await getPublicListingBySlug(slug, userId);
 
   if (!product) notFound();
 
-  const recommendations = getRecommendedProducts(product.slug, 12);
+  const [images, recommendations] = await Promise.all([
+    getListingImages(product.id),
+    getPublicListings({ excludeSlug: product.slug, limit: 12, userId }),
+  ]);
+  const imageUrls = images.map((image) => image.imageUrl);
 
   return (
     <>
@@ -68,30 +64,29 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
           <nav className="flex items-center gap-2 font-poppins text-[12px]" aria-label="Breadcrumb">
             <Link href="/" className="text-[#17458f] hover:underline">Home</Link>
             <Icon icon="lucide:chevron-right" className="text-[#f7a81b]" aria-hidden="true" />
-            <Link href="#" className="text-[#17458f] hover:underline">{product.category}</Link>
+            <span className="text-[#17458f]">{product.category}</span>
             <Icon icon="lucide:chevron-right" className="text-[#f7a81b]" aria-hidden="true" />
-            <span className="text-black">Sepeda</span>
+            <span className="text-black">{product.title}</span>
           </nav>
 
           <section className="mt-7 grid gap-8 lg:min-h-[760px] lg:grid-cols-[minmax(280px,420px)_minmax(320px,1fr)] xl:min-h-[680px] xl:grid-cols-[minmax(320px,430px)_minmax(360px,1fr)_360px]">
-            <ProductGallery product={product} />
+            <ProductGallery product={product} images={imageUrls} />
 
             <div className="min-w-0">
               <h1 className="font-poppins text-[24px] font-semibold leading-tight text-black md:text-[28px]">
                 {product.title}
               </h1>
               <p className="mt-2 font-poppins text-[24px] font-semibold leading-none text-black md:text-[26px]">
-                {product.price}
+                {formatPrice(product.price, product.mode)}
               </p>
 
               <ProductInfoTabs product={product} />
 
               <div className="mt-9 font-poppins text-[13px] leading-relaxed text-black">
                 <h2 className="mb-3 text-[22px] font-semibold leading-tight">Deskripsi</h2>
-                <p>{product.title} kondisi bekas siap pakai kembali. Mohon chat dulu untuk memastikan kondisi unit agar lebih aman.</p>
-                <p className="mt-4">Kondisi barang ini bekas jadi mohon tidak berekspektasi terlalu tinggi. Kondisi tidak mungkin semulus barang baru, tetapi masih sangat layak dipakai.</p>
+                <p>{product.description || `${product.title} kondisi bekas siap pakai kembali. Mohon chat dulu untuk memastikan kondisi unit agar lebih aman.`}</p>
                 <h3 className="mt-5 font-semibold">Penting</h3>
-                <p>Perkiraan ongkir tergantung jarak. Chat penjual terlebih dahulu agar transaksi lebih pasti.</p>
+                <p>Rotary hanya menjadi tempat listing. Chat pemilik barang untuk menyepakati harga, titik temu, pengiriman, atau penjemputan di luar aplikasi.</p>
               </div>
             </div>
 
@@ -100,7 +95,7 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
                 <MapPlaceholder />
 
                 <div className="mt-4 border-b border-[#bfc7d4] pb-4 font-poppins">
-                  <p className="text-[13px] font-semibold text-black">{product.location}, Bali</p>
+                  <p className="text-[13px] font-semibold text-black">{product.location}</p>
                   <p className="text-[12px] text-[#6b7280]">Perkiraan Lokasi</p>
                 </div>
 
@@ -109,33 +104,42 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
                     <Icon icon="lucide:user" width={22} height={22} aria-hidden="true" />
                   </div>
                   <div className="font-poppins">
-                    <p className="text-[12px] text-black">Informasi Penjual</p>
-                    <p className="text-[13px] font-semibold text-black">{product.sellerName}</p>
-                    <p className="text-[10px] text-[#9ca3af]">{product.sellerSince}</p>
+                    <p className="text-[12px] text-black">Informasi Pemilik</p>
+                    <p className="text-[13px] font-semibold text-black">{product.sellerName ?? "Pengguna Rotary"}</p>
+                    <p className="text-[10px] text-[#9ca3af]">Listing aktif di Rotary</p>
                   </div>
                 </div>
 
-                <ProductContactActions product={product} />
+                <ProductContactActions product={product} sellerWhatsapp={product.sellerWhatsapp} />
 
-                <div className="mt-3 flex border-t border-[#e5e7eb]">
-                  <ActionItem icon="lucide:message-square" label="Chat" />
-                  <ActionItem icon="lucide:heart" label="Wishlist" />
-                  <ActionItem icon="lucide:share-2" label="Share" />
+                <div className="mt-3 grid grid-cols-2 gap-2 border-t border-[#e5e7eb] pt-3">
+                  <form action={toggleFavoriteListingAction.bind(null, product.id, product.slug)}>
+                    <button type="submit" className="flex h-9 w-full items-center justify-center gap-2 rounded-lg border border-[#cbd5e1] font-poppins text-[12px] font-semibold text-[#17458f] hover:bg-[#fff7e8]">
+                      <Icon icon="lucide:heart" width={15} height={15} className={product.isFavorite ? "text-[#ef476f]" : ""} aria-hidden="true" />
+                      {product.isFavorite ? "Tersimpan" : "Favorit"}
+                    </button>
+                  </form>
+                  <button type="button" className="flex h-9 items-center justify-center gap-2 rounded-lg border border-[#cbd5e1] font-poppins text-[12px] font-semibold text-[#17458f] hover:bg-[#eef6ff]">
+                    <Icon icon="lucide:share-2" width={15} height={15} aria-hidden="true" />
+                    Share
+                  </button>
                 </div>
               </div>
             </aside>
           </section>
 
-          <section className="mt-10 border-t border-[#bfc7d4] pt-9" aria-labelledby="recommendations-heading">
-            <h2 id="recommendations-heading" className="font-poppins text-[22px] font-semibold text-black">
-              Pilihan lainnya
-            </h2>
-            <div className="mt-8 grid grid-cols-2 gap-x-3 gap-y-7 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
-              {recommendations.map((item, index) => (
-                <ProductCard key={`${item.slug}-${index}`} product={item} />
-              ))}
-            </div>
-          </section>
+          {recommendations.length > 0 && (
+            <section className="mt-10 border-t border-[#bfc7d4] pt-9" aria-labelledby="recommendations-heading">
+              <h2 id="recommendations-heading" className="font-poppins text-[22px] font-semibold text-black">
+                Pilihan lainnya
+              </h2>
+              <div className="mt-8 grid grid-cols-2 gap-x-3 gap-y-7 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
+                {recommendations.map((item) => (
+                  <ProductCard key={item.id} product={item} />
+                ))}
+              </div>
+            </section>
+          )}
         </div>
       </main>
       <Footer />

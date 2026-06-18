@@ -7,7 +7,6 @@ import { db } from "@/db";
 import { users } from "@/db/schema";
 import NavbarSearch from "./NavbarSearch";
 import NavbarAuthButtons from "./NavbarAuthButtons";
-import NavbarCartButton from "./NavbarCartButton";
 import NavbarChatButton from "./NavbarChatButton";
 import NavbarNotificationButton from "./NavbarNotificationButton";
 
@@ -102,8 +101,6 @@ export default async function Navbar() {
               </div>
 
               <NavbarNotificationButton />
-
-              <NavbarCartButton />
             </div>
 
             <NavbarAuthButtons userName={userName} userRole={userRole} />

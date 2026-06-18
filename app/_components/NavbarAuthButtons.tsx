@@ -142,7 +142,7 @@ export default function NavbarAuthButtons({
         <div className="flex items-center gap-2 md:gap-3">
           {isUser && (
             <Link
-              href="#"
+              href="/dashboard/listings/new"
               className="group inline-flex h-8 w-8 items-center justify-center rounded-full bg-[#f7a81b] font-poppins text-[12px] font-semibold text-white shadow-[0_6px_14px_rgba(247,168,27,0.22)] transition-all hover:-translate-y-0.5 hover:bg-[#e09918] hover:shadow-[0_10px_20px_rgba(247,168,27,0.28)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f7a81b] focus-visible:ring-offset-2 whitespace-nowrap md:h-9 md:w-auto md:gap-2 md:px-4 md:text-[13px]"
               aria-label="Jual Barang"
             >
@@ -207,44 +207,27 @@ export default function NavbarAuthButtons({
                 </div>
 
                 <div>
-                  <button
-                    onClick={() => {
-                      setShowDropdown(false);
-                      // TODO: Navigate to profile page
-                    }}
+                  <Link
+                    href="/dashboard"
+                    onClick={() => setShowDropdown(false)}
                     className="group w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-[#fff7e8] focus-visible:bg-[#fff7e8] focus-visible:outline-none transition-colors"
                   >
                     <Icon icon="lucide:user" width={16} height={16} className="text-[#555] transition-colors group-hover:text-[#17458f]" aria-hidden="true" />
                     <span className="font-poppins text-[13px] text-[#333] group-hover:text-[#17458f] group-hover:font-semibold transition-colors">
                       Profil Saya
                     </span>
-                  </button>
+                  </Link>
 
-                  <button
-                    onClick={() => {
-                      setShowDropdown(false);
-                      // TODO: Navigate to transaction history page
-                    }}
-                    className="group w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-[#fff7e8] focus-visible:bg-[#fff7e8] focus-visible:outline-none transition-colors"
-                  >
-                    <Icon icon="lucide:clipboard-check" width={16} height={16} className="text-[#555] transition-colors group-hover:text-[#17458f]" aria-hidden="true" />
-                    <span className="font-poppins text-[13px] text-[#333] group-hover:text-[#17458f] group-hover:font-semibold transition-colors">
-                      Riwayat Transaksi
-                    </span>
-                  </button>
-
-                  <button
-                    onClick={() => {
-                      setShowDropdown(false);
-                      // TODO: Navigate to my listings page
-                    }}
+                  <Link
+                    href="/dashboard/listings"
+                    onClick={() => setShowDropdown(false)}
                     className="group w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-[#fff7e8] focus-visible:bg-[#fff7e8] focus-visible:outline-none transition-colors"
                   >
                     <Icon icon="lucide:file-text" width={16} height={16} className="text-[#555] transition-colors group-hover:text-[#17458f]" aria-hidden="true" />
                     <span className="font-poppins text-[13px] text-[#333] group-hover:text-[#17458f] group-hover:font-semibold transition-colors">
                       Listing Saya
                     </span>
-                  </button>
+                  </Link>
 
                   <button
                     onClick={() => {
@@ -259,18 +242,16 @@ export default function NavbarAuthButtons({
                     </span>
                   </button>
 
-                  <button
-                    onClick={() => {
-                      setShowDropdown(false);
-                      // TODO: Navigate to favorites page
-                    }}
+                  <Link
+                    href="/dashboard/favorites"
+                    onClick={() => setShowDropdown(false)}
                     className="group w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-[#fff7e8] focus-visible:bg-[#fff7e8] focus-visible:outline-none transition-colors"
                   >
                     <Icon icon="lucide:heart" width={16} height={16} className="text-[#555] transition-colors group-hover:text-[#17458f]" aria-hidden="true" />
                     <span className="font-poppins text-[13px] text-[#333] group-hover:text-[#17458f] group-hover:font-semibold transition-colors">
                       Favorit
                     </span>
-                  </button>
+                  </Link>
 
                   <button
                     onClick={() => {
@@ -309,7 +290,7 @@ export default function NavbarAuthButtons({
   return (
     <div className="flex items-center gap-2 md:gap-3">
       <Link
-        href="#"
+        href="/login?redirect=/dashboard/listings/new"
         className="group inline-flex h-8 w-8 items-center justify-center rounded-full bg-[#f7a81b] font-poppins text-[12px] font-semibold text-white shadow-[0_6px_14px_rgba(247,168,27,0.22)] transition-all hover:-translate-y-0.5 hover:bg-[#e09918] hover:shadow-[0_10px_20px_rgba(247,168,27,0.28)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f7a81b] focus-visible:ring-offset-2 whitespace-nowrap md:h-9 md:w-auto md:gap-2 md:px-4 md:text-[13px]"
         aria-label="Jual Barang"
       >

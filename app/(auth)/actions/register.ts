@@ -8,8 +8,6 @@ import {
   DB_ERROR,
 } from "./constants";
 import {
-  userWhereClause,
-  isEmail,
   getPendingContact,
   setPendingContact,
   clearPendingContact,
@@ -18,6 +16,8 @@ import {
   createAndSendOtp,
   verifyOtp,
 } from "./shared";
+import { canBypassOtp } from "./otp-bypass";
+import { userWhereClause, isEmail } from "./helpers";
 
 export async function registerAction(contact: string): Promise<ActionResult> {
   try {
@@ -32,8 +32,13 @@ export async function registerAction(contact: string): Promise<ActionResult> {
       });
     }
 
-    await createAndSendOtp(contact, "register");
     await setPendingContact(contact);
+    if (canBypassOtp(contact)) {
+      await db.update(users).set({ isVerified: true, updatedAt: new Date() }).where(userWhereClause(contact));
+      return { redirectTo: "/register/profile" };
+    }
+
+    await createAndSendOtp(contact, "register");
     return { redirectTo: "/register/verify" };
   } catch {
     return { error: DB_ERROR };
@@ -45,7 +50,7 @@ export async function verifyRegisterOtpAction(code: string): Promise<ActionResul
   if (!contact) return { error: "Sesi habis, silakan mulai ulang." };
 
   try {
-    const valid = await verifyOtp(contact, code, "register");
+    const valid = canBypassOtp(contact) || await verifyOtp(contact, code, "register");
     if (!valid) return { error: "Kode salah atau sudah kedaluarsa." };
     await db.update(users).set({ isVerified: true }).where(userWhereClause(contact));
     return { redirectTo: "/register/profile" };
@@ -58,6 +63,7 @@ export async function resendRegisterOtpAction(): Promise<ActionResult> {
   const contact = await getPendingContact();
   if (!contact) return { error: "Sesi habis, silakan mulai ulang." };
   try {
+    if (canBypassOtp(contact)) return {};
     await createAndSendOtp(contact, "register");
   } catch {
     return { error: DB_ERROR };

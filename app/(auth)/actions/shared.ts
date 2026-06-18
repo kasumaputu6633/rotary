@@ -6,14 +6,7 @@ import { and, eq, gt } from "drizzle-orm";
 import { cookies } from "next/headers";
 import { sendOtpEmail, type OtpEmailType } from "@/lib/email";
 import { COOKIE } from "./constants";
-
-export function isEmail(contact: string) {
-  return contact.includes("@");
-}
-
-export function userWhereClause(contact: string) {
-  return isEmail(contact) ? eq(users.email, contact) : eq(users.phone, contact);
-}
+import { isEmail } from "./helpers";
 
 export async function getCookie(name: string) {
   return (await cookies()).get(name)?.value ?? null;

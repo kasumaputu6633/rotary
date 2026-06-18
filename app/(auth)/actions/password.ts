@@ -8,7 +8,7 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { sendPasswordResetEmail } from "@/lib/email";
 import { ActionResult, DB_ERROR } from "./constants";
-import { userWhereClause } from "./shared";
+import { userWhereClause } from "./helpers";
 
 async function getBaseUrl(): Promise<string> {
   const h = await headers();

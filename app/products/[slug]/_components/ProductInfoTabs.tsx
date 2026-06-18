@@ -2,11 +2,11 @@
 
 import { Icon } from "@iconify/react";
 import { useState } from "react";
-import type { ProductSummary } from "@/app/_data/products";
+import type { ListingCardData } from "@/lib/listing-format";
 
 type ActiveTab = "detail" | "important";
 
-export default function ProductInfoTabs({ product }: { product: ProductSummary }) {
+export default function ProductInfoTabs({ product }: { product: ListingCardData }) {
   const [activeTab, setActiveTab] = useState<ActiveTab>("detail");
 
   return (
@@ -45,20 +45,22 @@ export default function ProductInfoTabs({ product }: { product: ProductSummary }
             <dd className="text-black">{product.condition}</dd>
           </div>
           <div className="grid grid-cols-[120px_1fr] gap-3">
-            <dt className="text-[#8f8a8a]">Berat Satuan</dt>
-            <dd className="text-black">{product.weight}</dd>
-          </div>
-          <div className="grid grid-cols-[120px_1fr] gap-3">
             <dt className="text-[#8f8a8a]">Kategori</dt>
             <dd className="font-semibold text-[#f7a81b]">{product.category}</dd>
           </div>
+          {product.subcategory && (
+            <div className="grid grid-cols-[120px_1fr] gap-3">
+              <dt className="text-[#8f8a8a]">Subkategori</dt>
+              <dd className="text-black">{product.subcategory}</dd>
+            </div>
+          )}
         </dl>
       ) : (
         <div className="mt-4 grid gap-3 font-poppins text-[13px] text-black">
           {[
-            "Pastikan kondisi barang sudah sesuai sebelum transaksi.",
+            "Pastikan kondisi barang sudah sesuai sebelum membuat kesepakatan.",
             "Gunakan fitur chat untuk menyepakati titik temu dan pengiriman.",
-            "Pembayaran atau donasi dilakukan setelah detail barang disepakati.",
+            "Semua deal dilakukan langsung antar pengguna di luar aplikasi.",
           ].map((info) => (
             <div key={info} className="flex gap-2 rounded-lg bg-[#f8fafc] p-3">
               <Icon icon="lucide:info" width={16} height={16} className="mt-0.5 shrink-0 text-[#17458f]" aria-hidden="true" />

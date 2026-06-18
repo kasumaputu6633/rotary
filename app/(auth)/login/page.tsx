@@ -18,6 +18,13 @@ export default function LoginPage() {
 
   const isValid = contact.trim() !== "" && password.trim() !== "";
 
+  function getSafeRedirect() {
+    const redirectTo = new URLSearchParams(window.location.search).get("redirect");
+    if (!redirectTo?.startsWith("/") || redirectTo.startsWith("//")) return null;
+    if (redirectTo.startsWith("/admin")) return null;
+    return redirectTo;
+  }
+
   function handleSubmit() {
     setError("");
     startTransition(async () => {
@@ -25,7 +32,7 @@ export default function LoginPage() {
       if (result?.error) {
         setError(result.error);
       } else if (result?.redirectTo) {
-        router.push(result.redirectTo);
+        router.push(result.redirectTo === "/" ? getSafeRedirect() ?? result.redirectTo : result.redirectTo);
       }
     });
   }
