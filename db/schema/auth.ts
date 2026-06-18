@@ -6,10 +6,14 @@ import {
   boolean,
   timestamp,
   pgEnum,
+  integer,
+  uniqueIndex,
 } from "drizzle-orm/pg-core";
 
 export const otpTypeEnum = pgEnum("otp_type", ["register", "forgot_password", "login_verify"]);
 export const roleEnum = pgEnum("role", ["user", "admin"]);
+export const listingModeEnum = pgEnum("listing_mode", ["sale", "donation"]);
+export const listingStatusEnum = pgEnum("listing_status", ["draft", "active", "inactive"]);
 
 export const users = pgTable("users", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -17,6 +21,8 @@ export const users = pgTable("users", {
   email: varchar("email", { length: 255 }).unique(),
   phone: varchar("phone", { length: 20 }).unique(),
   passwordHash: text("password_hash"),
+  bio: text("bio"),
+  whatsapp: varchar("whatsapp", { length: 20 }),
   role: roleEnum("role").notNull().default("user"),
   isVerified: boolean("is_verified").notNull().default(false),
   createdAt: timestamp("created_at").notNull().defaultNow(),
@@ -65,3 +71,52 @@ export const wasteLocations = pgTable("waste_locations", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
+
+export const listings = pgTable("listings", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  sellerId: uuid("seller_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  title: varchar("title", { length: 180 }).notNull(),
+  slug: varchar("slug", { length: 220 }).notNull().unique(),
+  description: text("description"),
+  category: varchar("category", { length: 80 }).notNull(),
+  subcategory: varchar("subcategory", { length: 120 }),
+  condition: varchar("condition", { length: 80 }).notNull(),
+  mode: listingModeEnum("mode").notNull().default("sale"),
+  price: integer("price"),
+  location: varchar("location", { length: 160 }).notNull(),
+  handoverOptions: text("handover_options").array(),
+  status: listingStatusEnum("status").notNull().default("draft"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  publishedAt: timestamp("published_at"),
+});
+
+export const listingImages = pgTable("listing_images", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  listingId: uuid("listing_id")
+    .notNull()
+    .references(() => listings.id, { onDelete: "cascade" }),
+  imageUrl: text("image_url").notNull(),
+  objectKey: text("object_key").notNull(),
+  sortOrder: integer("sort_order").notNull().default(0),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const favoriteListings = pgTable(
+  "favorite_listings",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    listingId: uuid("listing_id")
+      .notNull()
+      .references(() => listings.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("favorite_listings_user_listing_unique").on(table.userId, table.listingId),
+  ],
+);
