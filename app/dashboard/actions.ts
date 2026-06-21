@@ -7,6 +7,7 @@ import type { ListingStatus } from "@/lib/listing-format";
 import { createUniqueListingSlug } from "@/lib/listings";
 import { deleteListingImage, uploadListingImage } from "@/lib/r2";
 import { and, eq } from "drizzle-orm";
+import { geocodeLocationText } from "@/lib/mapbox";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
@@ -19,6 +20,12 @@ function getNumber(formData: FormData, key: string) {
   const raw = getString(formData, key).replace(/[^\d]/g, "");
   if (!raw) return null;
   return Number(raw);
+}
+
+function getFloat(formData: FormData, key: string) {
+  const raw = getString(formData, key);
+  const val = parseFloat(raw);
+  return isNaN(val) ? null : val;
 }
 
 function getList(formData: FormData, key: string) {
@@ -45,9 +52,20 @@ export async function createListingAction(formData: FormData) {
   const handoverOptions = getList(formData, "handoverOptions");
   const intent = getString(formData, "intent");
   const status = intent === "publish" ? "active" : "draft";
+  let latitude = getFloat(formData, "latitude");
+  let longitude = getFloat(formData, "longitude");
 
   if (!title || !category || !condition || !location) {
     throw new Error("Judul, kategori, kondisi, dan lokasi wajib diisi.");
+  }
+
+  // Kalau user tulis alamat manual (tidak pakai autocomplete), geocode otomatis
+  if ((latitude === null || longitude === null) && location) {
+    const coords = await geocodeLocationText(location);
+    if (coords) {
+      latitude = coords.lat;
+      longitude = coords.lng;
+    }
   }
 
   const slug = await createUniqueListingSlug(title);
@@ -65,6 +83,8 @@ export async function createListingAction(formData: FormData) {
       mode,
       price,
       location,
+      latitude,
+      longitude,
       handoverOptions,
       status,
       publishedAt: status === "active" ? now : null,
@@ -109,9 +129,20 @@ export async function updateListingAction(listingId: string, formData: FormData)
   const handoverOptions = getList(formData, "handoverOptions");
   const intent = getString(formData, "intent");
   const deleteImageIds = getList(formData, "deleteImageIds");
+  let latitude = getFloat(formData, "latitude");
+  let longitude = getFloat(formData, "longitude");
 
   if (!title || !category || !condition || !location) {
     throw new Error("Judul, kategori, kondisi, dan lokasi wajib diisi.");
+  }
+
+  // Geocode otomatis kalau user tulis manual dan tidak ada koordinat dari autocomplete
+  if ((latitude === null || longitude === null) && location) {
+    const coords = await geocodeLocationText(location);
+    if (coords) {
+      latitude = coords.lat;
+      longitude = coords.lng;
+    }
   }
 
   let status = existing.status;
@@ -133,6 +164,8 @@ export async function updateListingAction(listingId: string, formData: FormData)
       mode,
       price,
       location,
+      latitude,
+      longitude,
       handoverOptions,
       status,
       updatedAt: now,

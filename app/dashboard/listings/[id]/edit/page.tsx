@@ -5,6 +5,7 @@ import { updateListingAction } from "@/app/dashboard/actions";
 import { Badge, PageHeader, Panel } from "@/app/dashboard/_components/SellerCenterUi";
 import { ListingCategoryPicker } from "@/app/dashboard/listings/new/_components/ListingCategoryPicker";
 import { ListingImagePicker } from "@/app/dashboard/listings/new/_components/ListingImagePicker";
+import { ListingLocationPickerLazy as ListingLocationPicker } from "@/app/dashboard/listings/new/_components/ListingLocationPickerLazy";
 import { ListingSubmitButtons } from "@/app/dashboard/listings/new/_components/ListingSubmitButtons";
 
 type Props = {
@@ -80,6 +81,15 @@ export default async function EditListingPage({ params }: Props) {
                 />
               </label>
 
+              <div className={labelClass}>
+                <span className={labelTextClass}>Lokasi Barang</span>
+                <ListingLocationPicker
+                  defaultLocation={listing.location}
+                  defaultLatitude={listing.latitude}
+                  defaultLongitude={listing.longitude}
+                />
+              </div>
+
               <div className="grid gap-4 md:grid-cols-3">
                 <label className={labelClass}>
                   <span className={labelTextClass}>Mode Listing</span>
@@ -107,18 +117,6 @@ export default async function EditListingPage({ params }: Props) {
                   </select>
                 </label>
               </div>
-
-              <label className={labelClass}>
-                <span className={labelTextClass}>Lokasi Barang</span>
-                <input
-                  name="location"
-                  required
-                  maxLength={160}
-                  defaultValue={listing.location}
-                  className={fieldClass}
-                  placeholder="Contoh: Denpasar Barat, Bali"
-                />
-              </label>
             </div>
           </Panel>
         </div>

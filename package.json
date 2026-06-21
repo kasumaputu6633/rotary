@@ -12,6 +12,8 @@
     "db:studio": "dotenv -e .env.local -- drizzle-kit studio"
   },
   "dependencies": {
+    "@mapbox/search-js-core": "^1.5.1",
+    "@mapbox/search-js-react": "^1.5.1",
     "bcryptjs": "^3.0.3",
     "drizzle-orm": "^0.45.2",
     "next": "16.2.4",

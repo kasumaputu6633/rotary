@@ -12,6 +12,7 @@ import { getListingImages, getPublicListingBySlug, getPublicListings } from "@/l
 import ProductContactActions from "./_components/ProductContactActions";
 import ProductGallery from "./_components/ProductGallery";
 import ProductInfoTabs from "./_components/ProductInfoTabs";
+import { ListingMap } from "./_components/ListingMap";
 
 type ProductDetailPageProps = {
   params: Promise<{ slug: string }>;
@@ -92,7 +93,11 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
 
             <aside className="lg:col-span-2 xl:col-span-1">
               <div className="rounded-lg border border-[#cbd5e1] bg-white p-5 shadow-[0_12px_32px_rgba(15,23,42,0.08)] transition-shadow hover:shadow-[0_18px_42px_rgba(15,23,42,0.12)] xl:sticky xl:top-6">
-                <MapPlaceholder />
+                {product.latitude && product.longitude ? (
+                  <ListingMap latitude={product.latitude} longitude={product.longitude} locationLabel={product.location} />
+                ) : (
+                  <MapPlaceholder />
+                )}
 
                 <div className="mt-4 border-b border-[#bfc7d4] pb-4 font-poppins">
                   <p className="text-[13px] font-semibold text-black">{product.location}</p>

@@ -38,6 +38,8 @@ const listingSelection = {
   status: listings.status,
   price: listings.price,
   location: listings.location,
+  latitude: listings.latitude,
+  longitude: listings.longitude,
   updatedAt: listings.updatedAt,
   publishedAt: listings.publishedAt,
   sellerName: users.name,
@@ -127,6 +129,8 @@ export async function getSellerListingById(id: string, userId: string) {
       status: listings.status,
       price: listings.price,
       location: listings.location,
+      latitude: listings.latitude,
+      longitude: listings.longitude,
       handoverOptions: listings.handoverOptions,
       updatedAt: listings.updatedAt,
     })

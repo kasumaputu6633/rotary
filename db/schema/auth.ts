@@ -7,6 +7,7 @@ import {
   timestamp,
   pgEnum,
   integer,
+  doublePrecision,
   uniqueIndex,
 } from "drizzle-orm/pg-core";
 
@@ -86,6 +87,10 @@ export const listings = pgTable("listings", {
   mode: listingModeEnum("mode").notNull().default("sale"),
   price: integer("price"),
   location: varchar("location", { length: 160 }).notNull(),
+  // Koordinat hasil geocode Mapbox. Nullable agar listing lama tetap valid;
+  // form autocomplete mengisi keduanya, tapi teks manual tetap diperbolehkan.
+  latitude: doublePrecision("latitude"),
+  longitude: doublePrecision("longitude"),
   handoverOptions: text("handover_options").array(),
   status: listingStatusEnum("status").notNull().default("draft"),
   createdAt: timestamp("created_at").notNull().defaultNow(),

@@ -2,6 +2,7 @@ import { createListingAction } from "../../actions";
 import { Badge, PageHeader, Panel } from "../../_components/SellerCenterUi";
 import { ListingCategoryPicker } from "./_components/ListingCategoryPicker";
 import { ListingImagePicker } from "./_components/ListingImagePicker";
+import { ListingLocationPickerLazy as ListingLocationPicker } from "./_components/ListingLocationPickerLazy";
 import { ListingSubmitButtons } from "./_components/ListingSubmitButtons";
 
 const conditionOptions = ["Baru dibuka", "Sangat baik", "Bekas layak pakai", "Perlu perbaikan ringan"];
@@ -49,6 +50,11 @@ export default function NewListingPage() {
                 />
               </label>
 
+              <div className={labelClass}>
+                <span className={labelTextClass}>Lokasi Barang</span>
+                <ListingLocationPicker />
+              </div>
+
               <div className="grid gap-4 md:grid-cols-3">
                 <label className={labelClass}>
                   <span className={labelTextClass}>Mode Listing</span>
@@ -70,11 +76,6 @@ export default function NewListingPage() {
                   </select>
                 </label>
               </div>
-
-              <label className={labelClass}>
-                <span className={labelTextClass}>Lokasi Barang</span>
-                <input name="location" required maxLength={160} className={fieldClass} placeholder="Contoh: Denpasar Barat, Bali" />
-              </label>
             </div>
           </Panel>
         </div>
