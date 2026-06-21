@@ -12,6 +12,7 @@ import {
   getPublicListingsCount,
   type PublicListingSort,
 } from "@/lib/listings";
+import { ProductsFilterDrawer } from "./_components/ProductsFilterDrawer";
 
 type ProductsPageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -52,18 +53,20 @@ function buildProductsHref(
   current: {
     q: string;
     category: string;
+    subcategory: string;
     mode: string;
     minPrice: string;
     maxPrice: string;
     sort: PublicListingSort;
   },
-  patch: Partial<Record<"q" | "category" | "mode" | "minPrice" | "maxPrice" | "sort" | "page", string | number | null>>,
+  patch: Partial<Record<"q" | "category" | "subcategory" | "mode" | "minPrice" | "maxPrice" | "sort" | "page", string | number | null>>,
 ) {
   const params = new URLSearchParams();
   const next = { ...current, ...patch };
 
   if (next.q) params.set("q", String(next.q));
   if (next.category) params.set("category", String(next.category));
+  if (next.subcategory) params.set("subcategory", String(next.subcategory));
   if (next.mode && next.mode !== "all") params.set("mode", String(next.mode));
   if (next.minPrice) params.set("minPrice", String(next.minPrice));
   if (next.maxPrice) params.set("maxPrice", String(next.maxPrice));
@@ -74,11 +77,169 @@ function buildProductsHref(
   return query ? `/products?${query}` : "/products";
 }
 
+type ProductsFilterPanelProps = {
+  category: string;
+  categoryCountMap: Map<string, number>;
+  categoryCounts: { category: string; count: number }[];
+  current: {
+    q: string;
+    category: string;
+    subcategory: string;
+    mode: string;
+    minPrice: string;
+    maxPrice: string;
+    sort: PublicListingSort;
+  };
+  minPriceInput: string;
+  maxPriceInput: string;
+  mode: "all" | "sale" | "donation";
+  q: string;
+  sort: PublicListingSort;
+  subcategory: string;
+};
+
+function ProductsFilterPanel({
+  category,
+  categoryCountMap,
+  categoryCounts,
+  current,
+  minPriceInput,
+  maxPriceInput,
+  mode,
+  q,
+  sort,
+  subcategory,
+}: ProductsFilterPanelProps) {
+  const activeCategory = listingCategoryGroups.find((item) => item.name === category);
+
+  return (
+    <div className="rounded-lg border border-[#d7dde7] bg-white p-4 shadow-[0_10px_26px_rgba(15,23,42,0.06)]">
+      <div className="flex items-center justify-between gap-3">
+        <h2 className="font-poppins text-[15px] font-semibold text-black">Filter</h2>
+        <Link href="/products" className="font-poppins text-[11px] font-semibold text-[#17458f] hover:underline">
+          Reset
+        </Link>
+      </div>
+
+      <div className="mt-5">
+        <p className="font-poppins text-[11px] font-semibold uppercase tracking-[0.08em] text-[#6b7280]">Mode</p>
+        <div className="mt-2 grid grid-cols-3 gap-1 rounded-lg bg-[#f4f6f8] p-1">
+          {[
+            ["all", "Semua"],
+            ["sale", "Dijual"],
+            ["donation", "Donasi"],
+          ].map(([value, label]) => (
+            <Link
+              key={value}
+              href={buildProductsHref(current, { mode: value, page: null })}
+              className={`flex h-8 items-center justify-center rounded-md font-poppins text-[11px] font-semibold transition ${
+                mode === value ? "bg-white text-[#17458f] shadow-sm" : "text-[#6b7280] hover:text-[#17458f]"
+              }`}
+            >
+              {label}
+            </Link>
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-6">
+        <p className="font-poppins text-[11px] font-semibold uppercase tracking-[0.08em] text-[#6b7280]">Kategori</p>
+        <div className="mt-2 grid gap-1.5">
+          <Link
+            href={buildProductsHref(current, { category: null, subcategory: null, page: null })}
+            className={`flex min-h-9 items-center justify-between rounded-lg px-3 font-poppins text-[12px] transition ${
+              !category ? "bg-[#17458f] text-white" : "text-black hover:bg-[#eef6ff] hover:text-[#17458f]"
+            }`}
+          >
+            <span>Semua kategori</span>
+            <span>{categoryCounts.reduce((sum, item) => sum + item.count, 0)}</span>
+          </Link>
+          {listingCategoryGroups.map((item) => {
+            const isActive = category === item.name;
+            return (
+              <Link
+                key={item.name}
+                href={buildProductsHref(current, { category: item.name, subcategory: null, page: null })}
+                className={`flex min-h-9 items-center justify-between gap-2 rounded-lg px-3 font-poppins text-[12px] transition ${
+                  isActive ? "bg-[#17458f] text-white" : "text-black hover:bg-[#eef6ff] hover:text-[#17458f]"
+                }`}
+              >
+                <span className="inline-flex min-w-0 items-center gap-2">
+                  <Icon icon={item.icon} width={14} height={14} className="shrink-0" aria-hidden="true" />
+                  <span className="truncate">{item.name}</span>
+                </span>
+                <span>{categoryCountMap.get(item.name) ?? 0}</span>
+              </Link>
+            );
+          })}
+        </div>
+      </div>
+
+      {activeCategory ? (
+        <div className="mt-5">
+          <p className="font-poppins text-[11px] font-semibold uppercase tracking-[0.08em] text-[#6b7280]">Subkategori</p>
+          <div className="mt-2 grid gap-1.5">
+            <Link
+              href={buildProductsHref(current, { subcategory: null, page: null })}
+              className={`flex min-h-9 items-center rounded-lg px-3 font-poppins text-[12px] transition ${
+                !subcategory ? "bg-[#fff7e8] font-semibold text-[#17458f]" : "text-black hover:bg-[#fff7e8] hover:text-[#17458f]"
+              }`}
+            >
+              Semua {activeCategory.name}
+            </Link>
+            {activeCategory.subcategories.map((item) => {
+              const isActive = subcategory === item;
+              return (
+                <Link
+                  key={item}
+                  href={buildProductsHref(current, { subcategory: item, page: null })}
+                  className={`flex min-h-9 items-center rounded-lg px-3 font-poppins text-[12px] transition ${
+                    isActive ? "bg-[#fff7e8] font-semibold text-[#17458f]" : "text-black hover:bg-[#fff7e8] hover:text-[#17458f]"
+                  }`}
+                >
+                  {item}
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      ) : null}
+
+      <form action="/products" className="mt-6 grid gap-3">
+        {q && <input type="hidden" name="q" value={q} />}
+        {category && <input type="hidden" name="category" value={category} />}
+        {subcategory && <input type="hidden" name="subcategory" value={subcategory} />}
+        {mode !== "all" && <input type="hidden" name="mode" value={mode} />}
+        {sort !== "newest" && <input type="hidden" name="sort" value={sort} />}
+        <p className="font-poppins text-[11px] font-semibold uppercase tracking-[0.08em] text-[#6b7280]">Rentang Harga</p>
+        <input
+          name="minPrice"
+          inputMode="numeric"
+          defaultValue={minPriceInput}
+          placeholder="Minimum"
+          className="h-10 rounded-lg border border-[#c5cbd6] px-3 font-poppins text-[12px] outline-none focus:border-[#f7a81b] focus:ring-2 focus:ring-[#fff2d6]"
+        />
+        <input
+          name="maxPrice"
+          inputMode="numeric"
+          defaultValue={maxPriceInput}
+          placeholder="Maksimum"
+          className="h-10 rounded-lg border border-[#c5cbd6] px-3 font-poppins text-[12px] outline-none focus:border-[#f7a81b] focus:ring-2 focus:ring-[#fff2d6]"
+        />
+        <button type="submit" className="h-9 rounded-lg bg-[#17458f] font-poppins text-[12px] font-semibold text-white hover:bg-[#123a7a]">
+          Terapkan harga
+        </button>
+      </form>
+    </div>
+  );
+}
+
 export default async function ProductsPage({ searchParams }: ProductsPageProps) {
   const params = await searchParams;
   const userId = await getSessionUserId();
   const q = firstParam(params.q)?.trim() ?? "";
   const category = firstParam(params.category)?.trim() ?? "";
+  const subcategory = firstParam(params.subcategory)?.trim() ?? "";
   const mode = normalizeMode(firstParam(params.mode));
   const minPriceInput = firstParam(params.minPrice)?.trim() ?? "";
   const maxPriceInput = firstParam(params.maxPrice)?.trim() ?? "";
@@ -89,6 +250,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
   const query = {
     q,
     category,
+    subcategory,
     mode,
     minPrice,
     maxPrice,
@@ -104,10 +266,30 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
     getPublicListingCategoryCounts(),
   ]);
   const totalPages = Math.max(Math.ceil(totalProducts / PAGE_SIZE), 1);
-  const current = { q, category, mode, minPrice: minPriceInput, maxPrice: maxPriceInput, sort };
+  const current = { q, category, subcategory, mode, minPrice: minPriceInput, maxPrice: maxPriceInput, sort };
   const categoryCountMap = new Map(categoryCounts.map((item) => [item.category, item.count]));
   const start = totalProducts === 0 ? 0 : (page - 1) * PAGE_SIZE + 1;
   const end = Math.min(page * PAGE_SIZE, totalProducts);
+  const filterPanelProps = {
+    category,
+    categoryCountMap,
+    categoryCounts,
+    current,
+    minPriceInput,
+    maxPriceInput,
+    mode,
+    q,
+    sort,
+    subcategory,
+  };
+  const activeFilterCount = [
+    q,
+    category,
+    subcategory,
+    mode !== "all" ? mode : "",
+    minPriceInput,
+    maxPriceInput,
+  ].filter(Boolean).length;
 
   return (
     <>
@@ -142,99 +324,18 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
         </section>
 
         <div className="mx-auto grid max-w-[1728px] gap-7 px-8 py-8 lg:grid-cols-[260px_minmax(0,1fr)] lg:px-40 lg:py-10">
-          <aside className="lg:sticky lg:top-5 lg:self-start">
-            <div className="rounded-lg border border-[#d7dde7] bg-white p-4 shadow-[0_10px_26px_rgba(15,23,42,0.06)]">
-              <div className="flex items-center justify-between gap-3">
-                <h2 className="font-poppins text-[15px] font-semibold text-black">Filter</h2>
-                <Link href="/products" className="font-poppins text-[11px] font-semibold text-[#17458f] hover:underline">
-                  Reset
-                </Link>
-              </div>
-
-              <div className="mt-5">
-                <p className="font-poppins text-[11px] font-semibold uppercase tracking-[0.08em] text-[#6b7280]">Mode</p>
-                <div className="mt-2 grid grid-cols-3 gap-1 rounded-lg bg-[#f4f6f8] p-1">
-                  {[
-                    ["all", "Semua"],
-                    ["sale", "Dijual"],
-                    ["donation", "Donasi"],
-                  ].map(([value, label]) => (
-                    <Link
-                      key={value}
-                      href={buildProductsHref(current, { mode: value, page: null })}
-                      className={`flex h-8 items-center justify-center rounded-md font-poppins text-[11px] font-semibold transition ${
-                        mode === value ? "bg-white text-[#17458f] shadow-sm" : "text-[#6b7280] hover:text-[#17458f]"
-                      }`}
-                    >
-                      {label}
-                    </Link>
-                  ))}
-                </div>
-              </div>
-
-              <div className="mt-6">
-                <p className="font-poppins text-[11px] font-semibold uppercase tracking-[0.08em] text-[#6b7280]">Kategori</p>
-                <div className="mt-2 grid gap-1.5">
-                  <Link
-                    href={buildProductsHref(current, { category: null, page: null })}
-                    className={`flex min-h-9 items-center justify-between rounded-lg px-3 font-poppins text-[12px] transition ${
-                      !category ? "bg-[#17458f] text-white" : "text-black hover:bg-[#eef6ff] hover:text-[#17458f]"
-                    }`}
-                  >
-                    <span>Semua kategori</span>
-                    <span>{categoryCounts.reduce((sum, item) => sum + item.count, 0)}</span>
-                  </Link>
-                  {listingCategoryGroups.map((item) => {
-                    const isActive = category === item.name;
-                    return (
-                      <Link
-                        key={item.name}
-                        href={buildProductsHref(current, { category: item.name, page: null })}
-                        className={`flex min-h-9 items-center justify-between gap-2 rounded-lg px-3 font-poppins text-[12px] transition ${
-                          isActive ? "bg-[#17458f] text-white" : "text-black hover:bg-[#eef6ff] hover:text-[#17458f]"
-                        }`}
-                      >
-                        <span className="inline-flex min-w-0 items-center gap-2">
-                          <Icon icon={item.icon} width={14} height={14} className="shrink-0" aria-hidden="true" />
-                          <span className="truncate">{item.name}</span>
-                        </span>
-                        <span>{categoryCountMap.get(item.name) ?? 0}</span>
-                      </Link>
-                    );
-                  })}
-                </div>
-              </div>
-
-              <form action="/products" className="mt-6 grid gap-3">
-                {q && <input type="hidden" name="q" value={q} />}
-                {category && <input type="hidden" name="category" value={category} />}
-                {mode !== "all" && <input type="hidden" name="mode" value={mode} />}
-                {sort !== "newest" && <input type="hidden" name="sort" value={sort} />}
-                <p className="font-poppins text-[11px] font-semibold uppercase tracking-[0.08em] text-[#6b7280]">Rentang Harga</p>
-                <input
-                  name="minPrice"
-                  inputMode="numeric"
-                  defaultValue={minPriceInput}
-                  placeholder="Minimum"
-                  className="h-10 rounded-lg border border-[#c5cbd6] px-3 font-poppins text-[12px] outline-none focus:border-[#f7a81b] focus:ring-2 focus:ring-[#fff2d6]"
-                />
-                <input
-                  name="maxPrice"
-                  inputMode="numeric"
-                  defaultValue={maxPriceInput}
-                  placeholder="Maksimum"
-                  className="h-10 rounded-lg border border-[#c5cbd6] px-3 font-poppins text-[12px] outline-none focus:border-[#f7a81b] focus:ring-2 focus:ring-[#fff2d6]"
-                />
-                <button type="submit" className="h-9 rounded-lg bg-[#17458f] font-poppins text-[12px] font-semibold text-white hover:bg-[#123a7a]">
-                  Terapkan harga
-                </button>
-              </form>
-            </div>
+          <aside className="hidden lg:sticky lg:top-5 lg:block lg:self-start">
+            <ProductsFilterPanel {...filterPanelProps} />
           </aside>
 
           <section className="min-w-0">
+            <ProductsFilterDrawer activeFilterCount={activeFilterCount}>
+              <ProductsFilterPanel {...filterPanelProps} />
+            </ProductsFilterDrawer>
+
             <form action="/products" className="grid gap-3 rounded-lg border border-[#d7dde7] bg-white p-3 shadow-[0_10px_26px_rgba(15,23,42,0.05)] md:grid-cols-[minmax(0,1fr)_190px_auto]">
               {category && <input type="hidden" name="category" value={category} />}
+              {subcategory && <input type="hidden" name="subcategory" value={subcategory} />}
               {mode !== "all" && <input type="hidden" name="mode" value={mode} />}
               {minPriceInput && <input type="hidden" name="minPrice" value={minPriceInput} />}
               {maxPriceInput && <input type="hidden" name="maxPrice" value={maxPriceInput} />}
@@ -267,10 +368,11 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
               <p className="text-[13px] text-[#5f6370]">
                 {totalProducts > 0 ? `Menampilkan ${start}-${end} dari ${totalProducts} listing` : "Tidak ada listing yang cocok"}
               </p>
-              {(q || category || mode !== "all" || minPriceInput || maxPriceInput || sort !== "newest") && (
+              {(q || category || subcategory || mode !== "all" || minPriceInput || maxPriceInput || sort !== "newest") && (
                 <div className="flex flex-wrap gap-2">
                   {q && <span className="rounded-full bg-[#eef6ff] px-3 py-1 text-[11px] font-semibold text-[#17458f]">Cari: {q}</span>}
                   {category && <span className="rounded-full bg-[#eef6ff] px-3 py-1 text-[11px] font-semibold text-[#17458f]">{category}</span>}
+                  {subcategory && <span className="rounded-full bg-[#eef6ff] px-3 py-1 text-[11px] font-semibold text-[#17458f]">{subcategory}</span>}
                   {mode !== "all" && <span className="rounded-full bg-[#fff7e8] px-3 py-1 text-[11px] font-semibold text-[#17458f]">{mode === "sale" ? "Dijual" : "Didonasi"}</span>}
                 </div>
               )}

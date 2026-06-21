@@ -63,6 +63,10 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
     getPublicListings({ category: product.category, excludeSlug: product.slug, limit: 12, userId }),
   ]);
   const imageUrls = images.map((image) => image.imageUrl);
+  const categoryHref = `/products?category=${encodeURIComponent(product.category)}`;
+  const subcategoryHref = product.subcategory
+    ? `${categoryHref}&subcategory=${encodeURIComponent(product.subcategory)}`
+    : null;
 
   return (
     <>
@@ -72,7 +76,13 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
           <nav className="flex items-center gap-2 font-poppins text-[12px]" aria-label="Breadcrumb">
             <Link href="/" className="text-[#17458f] hover:underline">Home</Link>
             <Icon icon="lucide:chevron-right" className="text-[#f7a81b]" aria-hidden="true" />
-            <span className="text-[#17458f]">{product.category}</span>
+            <Link href={categoryHref} className="text-[#17458f] hover:underline">{product.category}</Link>
+            {product.subcategory && subcategoryHref ? (
+              <>
+                <Icon icon="lucide:chevron-right" className="text-[#f7a81b]" aria-hidden="true" />
+                <Link href={subcategoryHref} className="text-[#17458f] hover:underline">{product.subcategory}</Link>
+              </>
+            ) : null}
             <Icon icon="lucide:chevron-right" className="text-[#f7a81b]" aria-hidden="true" />
             <span className="text-black">{product.title}</span>
           </nav>

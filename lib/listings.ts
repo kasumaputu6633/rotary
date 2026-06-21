@@ -15,6 +15,7 @@ export type PublicListingsQuery = {
   userId?: string | null;
   q?: string | null;
   category?: string | null;
+  subcategory?: string | null;
   mode?: ListingMode | "all" | null;
   location?: string | null;
   minPrice?: number | null;
@@ -90,6 +91,7 @@ function buildPublicListingConditions({
   excludeSlug,
   q,
   category,
+  subcategory,
   mode,
   location,
   minPrice,
@@ -99,6 +101,7 @@ function buildPublicListingConditions({
 
   if (excludeSlug) conditions.push(ne(listings.slug, excludeSlug));
   if (category) conditions.push(eq(listings.category, category));
+  if (subcategory) conditions.push(eq(listings.subcategory, subcategory));
   if (mode && mode !== "all") conditions.push(eq(listings.mode, mode));
   if (location) conditions.push(ilike(listings.location, `%${location.trim()}%`));
   if (typeof minPrice === "number" && Number.isFinite(minPrice)) conditions.push(gte(listings.price, minPrice));

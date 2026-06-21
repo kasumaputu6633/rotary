@@ -13,8 +13,8 @@ import NavbarNotificationButton from "./NavbarNotificationButton";
 const topLinks = ["Tentang Rotary", "Edukasi", "Program", "Bantuan"];
 
 const navLinks = [
-  { label: "Marketplace", href: "/" },
-  { label: "Donasi", href: "#" },
+  { label: "Marketplace", href: "/products" },
+  { label: "Donasi", href: "/products?mode=donation" },
   { label: "Lokasi Penampung", href: "/waste" },
   { label: "Program Komunitas", href: "#" },
   { label: "Customer Service", href: "#" },
@@ -82,7 +82,7 @@ export default async function Navbar() {
           </Link>
 
           <Link
-            href="#"
+            href="/products"
             className="hidden lg:inline-flex font-poppins text-[14px] text-[#333] hover:text-[#17458f] transition-colors whitespace-nowrap"
           >
             Kategori
