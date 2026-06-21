@@ -8,7 +8,7 @@ import ProductCard from "@/app/_components/ProductCard";
 import { toggleFavoriteListingAction } from "@/app/dashboard/actions";
 import { getSessionUserId } from "@/lib/auth";
 import { formatPrice } from "@/lib/listing-format";
-import { getListingImages, getListingStats, getPublicListingBySlug, getPublicListings, incrementListingView } from "@/lib/listings";
+import { getListingImages, getPublicListingBySlug, getPublicListings, incrementListingView } from "@/lib/listings";
 import ProductContactActions from "./_components/ProductContactActions";
 import ProductGallery from "./_components/ProductGallery";
 import ProductInfoTabs from "./_components/ProductInfoTabs";
@@ -57,9 +57,8 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
     await incrementListingView(product.id);
   }
 
-  const [images, stats, recommendations] = await Promise.all([
+  const [images, recommendations] = await Promise.all([
     getListingImages(product.id),
-    getListingStats(product.id),
     getPublicListings({ category: product.category, excludeSlug: product.slug, limit: 12, userId }),
   ]);
   const imageUrls = images.map((image) => image.imageUrl);
@@ -119,23 +118,6 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
                 <div className="mt-4 border-b border-[#bfc7d4] pb-4 font-poppins">
                   <p className="text-[13px] font-semibold text-black">{product.location}</p>
                   <p className="text-[12px] text-[#6b7280]">Perkiraan Lokasi</p>
-                </div>
-
-                <div className="mt-4 grid grid-cols-2 gap-2 font-poppins">
-                  <div className="rounded-lg border border-[#e5e7eb] bg-[#f8fafc] px-3 py-2">
-                    <div className="flex items-center gap-1.5 text-[11px] font-semibold text-[#6b7280]">
-                      <Icon icon="lucide:eye" width={13} height={13} aria-hidden="true" />
-                      Dilihat
-                    </div>
-                    <p className="mt-1 text-[18px] font-semibold leading-none text-[#17458f]">{stats.viewCount}</p>
-                  </div>
-                  <div className="rounded-lg border border-[#e5e7eb] bg-[#fff7e8] px-3 py-2">
-                    <div className="flex items-center gap-1.5 text-[11px] font-semibold text-[#6b7280]">
-                      <Icon icon="lucide:heart" width={13} height={13} aria-hidden="true" />
-                      Disimpan
-                    </div>
-                    <p className="mt-1 text-[18px] font-semibold leading-none text-[#17458f]">{stats.favoriteCount}</p>
-                  </div>
                 </div>
 
                 <div className="mt-5 flex items-center gap-3">
