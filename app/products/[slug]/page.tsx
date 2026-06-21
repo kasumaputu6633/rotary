@@ -8,7 +8,7 @@ import ProductCard from "@/app/_components/ProductCard";
 import { toggleFavoriteListingAction } from "@/app/dashboard/actions";
 import { getSessionUserId } from "@/lib/auth";
 import { formatPrice } from "@/lib/listing-format";
-import { getListingImages, getPublicListingBySlug, getPublicListings } from "@/lib/listings";
+import { getListingImages, getListingStats, getPublicListingBySlug, getPublicListings, incrementListingView } from "@/lib/listings";
 import ProductContactActions from "./_components/ProductContactActions";
 import ProductGallery from "./_components/ProductGallery";
 import ProductInfoTabs from "./_components/ProductInfoTabs";
@@ -17,6 +17,8 @@ import { ListingMap } from "./_components/ListingMap";
 type ProductDetailPageProps = {
   params: Promise<{ slug: string }>;
 };
+
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: ProductDetailPageProps): Promise<Metadata> {
   const { slug } = await params;
@@ -51,9 +53,14 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
 
   if (!product) notFound();
 
-  const [images, recommendations] = await Promise.all([
+  if (userId !== product.sellerId) {
+    await incrementListingView(product.id);
+  }
+
+  const [images, stats, recommendations] = await Promise.all([
     getListingImages(product.id),
-    getPublicListings({ excludeSlug: product.slug, limit: 12, userId }),
+    getListingStats(product.id),
+    getPublicListings({ category: product.category, excludeSlug: product.slug, limit: 12, userId }),
   ]);
   const imageUrls = images.map((image) => image.imageUrl);
 
@@ -104,6 +111,23 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
                   <p className="text-[12px] text-[#6b7280]">Perkiraan Lokasi</p>
                 </div>
 
+                <div className="mt-4 grid grid-cols-2 gap-2 font-poppins">
+                  <div className="rounded-lg border border-[#e5e7eb] bg-[#f8fafc] px-3 py-2">
+                    <div className="flex items-center gap-1.5 text-[11px] font-semibold text-[#6b7280]">
+                      <Icon icon="lucide:eye" width={13} height={13} aria-hidden="true" />
+                      Dilihat
+                    </div>
+                    <p className="mt-1 text-[18px] font-semibold leading-none text-[#17458f]">{stats.viewCount}</p>
+                  </div>
+                  <div className="rounded-lg border border-[#e5e7eb] bg-[#fff7e8] px-3 py-2">
+                    <div className="flex items-center gap-1.5 text-[11px] font-semibold text-[#6b7280]">
+                      <Icon icon="lucide:heart" width={13} height={13} aria-hidden="true" />
+                      Disimpan
+                    </div>
+                    <p className="mt-1 text-[18px] font-semibold leading-none text-[#17458f]">{stats.favoriteCount}</p>
+                  </div>
+                </div>
+
                 <div className="mt-5 flex items-center gap-3">
                   <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#e5e7eb] text-[#6b7280]">
                     <Icon icon="lucide:user" width={22} height={22} aria-hidden="true" />
@@ -135,9 +159,21 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
 
           {recommendations.length > 0 && (
             <section className="mt-10 border-t border-[#bfc7d4] pt-9" aria-labelledby="recommendations-heading">
-              <h2 id="recommendations-heading" className="font-poppins text-[22px] font-semibold text-black">
-                Pilihan lainnya
-              </h2>
+              <div className="flex flex-wrap items-end justify-between gap-3">
+                <div>
+                  <p className="font-poppins text-[12px] font-semibold uppercase tracking-[0.08em] text-[#17458f]">Kategori {product.category}</p>
+                  <h2 id="recommendations-heading" className="mt-1 font-poppins text-[22px] font-semibold text-black">
+                    Barang serupa
+                  </h2>
+                </div>
+                <Link
+                  href={`/products?category=${encodeURIComponent(product.category)}`}
+                  className="inline-flex h-9 items-center gap-2 rounded-lg border border-[#cbd5e1] px-3 font-poppins text-[12px] font-semibold text-[#17458f] hover:bg-[#eef6ff]"
+                >
+                  Lihat semua
+                  <Icon icon="lucide:arrow-right" width={14} height={14} aria-hidden="true" />
+                </Link>
+              </div>
               <div className="mt-8 grid grid-cols-2 gap-x-3 gap-y-7 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
                 {recommendations.map((item) => (
                   <ProductCard key={item.id} product={item} />

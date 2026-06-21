@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { requireRole } from "@/lib/auth";
 import { formatPrice } from "@/lib/listing-format";
-import { getSellerListings } from "@/lib/listings";
+import { getSellerListings, getSellerListingStats } from "@/lib/listings";
 import {
   EmptyState,
+  ListingStatsPills,
   ListingThumb,
   ModeBadge,
   PageHeader,
@@ -16,7 +17,10 @@ import { DeleteListingButton } from "./_components/DeleteListingButton";
 
 export default async function SellerListingsPage() {
   const user = await requireRole("user");
-  const sellerListings = await getSellerListings(user.id);
+  const [sellerListings, listingStats] = await Promise.all([
+    getSellerListings(user.id),
+    getSellerListingStats(user.id),
+  ]);
   const activeCount = sellerListings.filter((listing) => listing.status === "active").length;
   const draftCount = sellerListings.filter((listing) => listing.status === "draft").length;
 
@@ -61,6 +65,11 @@ export default async function SellerListingsPage() {
                   </div>
                   <p className="mt-1 text-[12px] text-[var(--seller-muted)]">{listing.category} - {listing.condition}</p>
                   <p className="mt-1 text-[12px] text-[var(--seller-muted)]">{listing.location} - Diperbarui {listing.updatedAt.toLocaleDateString("id-ID")}</p>
+                  <ListingStatsPills
+                    className="mt-2 max-w-[230px]"
+                    viewCount={listingStats[listing.id]?.viewCount ?? 0}
+                    favoriteCount={listingStats[listing.id]?.favoriteCount ?? 0}
+                  />
                 </div>
 
                 <div className="rounded-[8px] border border-[var(--seller-rule)] bg-[var(--seller-surface-2)] px-3 py-2">

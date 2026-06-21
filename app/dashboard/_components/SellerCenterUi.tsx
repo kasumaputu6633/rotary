@@ -109,6 +109,31 @@ export function ModeBadge({ mode }: { mode: ListingMode }) {
   return <Badge tone={mode === "sale" ? "accent" : "success"}>{formatListingMode(mode)}</Badge>;
 }
 
+export function ListingStatsPills({
+  favoriteCount,
+  viewCount,
+  className = "",
+}: {
+  favoriteCount: number;
+  viewCount: number;
+  className?: string;
+}) {
+  return (
+    <div className={`grid grid-cols-2 gap-1.5 text-[11px] ${className}`}>
+      <span className="inline-flex min-h-8 min-w-0 items-center justify-center gap-1.5 rounded-[8px] border border-[var(--seller-rule)] bg-[var(--seller-surface-2)] px-2 font-semibold text-[var(--seller-muted)]">
+        <Icon icon="lucide:eye" width={13} height={13} className="shrink-0" aria-hidden="true" />
+        <span className="tabular-nums text-[var(--seller-ink)]">{viewCount}</span>
+        <span className="whitespace-nowrap">dilihat</span>
+      </span>
+      <span className="inline-flex min-h-8 min-w-0 items-center justify-center gap-1.5 rounded-[8px] border border-[var(--seller-rule)] bg-[var(--seller-surface-2)] px-2 font-semibold text-[var(--seller-muted)]">
+        <Icon icon="lucide:heart" width={13} height={13} className="shrink-0" aria-hidden="true" />
+        <span className="tabular-nums text-[var(--seller-ink)]">{favoriteCount}</span>
+        <span className="whitespace-nowrap">disimpan</span>
+      </span>
+    </div>
+  );
+}
+
 export function PrimaryLink({
   children,
   href,

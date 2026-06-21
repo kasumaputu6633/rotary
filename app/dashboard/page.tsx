@@ -2,12 +2,13 @@ import { Icon } from "@iconify/react";
 import Link from "next/link";
 import { requireRole } from "@/lib/auth";
 import { formatPrice } from "@/lib/listing-format";
-import { getSellerListings } from "@/lib/listings";
+import { getSellerListings, getSellerListingStats } from "@/lib/listings";
 import { unreadChatCount } from "./_data/seller-center";
 import {
   Badge,
   EmptyState,
   IconButton,
+  ListingStatsPills,
   ListingThumb,
   MiniMetric,
   ModeBadge,
@@ -25,11 +26,21 @@ const listingTips = [
 
 export default async function LapakSayaPage() {
   const user = await requireRole("user");
-  const sellerListings = await getSellerListings(user.id);
+  const [sellerListings, listingStats] = await Promise.all([
+    getSellerListings(user.id),
+    getSellerListingStats(user.id),
+  ]);
   const activeListings = sellerListings.filter((listing) => listing.status === "active");
   const draftListings = sellerListings.filter((listing) => listing.status === "draft");
   const inactiveListings = sellerListings.filter((listing) => listing.status === "inactive");
   const latestActiveListings = activeListings.slice(0, 4);
+  const totals = Object.values(listingStats).reduce(
+    (acc, stats) => ({
+      viewCount: acc.viewCount + stats.viewCount,
+      favoriteCount: acc.favoriteCount + stats.favoriteCount,
+    }),
+    { viewCount: 0, favoriteCount: 0 },
+  );
 
   const todoItems = [
     ...(unreadChatCount > 0
@@ -82,9 +93,10 @@ export default async function LapakSayaPage() {
 
       <section className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_340px]">
         <div className="grid gap-4">
-          <div className="grid gap-3 sm:grid-cols-3">
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <MiniMetric icon="lucide:package-check" label="Aktif" value={activeListings.length} />
-            <MiniMetric icon="lucide:messages-square" label="Chat perlu dibalas" value={unreadChatCount} />
+            <MiniMetric icon="lucide:eye" label="Total dilihat" value={totals.viewCount} />
+            <MiniMetric icon="lucide:heart" label="Disimpan" value={totals.favoriteCount} />
             <MiniMetric icon="lucide:file-pen-line" label="Draft" value={draftListings.length} />
           </div>
 
@@ -120,29 +132,24 @@ export default async function LapakSayaPage() {
             {latestActiveListings.length > 0 ? (
               <div className="divide-y divide-[var(--seller-rule)]">
                 {latestActiveListings.map((listing) => (
-                  <article key={listing.id} className="grid gap-3 px-4 py-3 sm:grid-cols-[56px_minmax(0,1fr)_170px_auto] sm:items-center">
+                  <article key={listing.id} className="grid gap-3 px-4 py-3 sm:grid-cols-[56px_minmax(0,1fr)_auto] sm:items-center lg:grid-cols-[56px_minmax(0,1fr)_230px_auto]">
                     <ListingThumb imageUrl={listing.imageUrl} />
-                  <div className="min-w-0">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <h3 className="truncate text-[14px] font-semibold text-[var(--seller-ink)]">{listing.title}</h3>
-                      <ModeBadge mode={listing.mode} />
+                    <div className="min-w-0">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h3 className="truncate text-[14px] font-semibold text-[var(--seller-ink)]">{listing.title}</h3>
+                        <ModeBadge mode={listing.mode} />
+                      </div>
+                      <p className="mt-1 truncate text-[12px] text-[var(--seller-muted)]">{listing.category} - {listing.location} - {listing.updatedAt.toLocaleDateString("id-ID")}</p>
                     </div>
-                    <p className="mt-1 truncate text-[12px] text-[var(--seller-muted)]">{listing.category} - {listing.location} - {listing.updatedAt.toLocaleDateString("id-ID")}</p>
-                  </div>
-                  <div className="flex gap-2 text-[12px] text-[var(--seller-muted)]">
-                    <span className="inline-flex items-center gap-1 rounded-full bg-[var(--seller-surface-2)] px-2 py-1">
-                      <Icon icon="lucide:users-round" width={14} height={14} aria-hidden="true" />
-                      0 peminat
-                    </span>
-                    <span className="inline-flex items-center gap-1 rounded-full bg-[var(--seller-surface-2)] px-2 py-1">
-                      <Icon icon="lucide:message-circle" width={14} height={14} aria-hidden="true" />
-                      0
-                    </span>
-                  </div>
-                  <Link href={`/dashboard/listings/${listing.id}/edit`} className="h-8 rounded-[8px] border border-[var(--seller-rule-strong)] px-3 text-[12px] font-semibold text-[var(--seller-brand)] hover:bg-[var(--seller-brand-soft)] inline-flex items-center">
-                    Edit
-                  </Link>
-                </article>
+                    <ListingStatsPills
+                      className="sm:col-start-2 sm:row-start-2 sm:max-w-[230px] lg:col-auto lg:row-auto lg:max-w-none"
+                      viewCount={listingStats[listing.id]?.viewCount ?? 0}
+                      favoriteCount={listingStats[listing.id]?.favoriteCount ?? 0}
+                    />
+                    <Link href={`/dashboard/listings/${listing.id}/edit`} className="inline-flex h-8 items-center rounded-[8px] border border-[var(--seller-rule-strong)] px-3 text-[12px] font-semibold text-[var(--seller-brand)] hover:bg-[var(--seller-brand-soft)] sm:col-start-3 sm:row-span-2 sm:row-start-1 sm:self-center lg:col-auto lg:row-auto">
+                      Edit
+                    </Link>
+                  </article>
                 ))}
               </div>
             ) : (

@@ -93,6 +93,7 @@ export const listings = pgTable("listings", {
   longitude: doublePrecision("longitude"),
   handoverOptions: text("handover_options").array(),
   status: listingStatusEnum("status").notNull().default("draft"),
+  viewCount: integer("view_count").notNull().default(0),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
   publishedAt: timestamp("published_at"),

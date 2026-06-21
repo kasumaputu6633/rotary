@@ -1,9 +1,26 @@
 import { db } from "@/db";
 import { favoriteListings, listingImages, listings, users } from "@/db/schema";
-import type { ListingCardData, ListingStatus } from "@/lib/listing-format";
-import { and, desc, eq, ne, sql, type SQL } from "drizzle-orm";
+import type { ListingCardData, ListingMode, ListingStatus } from "@/lib/listing-format";
+import { and, asc, desc, eq, gte, ilike, inArray, lte, ne, or, sql, type SQL } from "drizzle-orm";
 
 export type { ListingCardData, ListingMode, ListingStatus } from "@/lib/listing-format";
+
+export type PublicListingSort = "newest" | "popular" | "price-low" | "price-high";
+
+export type PublicListingsQuery = {
+  limit?: number;
+  page?: number;
+  offset?: number;
+  excludeSlug?: string;
+  userId?: string | null;
+  q?: string | null;
+  category?: string | null;
+  mode?: ListingMode | "all" | null;
+  location?: string | null;
+  minPrice?: number | null;
+  maxPrice?: number | null;
+  sort?: PublicListingSort | null;
+};
 
 export function slugifyListing(title: string) {
   return title
@@ -40,6 +57,7 @@ const listingSelection = {
   location: listings.location,
   latitude: listings.latitude,
   longitude: listings.longitude,
+  viewCount: listings.viewCount,
   updatedAt: listings.updatedAt,
   publishedAt: listings.publishedAt,
   sellerName: users.name,
@@ -58,31 +76,94 @@ function withFavorite(row: Omit<ListingCardData, "isFavorite"> & { isFavorite?: 
   return { ...row, isFavorite: Boolean(row.isFavorite) };
 }
 
-export async function getPublicListings({
-  limit = 24,
+function normalizeLimit(limit: number | undefined) {
+  if (!limit || Number.isNaN(limit)) return 24;
+  return Math.min(Math.max(Math.floor(limit), 1), 60);
+}
+
+function normalizePage(page: number | undefined) {
+  if (!page || Number.isNaN(page)) return 1;
+  return Math.max(Math.floor(page), 1);
+}
+
+function buildPublicListingConditions({
   excludeSlug,
-  userId,
-}: {
-  limit?: number;
-  excludeSlug?: string;
-  userId?: string | null;
-} = {}) {
+  q,
+  category,
+  mode,
+  location,
+  minPrice,
+  maxPrice,
+}: PublicListingsQuery) {
   const conditions: SQL[] = [eq(listings.status, "active")];
+
   if (excludeSlug) conditions.push(ne(listings.slug, excludeSlug));
+  if (category) conditions.push(eq(listings.category, category));
+  if (mode && mode !== "all") conditions.push(eq(listings.mode, mode));
+  if (location) conditions.push(ilike(listings.location, `%${location.trim()}%`));
+  if (typeof minPrice === "number" && Number.isFinite(minPrice)) conditions.push(gte(listings.price, minPrice));
+  if (typeof maxPrice === "number" && Number.isFinite(maxPrice)) conditions.push(lte(listings.price, maxPrice));
+
+  const keyword = q?.trim();
+  if (keyword) {
+    const pattern = `%${keyword}%`;
+    const searchCondition = or(
+      ilike(listings.title, pattern),
+      ilike(listings.description, pattern),
+      ilike(listings.category, pattern),
+      ilike(listings.subcategory, pattern),
+      ilike(listings.location, pattern),
+    );
+    if (searchCondition) conditions.push(searchCondition);
+  }
+
+  return conditions;
+}
+
+function getPublicListingOrder(sort: PublicListingSort | null | undefined) {
+  if (sort === "popular") return [desc(listings.viewCount), desc(listings.publishedAt), desc(listings.createdAt)];
+  if (sort === "price-low") return [sql`${listings.price} asc nulls last`, desc(listings.publishedAt)];
+  if (sort === "price-high") return [sql`${listings.price} desc nulls last`, desc(listings.publishedAt)];
+  return [desc(listings.publishedAt), desc(listings.createdAt)];
+}
+
+export async function getPublicListings(params: PublicListingsQuery = {}) {
+  const limit = normalizeLimit(params.limit);
+  const page = normalizePage(params.page);
+  const offset = typeof params.offset === "number" ? Math.max(params.offset, 0) : (page - 1) * limit;
+  const conditions = buildPublicListingConditions(params);
 
   const rows = await db
     .select({
       ...listingSelection,
-      isFavorite: userId ? favoriteExistsSubquery(userId) : sql<boolean>`false`,
+      isFavorite: params.userId ? favoriteExistsSubquery(params.userId) : sql<boolean>`false`,
     })
     .from(listings)
     .leftJoin(users, eq(users.id, listings.sellerId))
     .leftJoin(listingImages, and(eq(listingImages.listingId, listings.id), eq(listingImages.sortOrder, 0)))
     .where(and(...conditions))
-    .orderBy(desc(listings.publishedAt), desc(listings.createdAt))
-    .limit(limit);
+    .orderBy(...getPublicListingOrder(params.sort))
+    .limit(limit)
+    .offset(offset);
 
   return rows.map(withFavorite);
+}
+
+export async function getPublicListingsCount(params: PublicListingsQuery = {}) {
+  const conditions = buildPublicListingConditions(params);
+  return db.$count(listings, and(...conditions));
+}
+
+export async function getPublicListingCategoryCounts() {
+  return db
+    .select({
+      category: listings.category,
+      count: sql<number>`count(*)::int`,
+    })
+    .from(listings)
+    .where(eq(listings.status, "active"))
+    .groupBy(listings.category)
+    .orderBy(asc(listings.category));
 }
 
 export async function getPublicListingBySlug(slug: string, userId?: string | null) {
@@ -173,4 +254,69 @@ export async function getFavoriteListings(userId: string) {
     .orderBy(desc(favoriteListings.createdAt));
 
   return rows.map(withFavorite);
+}
+
+export async function incrementListingView(listingId: string) {
+  await db
+    .update(listings)
+    .set({ viewCount: sql`${listings.viewCount} + 1` })
+    .where(eq(listings.id, listingId));
+}
+
+export type ListingStats = {
+  viewCount: number;
+  favoriteCount: number;
+};
+
+export async function getListingStats(listingId: string): Promise<ListingStats> {
+  const [row] = await db
+    .select({
+      viewCount: listings.viewCount,
+      favoriteCount: sql<number>`(
+        select count(*)::int
+        from ${favoriteListings}
+        where ${favoriteListings.listingId} = ${listings.id}
+      )`,
+    })
+    .from(listings)
+    .where(eq(listings.id, listingId))
+    .limit(1);
+
+  return row ?? { viewCount: 0, favoriteCount: 0 };
+}
+
+export async function getSellerListingStats(sellerId: string): Promise<Record<string, ListingStats>> {
+  const sellerListings = await db
+    .select({
+      id: listings.id,
+      viewCount: listings.viewCount,
+    })
+    .from(listings)
+    .where(eq(listings.sellerId, sellerId));
+
+  const listingIds = sellerListings.map((listing) => listing.id);
+  if (listingIds.length === 0) return {};
+
+  const favoriteCounts = await db
+    .select({
+      listingId: favoriteListings.listingId,
+      count: sql<number>`count(*)::int`,
+    })
+    .from(favoriteListings)
+    .where(inArray(favoriteListings.listingId, listingIds))
+    .groupBy(favoriteListings.listingId);
+
+  const favoriteCountByListingId = new Map(
+    favoriteCounts.map((row) => [row.listingId, row.count]),
+  );
+
+  return Object.fromEntries(
+    sellerListings.map((listing) => [
+      listing.id,
+      {
+        viewCount: listing.viewCount,
+        favoriteCount: favoriteCountByListingId.get(listing.id) ?? 0,
+      },
+    ]),
+  );
 }

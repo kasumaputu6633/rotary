@@ -15,12 +15,16 @@ export type ListingCardData = {
   location: string;
   updatedAt: Date;
   publishedAt: Date | null;
+  sellerId?: string;
   sellerName: string | null;
   sellerWhatsapp?: string | null;
   latitude?: number | null;
   longitude?: number | null;
+  viewCount?: number;
+  favoriteCount?: number;
   imageUrl: string | null;
   isFavorite?: boolean;
+  handoverOptions?: string[] | null;
 };
 
 export function formatPrice(price: number | null, mode: ListingMode) {

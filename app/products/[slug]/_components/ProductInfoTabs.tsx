@@ -2,7 +2,7 @@
 
 import { Icon } from "@iconify/react";
 import { useState } from "react";
-import type { ListingCardData } from "@/lib/listing-format";
+import { formatListingMode, type ListingCardData } from "@/lib/listing-format";
 
 type ActiveTab = "detail" | "important";
 
@@ -48,10 +48,26 @@ export default function ProductInfoTabs({ product }: { product: ListingCardData 
             <dt className="text-[#8f8a8a]">Kategori</dt>
             <dd className="font-semibold text-[#f7a81b]">{product.category}</dd>
           </div>
+          <div className="grid grid-cols-[120px_1fr] gap-3">
+            <dt className="text-[#8f8a8a]">Mode</dt>
+            <dd className="text-black">{formatListingMode(product.mode)}</dd>
+          </div>
           {product.subcategory && (
             <div className="grid grid-cols-[120px_1fr] gap-3">
               <dt className="text-[#8f8a8a]">Subkategori</dt>
               <dd className="text-black">{product.subcategory}</dd>
+            </div>
+          )}
+          {product.handoverOptions && product.handoverOptions.length > 0 && (
+            <div className="grid grid-cols-[120px_1fr] gap-3">
+              <dt className="text-[#8f8a8a]">Serah Terima</dt>
+              <dd className="flex flex-wrap gap-1.5">
+                {product.handoverOptions.map((option) => (
+                  <span key={option} className="rounded-full bg-[#eef6ff] px-2 py-0.5 text-[11px] font-semibold text-[#17458f]">
+                    {option}
+                  </span>
+                ))}
+              </dd>
             </div>
           )}
         </dl>
