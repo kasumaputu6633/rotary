@@ -3,7 +3,6 @@ import Link from "next/link";
 import { requireRole } from "@/lib/auth";
 import { formatPrice } from "@/lib/listing-format";
 import { getSellerListings, getSellerListingStats } from "@/lib/listings";
-import { unreadChatCount } from "./_data/seller-center";
 import {
   Badge,
   EmptyState,
@@ -24,6 +23,13 @@ const listingTips = [
   "Jelaskan titik temu atau penjemputan.",
 ];
 
+const STALE_LISTING_DAYS = 14;
+const DAY_IN_MS = 24 * 60 * 60 * 1000;
+
+function getCurrentTimestamp() {
+  return Date.now();
+}
+
 export default async function LapakSayaPage() {
   const user = await requireRole("user");
   const [sellerListings, listingStats] = await Promise.all([
@@ -34,6 +40,11 @@ export default async function LapakSayaPage() {
   const draftListings = sellerListings.filter((listing) => listing.status === "draft");
   const inactiveListings = sellerListings.filter((listing) => listing.status === "inactive");
   const latestActiveListings = activeListings.slice(0, 4);
+  const activeWithoutPhoto = activeListings.filter((listing) => !listing.imageUrl);
+  const activeWithoutPreciseLocation = activeListings.filter((listing) => listing.latitude === null || listing.longitude === null);
+  const activeWithoutHandover = activeListings.filter((listing) => !listing.handoverOptions || listing.handoverOptions.length === 0);
+  const currentTimestamp = getCurrentTimestamp();
+  const staleActiveListings = activeListings.filter((listing) => currentTimestamp - listing.updatedAt.getTime() > STALE_LISTING_DAYS * DAY_IN_MS);
   const totals = Object.values(listingStats).reduce(
     (acc, stats) => ({
       viewCount: acc.viewCount + stats.viewCount,
@@ -43,13 +54,13 @@ export default async function LapakSayaPage() {
   );
 
   const todoItems = [
-    ...(unreadChatCount > 0
+    ...(!user.whatsapp
       ? [{
-          title: "Balas chat calon pembeli",
-          description: `${unreadChatCount} percakapan menunggu respon supaya calon pembeli tidak pindah ke listing lain.`,
-          icon: "lucide:messages-square",
-          href: "/dashboard/chat",
-          action: "Buka chat",
+          title: "Lengkapi WhatsApp lapak",
+          description: "Nomor WhatsApp membantu calon pembeli menghubungi kamu langsung dari halaman barang.",
+          icon: "lucide:phone",
+          href: "/dashboard/profile",
+          action: "Edit profil",
         }]
       : []),
     ...(draftListings.length > 0
@@ -61,13 +72,42 @@ export default async function LapakSayaPage() {
           action: "Lihat draft",
         }]
       : []),
-    {
-      title: "Cek listing aktif",
-      description: "Pastikan harga, lokasi, dan opsi serah terima masih sesuai.",
-      icon: "lucide:store",
-      href: "/dashboard/listings",
-      action: "Kelola listing",
-    },
+    ...(activeWithoutPhoto.length > 0
+      ? [{
+          title: "Tambahkan foto cover",
+          description: `${activeWithoutPhoto.length} listing aktif belum punya foto utama, sehingga kurang meyakinkan di marketplace.`,
+          icon: "lucide:image-plus",
+          href: "/dashboard/listings?status=active&issue=missing-photo",
+          action: "Buka listing",
+        }]
+      : []),
+    ...(activeWithoutPreciseLocation.length > 0
+      ? [{
+          title: "Perjelas lokasi barang",
+          description: `${activeWithoutPreciseLocation.length} listing aktif belum punya titik lokasi presisi dari peta.`,
+          icon: "lucide:map-pin",
+          href: "/dashboard/listings?status=active&issue=missing-location",
+          action: "Cek lokasi",
+        }]
+      : []),
+    ...(activeWithoutHandover.length > 0
+      ? [{
+          title: "Lengkapi serah terima",
+          description: `${activeWithoutHandover.length} listing aktif belum punya opsi ambil, titik temu, atau kirim manual.`,
+          icon: "lucide:handshake",
+          href: "/dashboard/listings?status=active&issue=missing-handover",
+          action: "Lengkapi",
+        }]
+      : []),
+    ...(staleActiveListings.length > 0
+      ? [{
+          title: "Review listing lama",
+          description: `${staleActiveListings.length} listing aktif belum diperbarui lebih dari ${STALE_LISTING_DAYS} hari.`,
+          icon: "lucide:refresh-cw",
+          href: "/dashboard/listings?status=active&sort=updated-asc",
+          action: "Review",
+        }]
+      : []),
   ];
 
   return (
@@ -105,23 +145,37 @@ export default async function LapakSayaPage() {
             description="Urutan kerja yang paling penting supaya lapak tetap responsif."
             actions={<Badge tone="accent">{todoItems.length} tugas</Badge>}
           >
-            <div className="divide-y divide-[var(--seller-rule)]">
-              {todoItems.map((item) => (
-                <Link key={item.title} href={item.href} className="group grid gap-3 px-4 py-4 transition-colors hover:bg-[var(--seller-surface-2)] sm:grid-cols-[44px_minmax(0,1fr)_auto] sm:items-center">
-                  <span className="flex h-11 w-11 items-center justify-center rounded-[8px] bg-[var(--seller-brand-soft)] text-[var(--seller-brand)]">
-                    <Icon icon={item.icon} width={20} height={20} aria-hidden="true" />
-                  </span>
-                  <span className="min-w-0">
-                    <span className="block text-[14px] font-semibold text-[var(--seller-ink)]">{item.title}</span>
-                    <span className="mt-1 block text-[12px] leading-relaxed text-[var(--seller-muted)]">{item.description}</span>
-                  </span>
-                  <span className="inline-flex h-8 items-center gap-2 rounded-full px-3 text-[12px] font-semibold text-[var(--seller-brand)]">
-                    {item.action}
-                    <Icon icon="lucide:arrow-right" width={14} height={14} className="transition-transform group-hover:translate-x-1" aria-hidden="true" />
-                  </span>
-                </Link>
-              ))}
-            </div>
+            {todoItems.length > 0 ? (
+              <div className="divide-y divide-[var(--seller-rule)]">
+                {todoItems.map((item) => (
+                  <Link key={item.title} href={item.href} className="group grid gap-3 px-4 py-4 transition-colors hover:bg-[var(--seller-surface-2)] sm:grid-cols-[44px_minmax(0,1fr)_auto] sm:items-center">
+                    <span className="flex h-11 w-11 items-center justify-center rounded-[8px] bg-[var(--seller-brand-soft)] text-[var(--seller-brand)]">
+                      <Icon icon={item.icon} width={20} height={20} aria-hidden="true" />
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block text-[14px] font-semibold text-[var(--seller-ink)]">{item.title}</span>
+                      <span className="mt-1 block text-[12px] leading-relaxed text-[var(--seller-muted)]">{item.description}</span>
+                    </span>
+                    <span className="inline-flex h-8 items-center gap-2 rounded-full px-3 text-[12px] font-semibold text-[var(--seller-brand)]">
+                      {item.action}
+                      <Icon icon="lucide:arrow-right" width={14} height={14} className="transition-transform group-hover:translate-x-1" aria-hidden="true" />
+                    </span>
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              <div className="flex items-start gap-3 px-4 py-5">
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[8px] bg-[var(--seller-success-soft)] text-[var(--seller-success)]">
+                  <Icon icon="lucide:check-circle-2" width={20} height={20} aria-hidden="true" />
+                </span>
+                <div>
+                  <p className="text-[14px] font-semibold text-[var(--seller-ink)]">Tidak ada tugas mendesak</p>
+                  <p className="mt-1 text-[12px] leading-relaxed text-[var(--seller-muted)]">
+                    Listing aktif, profil, dan draft kamu sedang dalam kondisi aman.
+                  </p>
+                </div>
+              </div>
+            )}
           </Panel>
 
           <Panel

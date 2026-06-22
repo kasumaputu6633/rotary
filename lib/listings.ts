@@ -58,6 +58,7 @@ const listingSelection = {
   location: listings.location,
   latitude: listings.latitude,
   longitude: listings.longitude,
+  handoverOptions: listings.handoverOptions,
   viewCount: listings.viewCount,
   updatedAt: listings.updatedAt,
   publishedAt: listings.publishedAt,

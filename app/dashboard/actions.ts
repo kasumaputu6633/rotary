@@ -208,7 +208,7 @@ export async function updateListingAction(listingId: string, formData: FormData)
   revalidatePath("/dashboard/listings/drafts");
   revalidatePath("/dashboard/listings/inactive");
   revalidatePath(`/products/${existing.slug}`);
-  redirect(status === "active" ? "/dashboard/listings" : "/dashboard/listings/drafts");
+  redirect(status === "active" ? "/dashboard/listings" : status === "inactive" ? "/dashboard/listings/inactive" : "/dashboard/listings/drafts");
 }
 
 export async function setListingStatusAction(listingId: string, status: ListingStatus) {

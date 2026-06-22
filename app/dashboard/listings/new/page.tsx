@@ -3,6 +3,7 @@ import { Badge, PageHeader, Panel } from "../../_components/SellerCenterUi";
 import { ListingCategoryPicker } from "./_components/ListingCategoryPicker";
 import { ListingImagePicker } from "./_components/ListingImagePicker";
 import { ListingLocationPickerLazy as ListingLocationPicker } from "./_components/ListingLocationPickerLazy";
+import { ListingModePriceFields } from "./_components/ListingModePriceFields";
 import { ListingSubmitButtons } from "./_components/ListingSubmitButtons";
 
 const conditionOptions = ["Baru dibuka", "Sangat baik", "Bekas layak pakai", "Perlu perbaikan ringan"];
@@ -56,17 +57,7 @@ export default function NewListingPage() {
               </div>
 
               <div className="grid gap-4 md:grid-cols-3">
-                <label className={labelClass}>
-                  <span className={labelTextClass}>Mode Listing</span>
-                  <select name="mode" className={fieldClass}>
-                    <option value="sale">Dijual</option>
-                    <option value="donation">Didonasi</option>
-                  </select>
-                </label>
-                <label className={labelClass}>
-                  <span className={labelTextClass}>Harga jika dijual</span>
-                  <input name="price" inputMode="numeric" className={fieldClass} placeholder="180000" />
-                </label>
+                <ListingModePriceFields fieldClass={fieldClass} labelClass={labelClass} labelTextClass={labelTextClass} />
                 <label className={labelClass}>
                   <span className={labelTextClass}>Kondisi</span>
                   <select name="condition" required className={fieldClass}>

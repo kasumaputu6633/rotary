@@ -6,6 +6,7 @@ import { Badge, PageHeader, Panel } from "@/app/dashboard/_components/SellerCent
 import { ListingCategoryPicker } from "@/app/dashboard/listings/new/_components/ListingCategoryPicker";
 import { ListingImagePicker } from "@/app/dashboard/listings/new/_components/ListingImagePicker";
 import { ListingLocationPickerLazy as ListingLocationPicker } from "@/app/dashboard/listings/new/_components/ListingLocationPickerLazy";
+import { ListingModePriceFields } from "@/app/dashboard/listings/new/_components/ListingModePriceFields";
 import { ListingSubmitButtons } from "@/app/dashboard/listings/new/_components/ListingSubmitButtons";
 
 type Props = {
@@ -91,23 +92,13 @@ export default async function EditListingPage({ params }: Props) {
               </div>
 
               <div className="grid gap-4 md:grid-cols-3">
-                <label className={labelClass}>
-                  <span className={labelTextClass}>Mode Listing</span>
-                  <select name="mode" defaultValue={listing.mode} className={fieldClass}>
-                    <option value="sale">Dijual</option>
-                    <option value="donation">Didonasi</option>
-                  </select>
-                </label>
-                <label className={labelClass}>
-                  <span className={labelTextClass}>Harga jika dijual</span>
-                  <input
-                    name="price"
-                    inputMode="numeric"
-                    defaultValue={listing.price ?? ""}
-                    className={fieldClass}
-                    placeholder="180000"
-                  />
-                </label>
+                <ListingModePriceFields
+                  defaultMode={listing.mode}
+                  defaultPrice={listing.price}
+                  fieldClass={fieldClass}
+                  labelClass={labelClass}
+                  labelTextClass={labelTextClass}
+                />
                 <label className={labelClass}>
                   <span className={labelTextClass}>Kondisi</span>
                   <select name="condition" required defaultValue={listing.condition} className={fieldClass}>
@@ -155,9 +146,15 @@ export default async function EditListingPage({ params }: Props) {
             <p className="mt-1 text-[12px] leading-relaxed text-[var(--seller-muted)]">
               {listing.status === "active"
                 ? "Listing aktif. Perubahan langsung tampil di marketplace."
-                : "Simpan draft atau terbitkan ke marketplace sekarang."}
+                : listing.status === "inactive"
+                  ? "Simpan perubahan tanpa menampilkan listing, atau aktifkan lagi ke marketplace."
+                  : "Simpan draft atau terbitkan ke marketplace sekarang."}
             </p>
-            <ListingSubmitButtons />
+            <ListingSubmitButtons
+              publishLabel={listing.status === "inactive" ? "Aktifkan Listing" : listing.status === "active" ? "Simpan Perubahan" : "Terbitkan Listing"}
+              draftLabel={listing.status === "inactive" ? "Simpan Perubahan" : "Simpan Draft"}
+              showDraftButton={listing.status !== "active"}
+            />
           </section>
         </aside>
       </form>
