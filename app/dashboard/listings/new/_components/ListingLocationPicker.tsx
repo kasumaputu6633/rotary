@@ -5,6 +5,7 @@ import { SessionToken, type SearchBoxSuggestion } from "@mapbox/search-js-core";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 const TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN ?? "";
+const MAX_LOCATION_LENGTH = 255;
 
 type Props = {
   defaultLocation?: string;
@@ -12,15 +13,36 @@ type Props = {
   defaultLongitude?: number | null;
 };
 
-// Bangun label lokasi yang bersih: "Nama Jalan, Kota, Provinsi" — tanpa kode pos dan negara
-function buildLocationLabel(s: SearchBoxSuggestion): string {
-  const parts: string[] = [s.name];
-  const ctx = s.context as Record<string, { name?: string } | undefined> | undefined;
-  const place = ctx?.place?.name ?? ctx?.locality?.name;
-  const region = ctx?.region?.name;
-  if (place) parts.push(place);
-  if (region && region !== place) parts.push(region);
-  return parts.join(", ");
+function normalizeLocationLabel(value: string) {
+  return value.replace(/\s+/g, " ").replace(/\s+,/g, ",").trim().slice(0, MAX_LOCATION_LENGTH);
+}
+
+function joinUniqueLocationParts(parts: Array<string | null | undefined>) {
+  const cleanParts: string[] = [];
+  for (const part of parts) {
+    const clean = part?.replace(/\s+/g, " ").trim();
+    if (!clean) continue;
+    if (cleanParts.some((existing) => existing.toLowerCase() === clean.toLowerCase())) continue;
+    cleanParts.push(clean);
+  }
+  return normalizeLocationLabel(cleanParts.join(", "));
+}
+
+function buildDetailedLocationLabel(
+  suggestion: SearchBoxSuggestion,
+  feature?: { properties?: Partial<SearchBoxSuggestion> },
+) {
+  const properties = feature?.properties;
+  const name = properties?.name_preferred || properties?.name || suggestion.name_preferred || suggestion.name;
+  const fullAddress = properties?.full_address || suggestion.full_address;
+  const placeFormatted = properties?.place_formatted || suggestion.place_formatted;
+
+  if (fullAddress) {
+    const isNameAlreadyIncluded = name && fullAddress.toLowerCase().includes(name.toLowerCase());
+    return joinUniqueLocationParts([isNameAlreadyIncluded ? null : name, fullAddress]);
+  }
+
+  return joinUniqueLocationParts([name, placeFormatted]);
 }
 
 export function ListingLocationPicker({ defaultLocation, defaultLatitude, defaultLongitude }: Props) {
@@ -98,7 +120,7 @@ export function ListingLocationPicker({ defaultLocation, defaultLatitude, defaul
       if (!feature) return;
       const [lng, lat] = feature.geometry.coordinates;
       skipNextSuggestRef.current = true;
-      setQuery(buildLocationLabel(suggestion));
+      setQuery(buildDetailedLocationLabel(suggestion, feature));
       setLatitude(lat);
       setLongitude(lng);
       setSuggestions([]);
@@ -114,7 +136,7 @@ export function ListingLocationPicker({ defaultLocation, defaultLatitude, defaul
         ref={inputRef}
         name="location"
         required
-        maxLength={160}
+        maxLength={MAX_LOCATION_LENGTH}
         value={query}
         onChange={(e) => {
           setQuery(e.target.value);

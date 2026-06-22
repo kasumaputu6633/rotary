@@ -229,19 +229,6 @@ export default function NavbarAuthButtons({
                     </span>
                   </Link>
 
-                  <button
-                    onClick={() => {
-                      setShowDropdown(false);
-                      // TODO: Navigate to change password page
-                    }}
-                    className="group w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-[#fff7e8] focus-visible:bg-[#fff7e8] focus-visible:outline-none transition-colors"
-                  >
-                    <Icon icon="lucide:user-cog" width={16} height={16} className="text-[#555] transition-colors group-hover:text-[#17458f]" aria-hidden="true" />
-                    <span className="font-poppins text-[13px] text-[#333] group-hover:text-[#17458f] group-hover:font-semibold transition-colors">
-                      Ubah Password
-                    </span>
-                  </button>
-
                   <Link
                     href="/dashboard/favorites"
                     onClick={() => setShowDropdown(false)}
@@ -252,19 +239,6 @@ export default function NavbarAuthButtons({
                       Favorit
                     </span>
                   </Link>
-
-                  <button
-                    onClick={() => {
-                      setShowDropdown(false);
-                      // TODO: Navigate to help center page
-                    }}
-                    className="group w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-[#fff7e8] focus-visible:bg-[#fff7e8] focus-visible:outline-none transition-colors"
-                  >
-                    <Icon icon="lucide:circle-help" width={16} height={16} className="text-[#555] transition-colors group-hover:text-[#17458f]" aria-hidden="true" />
-                    <span className="font-poppins text-[13px] text-[#333] group-hover:text-[#17458f] group-hover:font-semibold transition-colors">
-                      Pusat Bantuan
-                    </span>
-                  </button>
 
                   <button
                     onClick={() => {

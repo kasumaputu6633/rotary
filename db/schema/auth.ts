@@ -88,7 +88,7 @@ export const listings = pgTable("listings", {
   condition: varchar("condition", { length: 80 }).notNull(),
   mode: listingModeEnum("mode").notNull().default("sale"),
   price: integer("price"),
-  location: varchar("location", { length: 160 }).notNull(),
+  location: varchar("location", { length: 255 }).notNull(),
   // Koordinat hasil geocode Mapbox. Nullable agar listing lama tetap valid;
   // form autocomplete mengisi keduanya, tapi teks manual tetap diperbolehkan.
   latitude: doublePrecision("latitude"),

@@ -1,5 +1,3 @@
-export { listingCategories, listingCategoryGroups, listingSubcategories } from "@/lib/listing-taxonomy";
-
 // Data dummy percakapan chat — belum terhubung ke DB
 export const dummyConversations = [
   {

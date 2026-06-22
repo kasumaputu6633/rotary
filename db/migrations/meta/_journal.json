@@ -64,6 +64,20 @@
       "when": 1782091287000,
       "tag": "0008_add_user_avatar",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1782093841000,
+      "tag": "0009_expand_listing_location",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1782097445512,
+      "tag": "0010_open_black_panther",
+      "breakpoints": true
     }
   ]
 }

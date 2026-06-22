@@ -40,7 +40,7 @@ export default function RootLayout({
       lang="id"
       className={`${poppins.variable} ${robotoSerif.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">
+      <body id="page-top" className="min-h-full flex flex-col">
         <DropdownOverlay />
         {children}
         <FloatingChat />

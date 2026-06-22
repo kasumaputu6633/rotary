@@ -2,7 +2,7 @@
 
 import { Icon } from "@iconify/react";
 import { useMemo, useState } from "react";
-import { listingCategoryGroups } from "../../../_data/seller-center";
+import { listingCategoryGroups } from "@/lib/listing-taxonomy";
 
 export function ListingCategoryPicker({
   defaultCategory,

@@ -10,14 +10,16 @@ import NavbarAuthButtons from "./NavbarAuthButtons";
 import NavbarChatButton from "./NavbarChatButton";
 import NavbarNotificationButton from "./NavbarNotificationButton";
 
-const topLinks = ["Tentang Rotary", "Edukasi", "Program", "Bantuan"];
+const topLinks = [
+  { label: "Marketplace", href: "/products" },
+  { label: "Donasi", href: "/products?mode=donation" },
+  { label: "Lokasi Penampung", href: "/waste" },
+];
 
 const navLinks = [
   { label: "Marketplace", href: "/products" },
   { label: "Donasi", href: "/products?mode=donation" },
   { label: "Lokasi Penampung", href: "/waste" },
-  { label: "Program Komunitas", href: "#" },
-  { label: "Customer Service", href: "#" },
 ];
 
 export default async function Navbar() {
@@ -49,11 +51,11 @@ export default async function Navbar() {
           <nav className="flex items-center gap-7" aria-label="Navigasi tambahan">
             {topLinks.map((link) => (
               <Link
-                key={link}
-                href="#"
+                key={link.href}
+                href={link.href}
                 className="font-poppins text-[12px] text-[#6b7280] hover:text-[#17458f] transition-colors whitespace-nowrap"
               >
-                {link}
+                {link.label}
               </Link>
             ))}
           </nav>

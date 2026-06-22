@@ -30,6 +30,3 @@ export const listingCategoryGroups = [
     subcategories: ["Mainan Anak", "Boneka", "Board Game", "Koleksi"],
   },
 ] as const;
-
-export const listingCategories = listingCategoryGroups.map((category) => category.name);
-export const listingSubcategories = listingCategoryGroups.flatMap((category) => category.subcategories);

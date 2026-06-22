@@ -8,10 +8,6 @@ export async function getSessionUserId(): Promise<string | null> {
   return (await cookies()).get("session_user_id")?.value ?? null;
 }
 
-export async function getSessionRole(): Promise<string | null> {
-  return (await cookies()).get("session_role")?.value ?? null;
-}
-
 export async function getCurrentUser() {
   const userId = await getSessionUserId();
   if (!userId) return null;
@@ -29,9 +25,4 @@ export async function requireRole(role: "user" | "admin") {
   if (!user) redirect("/login");
   if (user.role !== role) redirect("/unauthorized");
   return user;
-}
-
-export async function isRole(role: "user" | "admin"): Promise<boolean> {
-  const sessionRole = await getSessionRole();
-  return sessionRole === role;
 }
