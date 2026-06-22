@@ -60,7 +60,7 @@ function safeName(name: string) {
     .replace(/\.[^.]+$/, "")
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/(^-|-$)/g, "")
-    .slice(0, 50) || "listing";
+    .slice(0, 50) || "image";
 }
 
 async function putObjectToR2({
@@ -126,7 +126,7 @@ async function putObjectToR2({
   }
 }
 
-export async function deleteListingImage(objectKey: string) {
+async function deleteObjectFromR2(objectKey: string) {
   const config = getR2Config();
   const endpointUrl = new URL(config.endpoint);
   const host = endpointUrl.host;
@@ -160,7 +160,15 @@ export async function deleteListingImage(objectKey: string) {
   });
 }
 
-export async function uploadListingImage(file: File, userId: string) {
+export async function deleteListingImage(objectKey: string) {
+  await deleteObjectFromR2(objectKey);
+}
+
+export async function deleteUserAvatar(objectKey: string) {
+  await deleteObjectFromR2(objectKey);
+}
+
+async function uploadImage(file: File, keyPrefix: string) {
   if (!ALLOWED_IMAGE_TYPES.has(file.type)) {
     throw new Error("Format foto harus JPG, PNG, atau WEBP.");
   }
@@ -171,7 +179,7 @@ export async function uploadListingImage(file: File, userId: string) {
   const arrayBuffer = await file.arrayBuffer();
   const body = Buffer.from(arrayBuffer);
   const extension = extensionFromType(file.type);
-  const key = `listings/${userId}/${Date.now()}-${crypto.randomUUID()}-${safeName(file.name)}.${extension}`;
+  const key = `${keyPrefix}/${Date.now()}-${crypto.randomUUID()}-${safeName(file.name)}.${extension}`;
 
   await putObjectToR2({ key, body, contentType: file.type });
 
@@ -179,4 +187,12 @@ export async function uploadListingImage(file: File, userId: string) {
     objectKey: key,
     imageUrl: `${getR2Config().publicBaseUrl.replace(/\/$/, "")}/${key}`,
   };
+}
+
+export async function uploadListingImage(file: File, userId: string) {
+  return uploadImage(file, `listings/${userId}`);
+}
+
+export async function uploadUserAvatar(file: File, userId: string) {
+  return uploadImage(file, `users/${userId}/avatar`);
 }

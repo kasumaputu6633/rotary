@@ -57,6 +57,13 @@
       "when": 1782000000000,
       "tag": "0007_add_coordinates_to_listings",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1782091287000,
+      "tag": "0008_add_user_avatar",
+      "breakpoints": true
     }
   ]
 }

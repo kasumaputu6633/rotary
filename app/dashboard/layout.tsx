@@ -28,6 +28,7 @@ export default async function LapakSayaLayout({
   const currentTimestamp = getCurrentTimestamp();
   const attentionCount = [
     !user.whatsapp,
+    !user.avatarUrl,
     draftCount > 0,
     activeListings.some((listing) => !listing.imageUrl),
     activeListings.some((listing) => listing.latitude === null || listing.longitude === null),
@@ -38,6 +39,7 @@ export default async function LapakSayaLayout({
   return (
     <SellerCenterShell
       userName={user.name ?? "Pengguna Rotary"}
+      userAvatarUrl={user.avatarUrl}
       attentionCount={attentionCount}
       draftCount={draftCount}
       inactiveCount={inactiveCount}

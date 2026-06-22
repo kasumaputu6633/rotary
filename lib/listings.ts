@@ -63,6 +63,7 @@ const listingSelection = {
   updatedAt: listings.updatedAt,
   publishedAt: listings.publishedAt,
   sellerName: users.name,
+  sellerAvatarUrl: users.avatarUrl,
   imageUrl: listingImages.imageUrl,
 };
 

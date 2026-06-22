@@ -4,7 +4,7 @@ import { Icon } from "@iconify/react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import type { ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { logoutAction } from "@/app/actions";
 import { SellerToaster } from "./SellerToaster";
 
@@ -59,16 +59,21 @@ export default function SellerCenterShell({
   children,
   draftCount,
   inactiveCount,
+  userAvatarUrl,
   userName,
 }: {
   attentionCount?: number;
   children: ReactNode;
   draftCount?: number;
   inactiveCount?: number;
+  userAvatarUrl?: string | null;
   userName: string;
 }) {
   const pathname = usePathname();
   const initials = getInitials(userName) || "R";
+  const [profileMenuOpenPath, setProfileMenuOpenPath] = useState<string | null>(null);
+  const profileMenuRef = useRef<HTMLDivElement>(null);
+  const isProfileMenuOpen = profileMenuOpenPath === pathname;
 
   const navigation: NavigationItem[] = [
     { label: "Beranda", href: "/dashboard", icon: "lucide:home" },
@@ -94,6 +99,30 @@ export default function SellerCenterShell({
       .filter((child) => child.href !== item.href)
       .map((child) => ({ ...child, exact: true })),
   ]);
+
+  useEffect(() => {
+    if (!isProfileMenuOpen) return;
+
+    function handlePointerDown(event: PointerEvent) {
+      if (!profileMenuRef.current?.contains(event.target as Node)) {
+        setProfileMenuOpenPath(null);
+      }
+    }
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setProfileMenuOpenPath(null);
+      }
+    }
+
+    document.addEventListener("pointerdown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isProfileMenuOpen]);
 
   return (
     <div className="seller-center min-h-screen bg-[var(--seller-paper)] font-poppins text-[var(--seller-ink)] lg:h-screen lg:overflow-hidden">
@@ -213,34 +242,65 @@ export default function SellerCenterShell({
                 ) : null}
               </Link>
 
-              <details className="group relative">
-                <summary className="flex cursor-pointer list-none items-center gap-2 rounded-[8px] border border-[var(--seller-rule)] bg-[var(--seller-surface-2)] py-1 pl-1 pr-3 transition hover:bg-[var(--seller-accent-soft)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--seller-focus)] [&::-webkit-details-marker]:hidden">
-                  <span className="flex h-9 w-9 items-center justify-center rounded-[8px] bg-[var(--seller-brand)] text-[12px] font-bold text-white">
-                    {initials}
+              <div ref={profileMenuRef} className="relative">
+                <button
+                  type="button"
+                  onClick={() => setProfileMenuOpenPath((openPath) => openPath === pathname ? null : pathname)}
+                  className={`flex items-center gap-2 rounded-[8px] border border-[var(--seller-rule)] py-1 pl-1 pr-3 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--seller-focus)] ${
+                    isProfileMenuOpen ? "bg-[var(--seller-accent-soft)]" : "bg-[var(--seller-surface-2)] hover:bg-[var(--seller-accent-soft)]"
+                  }`}
+                  aria-expanded={isProfileMenuOpen}
+                  aria-haspopup="menu"
+                >
+                  <span className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-[8px] bg-[var(--seller-brand)] text-[12px] font-bold text-white">
+                    {userAvatarUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={userAvatarUrl} alt="" className="h-full w-full object-cover" />
+                    ) : (
+                      initials
+                    )}
                   </span>
-                  <span className="hidden min-w-0 sm:block">
-                    <span className="block max-w-32 truncate text-[13px] font-semibold">{userName}</span>
-                    <span className="block text-[10px] text-[var(--seller-muted)]">Lapak Saya</span>
+                  <span className="hidden min-w-0 justify-items-start text-left sm:grid">
+                    <span className="block max-w-32 truncate text-left text-[13px] font-semibold">{userName}</span>
+                    <span className="block text-left text-[10px] text-[var(--seller-muted)]">Lapak Saya</span>
                   </span>
-                  <Icon icon="lucide:chevron-down" width={14} height={14} className="text-[var(--seller-muted)] transition-transform group-open:rotate-180" aria-hidden="true" />
-                </summary>
-                <div className="absolute right-0 top-[calc(100%+8px)] z-50 w-56 overflow-hidden rounded-[8px] border border-[var(--seller-rule)] bg-[var(--seller-surface)] shadow-[var(--seller-shadow)]">
-                  <Link href="/dashboard/profile" className="flex items-center gap-2 px-3 py-2.5 text-[12px] font-semibold text-[var(--seller-ink)] hover:bg-[var(--seller-surface-2)]">
-                    <Icon icon="lucide:user-round-cog" width={15} height={15} className="text-[var(--seller-brand)]" aria-hidden="true" />
-                    Profil Lapak
-                  </Link>
-                  <Link href="/products" className="flex items-center gap-2 px-3 py-2.5 text-[12px] font-semibold text-[var(--seller-ink)] hover:bg-[var(--seller-surface-2)]">
-                    <Icon icon="lucide:store" width={15} height={15} className="text-[var(--seller-brand)]" aria-hidden="true" />
-                    Buka Marketplace
-                  </Link>
-                  <form action={logoutAction} className="border-t border-[var(--seller-rule)]">
-                    <button type="submit" className="flex w-full items-center gap-2 px-3 py-2.5 text-left text-[12px] font-semibold text-[var(--seller-danger)] hover:bg-[var(--seller-danger-soft)]">
-                      <Icon icon="lucide:log-out" width={15} height={15} aria-hidden="true" />
-                      Keluar
-                    </button>
-                  </form>
-                </div>
-              </details>
+                  <Icon
+                    icon="lucide:chevron-down"
+                    width={14}
+                    height={14}
+                    className={`text-[var(--seller-muted)] transition-transform ${isProfileMenuOpen ? "rotate-180" : ""}`}
+                    aria-hidden="true"
+                  />
+                </button>
+                {isProfileMenuOpen ? (
+                  <div className="absolute right-0 top-[calc(100%+8px)] z-50 w-56 overflow-hidden rounded-[8px] border border-[var(--seller-rule)] bg-[var(--seller-surface)] shadow-[var(--seller-shadow)]" role="menu">
+                    <Link
+                      href="/dashboard/profile"
+                      onClick={() => setProfileMenuOpenPath(null)}
+                      className="flex items-center gap-2 px-3 py-2.5 text-[12px] font-semibold text-[var(--seller-ink)] hover:bg-[var(--seller-surface-2)]"
+                      role="menuitem"
+                    >
+                      <Icon icon="lucide:user-round-cog" width={15} height={15} className="text-[var(--seller-brand)]" aria-hidden="true" />
+                      Profil Lapak
+                    </Link>
+                    <Link
+                      href="/products"
+                      onClick={() => setProfileMenuOpenPath(null)}
+                      className="flex items-center gap-2 px-3 py-2.5 text-[12px] font-semibold text-[var(--seller-ink)] hover:bg-[var(--seller-surface-2)]"
+                      role="menuitem"
+                    >
+                      <Icon icon="lucide:store" width={15} height={15} className="text-[var(--seller-brand)]" aria-hidden="true" />
+                      Buka Marketplace
+                    </Link>
+                    <form action={logoutAction} onSubmit={() => setProfileMenuOpenPath(null)} className="border-t border-[var(--seller-rule)]">
+                      <button type="submit" className="flex w-full items-center gap-2 px-3 py-2.5 text-left text-[12px] font-semibold text-[var(--seller-danger)] hover:bg-[var(--seller-danger-soft)]" role="menuitem">
+                        <Icon icon="lucide:log-out" width={15} height={15} aria-hidden="true" />
+                        Keluar
+                      </button>
+                    </form>
+                  </div>
+                ) : null}
+              </div>
             </div>
             <nav className="flex gap-2 overflow-x-auto border-t border-[var(--seller-rule)] px-4 py-2 lg:hidden" aria-label="Navigasi cepat Lapak Saya">
               {mobileNavigation.map((item) => {

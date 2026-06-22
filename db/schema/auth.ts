@@ -24,6 +24,8 @@ export const users = pgTable("users", {
   passwordHash: text("password_hash"),
   bio: text("bio"),
   whatsapp: varchar("whatsapp", { length: 20 }),
+  avatarUrl: text("avatar_url"),
+  avatarObjectKey: text("avatar_object_key"),
   role: roleEnum("role").notNull().default("user"),
   isVerified: boolean("is_verified").notNull().default(false),
   createdAt: timestamp("created_at").notNull().defaultNow(),

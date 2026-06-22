@@ -17,6 +17,7 @@ export type ListingCardData = {
   publishedAt: Date | null;
   sellerId?: string;
   sellerName: string | null;
+  sellerAvatarUrl?: string | null;
   sellerWhatsapp?: string | null;
   latitude?: number | null;
   longitude?: number | null;

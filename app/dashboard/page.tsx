@@ -63,6 +63,15 @@ export default async function LapakSayaPage() {
           action: "Edit profil",
         }]
       : []),
+    ...(!user.avatarUrl
+      ? [{
+          title: "Tambahkan foto profil",
+          description: "Foto profil lapak membuat pemilik barang terlihat lebih tepercaya di halaman produk.",
+          icon: "lucide:user-round-plus",
+          href: "/dashboard/profile",
+          action: "Upload foto",
+        }]
+      : []),
     ...(draftListings.length > 0
       ? [{
           title: "Lengkapi draft listing",

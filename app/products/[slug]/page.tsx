@@ -121,8 +121,13 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
                 </div>
 
                 <div className="mt-5 flex items-center gap-3">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#e5e7eb] text-[#6b7280]">
-                    <Icon icon="lucide:user" width={22} height={22} aria-hidden="true" />
+                  <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-full bg-[#e5e7eb] text-[#6b7280]">
+                    {product.sellerAvatarUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={product.sellerAvatarUrl} alt="" className="h-full w-full object-cover" />
+                    ) : (
+                      <Icon icon="lucide:user" width={22} height={22} aria-hidden="true" />
+                    )}
                   </div>
                   <div className="font-poppins">
                     <p className="text-[12px] text-black">Informasi Pemilik</p>

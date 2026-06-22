@@ -5,7 +5,7 @@ import { favoriteListings, listingImages, listings, users } from "@/db/schema";
 import { requireAuth, requireRole } from "@/lib/auth";
 import type { ListingStatus } from "@/lib/listing-format";
 import { createUniqueListingSlug } from "@/lib/listings";
-import { deleteListingImage, uploadListingImage } from "@/lib/r2";
+import { deleteListingImage, deleteUserAvatar, uploadListingImage, uploadUserAvatar } from "@/lib/r2";
 import { and, eq } from "drizzle-orm";
 import { geocodeLocationText } from "@/lib/mapbox";
 import { revalidatePath } from "next/cache";
@@ -37,6 +37,11 @@ function getImages(formData: FormData) {
     .getAll("images")
     .filter((value): value is File => value instanceof File && value.size > 0)
     .slice(0, 4);
+}
+
+function getOptionalFile(formData: FormData, key: string) {
+  const value = formData.get(key);
+  return value instanceof File && value.size > 0 ? value : null;
 }
 
 export async function createListingAction(formData: FormData) {
@@ -263,14 +268,45 @@ export async function updateProfileAction(formData: FormData) {
   const name = getString(formData, "name");
   const bio = getString(formData, "bio");
   const whatsapp = getString(formData, "whatsapp");
+  const removeAvatar = getString(formData, "removeAvatar") === "1";
+  const avatarFile = getOptionalFile(formData, "avatar");
+
+  const currentProfile = await db.query.users.findFirst({
+    where: eq(users.id, user.id),
+    columns: { avatarObjectKey: true },
+  });
+
+  const uploadedAvatar = avatarFile ? await uploadUserAvatar(avatarFile, user.id) : null;
+  const shouldClearAvatar = removeAvatar && !uploadedAvatar;
 
   await db
     .update(users)
-    .set({ name: name || null, bio: bio || null, whatsapp: whatsapp || null, updatedAt: new Date() })
+    .set({
+      name: name || null,
+      bio: bio || null,
+      whatsapp: whatsapp || null,
+      ...(uploadedAvatar
+        ? { avatarUrl: uploadedAvatar.imageUrl, avatarObjectKey: uploadedAvatar.objectKey }
+        : shouldClearAvatar
+          ? { avatarUrl: null, avatarObjectKey: null }
+          : {}),
+      updatedAt: new Date(),
+    })
     .where(eq(users.id, user.id));
+
+  if ((uploadedAvatar || shouldClearAvatar) && currentProfile?.avatarObjectKey) {
+    await deleteUserAvatar(currentProfile.avatarObjectKey);
+  }
+
+  const sellerListings = await db
+    .select({ slug: listings.slug })
+    .from(listings)
+    .where(eq(listings.sellerId, user.id));
 
   revalidatePath("/dashboard");
   revalidatePath("/dashboard/profile");
+  revalidatePath("/products");
+  sellerListings.forEach((listing) => revalidatePath(`/products/${listing.slug}`));
 }
 
 export async function toggleFavoriteListingAction(listingId: string, slug?: string) {
