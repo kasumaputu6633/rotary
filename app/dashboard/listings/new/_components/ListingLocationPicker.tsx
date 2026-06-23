@@ -148,7 +148,7 @@ export function ListingLocationPicker({ defaultLocation, defaultLatitude, defaul
         }}
         onFocus={() => setOpenRequested(true)}
         className="h-11 w-full rounded-[8px] border border-[var(--seller-rule-strong)] bg-[var(--seller-surface)] px-3 text-[13px] outline-none transition focus:border-[var(--seller-brand)] focus:ring-2 focus:ring-[var(--seller-accent-soft)]"
-        placeholder="Contoh: Denpasar Barat, Bali"
+        placeholder="Contoh: Denpasar, Bandung, Semarang"
         autoComplete="off"
       />
 

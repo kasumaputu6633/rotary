@@ -7,7 +7,7 @@ import Navbar from "@/app/_components/Navbar";
 import ProductCard from "@/app/_components/ProductCard";
 import { toggleFavoriteListingAction } from "@/app/dashboard/actions";
 import { getSessionUserId } from "@/lib/auth";
-import { formatPrice } from "@/lib/listing-format";
+import { formatPrice, formatPublicLocation } from "@/lib/listing-format";
 import { getListingImages, getPublicListingBySlug, getPublicListings, incrementListingView } from "@/lib/listings";
 import ProductContactActions from "./_components/ProductContactActions";
 import ProductGallery from "./_components/ProductGallery";
@@ -66,6 +66,7 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
   const subcategoryHref = product.subcategory
     ? `${categoryHref}&subcategory=${encodeURIComponent(product.subcategory)}`
     : null;
+  const publicLocation = formatPublicLocation(product.location);
 
   return (
     <>
@@ -110,14 +111,14 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
             <aside className="lg:col-span-2 xl:col-span-1">
               <div className="rounded-lg border border-[#cbd5e1] bg-white p-5 shadow-[0_12px_32px_rgba(15,23,42,0.08)] transition-shadow hover:shadow-[0_18px_42px_rgba(15,23,42,0.12)] xl:sticky xl:top-6">
                 {product.latitude && product.longitude ? (
-                  <ListingMap latitude={product.latitude} longitude={product.longitude} locationLabel={product.location} />
+                  <ListingMap latitude={product.latitude} longitude={product.longitude} locationLabel={publicLocation} />
                 ) : (
                   <MapPlaceholder />
                 )}
 
                 <div className="mt-4 border-b border-[#bfc7d4] pb-4 font-poppins">
-                  <p className="text-[13px] font-semibold text-black">{product.location}</p>
-                  <p className="text-[12px] text-[#6b7280]">Perkiraan Lokasi</p>
+                  <p className="text-[13px] font-semibold text-black">{publicLocation}</p>
+                  <p className="text-[12px] text-[#6b7280]">Perkiraan area. Alamat detail disepakati saat chat.</p>
                 </div>
 
                 <div className="mt-5 flex items-center gap-3">
@@ -171,7 +172,7 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
                   <Icon icon="lucide:arrow-right" width={14} height={14} aria-hidden="true" />
                 </Link>
               </div>
-              <div className="mt-8 grid grid-cols-2 gap-x-3 gap-y-7 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
+              <div className="mt-8 grid grid-cols-[repeat(auto-fill,minmax(142px,1fr))] gap-x-3 gap-y-7 sm:grid-cols-[repeat(auto-fill,minmax(158px,1fr))] xl:grid-cols-[repeat(auto-fill,minmax(168px,1fr))]">
                 {recommendations.map((item) => (
                   <ProductCard key={item.id} product={item} />
                 ))}

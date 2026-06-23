@@ -9,14 +9,14 @@ export default async function HomeProductShowcase() {
   const products = await getPublicListings({ limit: 24, userId });
 
   return (
-    <section className="bg-white pb-12 pt-10 md:pb-14 md:pt-12" aria-labelledby="new-products-heading">
-      <div className="mx-auto max-w-[1728px] px-8 lg:px-40">
-        <div className="mb-10 flex flex-wrap items-end justify-between gap-3 md:mb-12">
+    <section className="bg-white pb-10 pt-8 md:pb-12 md:pt-10" aria-labelledby="new-products-heading">
+      <div className="mx-auto max-w-[1728px] px-5 sm:px-8 lg:px-40">
+        <div className="mb-6 flex flex-wrap items-end justify-between gap-3 md:mb-7">
           <div>
-            <h2 id="new-products-heading" className="font-roboto-serif text-[24px] font-semibold leading-tight text-black md:text-[28px]">
+            <h2 id="new-products-heading" className="font-poppins text-[22px] font-semibold leading-tight text-black md:text-[24px]">
               Barang Baru Ditambahkan
             </h2>
-            <p className="mt-0.5 font-poppins text-[14px] leading-snug text-black md:text-[16px]">
+            <p className="mt-1 font-poppins text-[13px] leading-snug text-[#5f6370] md:text-[14px]">
               Temukan barang bekas yang siap dijual atau didonasikan
             </p>
           </div>
@@ -38,7 +38,7 @@ export default async function HomeProductShowcase() {
             </Link>
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-x-3 gap-y-6 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
+          <div className="grid grid-cols-[repeat(auto-fill,minmax(142px,1fr))] gap-x-3 gap-y-7 sm:grid-cols-[repeat(auto-fill,minmax(160px,1fr))] lg:grid-cols-[repeat(auto-fill,minmax(172px,1fr))]">
             {products.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}

@@ -119,6 +119,8 @@ async function putObjectToR2({
       "x-amz-date": amzDate,
     },
     body: requestBody,
+  }).catch((error) => {
+    throw new Error(`Tidak bisa terhubung ke R2: ${error instanceof Error ? error.message : "koneksi gagal"}`);
   });
 
   if (!response.ok) {
@@ -150,14 +152,20 @@ async function deleteObjectFromR2(objectKey: string) {
   const signature = crypto.createHmac("sha256", signingKey).update(stringToSign).digest("hex");
   const authorization = `AWS4-HMAC-SHA256 Credential=${config.accessKeyId}/${credentialScope}, SignedHeaders=${signedHeaders}, Signature=${signature}`;
 
-  await fetch(url, {
+  const response = await fetch(url, {
     method: "DELETE",
     headers: {
       Authorization: authorization,
       "x-amz-content-sha256": emptyHash,
       "x-amz-date": amzDate,
     },
+  }).catch((error) => {
+    throw new Error(`Tidak bisa terhubung ke R2: ${error instanceof Error ? error.message : "koneksi gagal"}`);
   });
+
+  if (!response.ok) {
+    throw new Error(`Hapus file R2 gagal: ${response.status} ${await response.text()}`);
+  }
 }
 
 export async function deleteListingImage(objectKey: string) {

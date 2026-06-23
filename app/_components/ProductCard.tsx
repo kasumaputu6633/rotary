@@ -1,19 +1,20 @@
 import { Icon } from "@iconify/react";
 import Link from "next/link";
 import { toggleFavoriteListingAction } from "@/app/dashboard/actions";
-import { formatListingMode, formatPrice, type ListingCardData } from "@/lib/listing-format";
+import { formatListingMode, formatPrice, formatPublicLocation, type ListingCardData } from "@/lib/listing-format";
 
 export default function ProductCard({ product }: { product: ListingCardData }) {
   const isSale = product.mode === "sale";
+  const publicLocation = formatPublicLocation(product.location);
 
   return (
-    <article className="group min-w-0">
+    <article className="group min-w-0 font-poppins">
       <div className="relative">
         <Link
           href={`/products/${product.slug}`}
-          className="block min-w-0 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#17458f] focus-visible:ring-offset-4"
+          className="block min-w-0 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#17458f] focus-visible:ring-offset-4"
         >
-          <div className="relative flex aspect-[1.12/1] items-center justify-center overflow-hidden rounded-md border border-[#e5e7eb] bg-[#f4f6f8] text-[28px] text-[#9aa7b8] shadow-[0_6px_16px_rgba(15,23,42,0.06)] transition duration-300 group-hover:-translate-y-1 group-hover:shadow-[0_12px_24px_rgba(15,23,42,0.12)]">
+          <div className="relative flex aspect-square items-center justify-center overflow-hidden rounded-lg border border-[#e4e8ef] bg-[#f4f6f8] text-[28px] text-[#9aa7b8] shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition duration-300 group-hover:-translate-y-0.5 group-hover:shadow-[0_12px_22px_rgba(15,23,42,0.11)]">
             {product.imageUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={product.imageUrl} alt={product.title} className="h-full w-full object-cover" />
@@ -22,7 +23,11 @@ export default function ProductCard({ product }: { product: ListingCardData }) {
                 <Icon icon="lucide:image" aria-hidden="true" />
               </span>
             )}
-            <span className="absolute left-2 top-2 rounded-full bg-white/90 px-2 py-0.5 font-poppins text-[10px] font-semibold text-[#17458f] shadow-sm">
+            <span
+              className={`absolute left-2 top-2 rounded-full px-2.5 py-1 text-[10px] font-semibold leading-none text-white shadow-sm ${
+                isSale ? "bg-[#17458f]" : "bg-[#2f7d49]"
+              }`}
+            >
               {formatListingMode(product.mode)}
             </span>
           </div>
@@ -36,25 +41,36 @@ export default function ProductCard({ product }: { product: ListingCardData }) {
             }`}
             aria-label={product.isFavorite ? "Hapus dari favorit" : "Tambah ke favorit"}
           >
-            <Icon icon={product.isFavorite ? "lucide:heart" : "lucide:heart"} width={15} height={15} aria-hidden="true" />
+            <Icon
+              icon="lucide:heart"
+              width={15}
+              height={15}
+              className={product.isFavorite ? "fill-current" : ""}
+              aria-hidden="true"
+            />
           </button>
         </form>
       </div>
 
       <Link href={`/products/${product.slug}`} className="block">
-        <h3 className="mt-2 truncate font-poppins text-[13px] leading-tight text-black transition-colors group-hover:text-[#17458f]">
+        <h3 className="mt-2 line-clamp-2 min-h-[34px] text-[13px] leading-[17px] text-[#1f2937] transition-colors group-hover:text-[#17458f]">
           {product.title}
         </h3>
-        <p className="mt-1.5 font-poppins text-[17px] font-semibold leading-none text-black">{formatPrice(product.price, product.mode)}</p>
+        <p className="mt-1 text-[18px] font-bold leading-tight text-black">{formatPrice(product.price, product.mode)}</p>
 
-        <div className={`mt-2 flex items-center gap-1.5 font-poppins text-[12px] ${isSale ? "text-[#f5a623]" : "text-[#48b461]"}`}>
-          <Icon icon={isSale ? "lucide:tag" : "lucide:hand-heart"} aria-hidden="true" />
-          <span>{formatListingMode(product.mode)}</span>
+        <div className={`mt-1 flex min-w-0 items-center gap-1.5 text-[11px] font-semibold ${isSale ? "text-[#f47b20]" : "text-[#2f7d49]"}`}>
+          <Icon icon={isSale ? "lucide:tag" : "lucide:hand-heart"} width={13} height={13} className="shrink-0" aria-hidden="true" />
+          <span className="truncate">{isSale ? "Dijual" : "Donasi gratis"}</span>
         </div>
 
-        <div className="mt-1 flex items-center gap-1.5 font-poppins text-[12px] text-black">
-          <Icon icon="lucide:map-pin" aria-hidden="true" />
-          <span>{product.location}</span>
+        <div className="mt-1 flex min-w-0 items-center gap-1.5 text-[12px] text-[#6b7280]">
+          <Icon icon="lucide:badge-check" width={13} height={13} className="shrink-0 text-[#f7a81b]" aria-hidden="true" />
+          <span className="truncate">{product.condition}</span>
+        </div>
+
+        <div className="mt-1 flex min-w-0 items-center gap-1.5 text-[12px] text-[#6b7280]">
+          <Icon icon="lucide:map-pin" width={13} height={13} className="shrink-0 text-[#9aa3af]" aria-hidden="true" />
+          <span className="truncate">{publicLocation}</span>
         </div>
       </Link>
     </article>

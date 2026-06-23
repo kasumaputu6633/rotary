@@ -111,6 +111,9 @@ export function ListingForm({
 
             <div className={labelClass}>
               <span className={labelTextClass}>Lokasi Barang</span>
+              <p className="text-[11px] leading-relaxed text-[var(--seller-muted)]">
+                Yang tampil di marketplace hanya kota/kabupaten. Alamat detail bisa dibahas saat chat, pengiriman, atau penjemputan.
+              </p>
               <ListingLocationPicker
                 defaultLocation={values.location}
                 defaultLatitude={values.latitude}

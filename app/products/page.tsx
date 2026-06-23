@@ -194,7 +194,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
             </div>
 
             {products.length > 0 ? (
-              <div className="mt-7 grid grid-cols-2 gap-x-3 gap-y-7 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+              <div className="mt-7 grid grid-cols-[repeat(auto-fill,minmax(142px,1fr))] gap-x-3 gap-y-7 sm:grid-cols-[repeat(auto-fill,minmax(158px,1fr))] xl:grid-cols-[repeat(auto-fill,minmax(168px,1fr))]">
                 {products.map((product) => (
                   <ProductCard key={product.id} product={product} />
                 ))}

@@ -1,7 +1,7 @@
 import Image from "next/image";
 
 const TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN ?? "";
-const ZOOM = 13;
+const ZOOM = 10;
 
 type Props = {
   latitude: number;
@@ -12,13 +12,16 @@ type Props = {
 export function ListingMap({ latitude, longitude, locationLabel }: Props) {
   if (!TOKEN) return null;
 
-  const staticUrl = `https://api.mapbox.com/styles/v1/mapbox/streets-v12/static/pin-s+17458f(${longitude},${latitude})/${longitude},${latitude},${ZOOM},0,0/400x240@2x?access_token=${TOKEN}`;
+  // Public listing maps show the general area only. Exact pickup details belong in chat.
+  const approximateLatitude = Number(latitude.toFixed(1));
+  const approximateLongitude = Number(longitude.toFixed(1));
+  const staticUrl = `https://api.mapbox.com/styles/v1/mapbox/streets-v12/static/${approximateLongitude},${approximateLatitude},${ZOOM},0,0/400x240@2x?access_token=${TOKEN}`;
 
   return (
     <div className="relative h-30 overflow-hidden rounded-lg border border-[#cbd5e1]">
       <Image
         src={staticUrl}
-        alt={`Peta lokasi sekitar ${locationLabel ?? ""}`}
+        alt={`Peta perkiraan area ${locationLabel ?? ""}`}
         fill
         className="object-cover"
         unoptimized
