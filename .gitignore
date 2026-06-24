@@ -29,6 +29,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
+/migrate.log
 
 # env files (can opt-in for committing if needed)
 .env
@@ -43,7 +44,7 @@ next-env.d.ts
 
 /.playwright-mcp
 /.claude
+/.ai-handoff
+/.hallmark
 AGENTS.md
 CLAUDE.md
-
-package-lock.json
