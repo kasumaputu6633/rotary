@@ -11,27 +11,53 @@ import {
   index,
   uniqueIndex,
 } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
 
-export const otpTypeEnum = pgEnum("otp_type", ["register", "forgot_password", "login_verify"]);
+export const otpTypeEnum = pgEnum("otp_type", ["register", "forgot_password", "login_verify", "phone_verify"]);
 export const roleEnum = pgEnum("role", ["user", "admin"]);
 export const listingModeEnum = pgEnum("listing_mode", ["sale", "donation"]);
-export const listingStatusEnum = pgEnum("listing_status", ["draft", "active", "inactive"]);
+export const listingStatusEnum = pgEnum("listing_status", [
+  "draft",
+  "active",
+  "reserved",
+  "completed",
+  "inactive",
+]);
+export const dealStageEnum = pgEnum("deal_stage", [
+  "negotiating",
+  "agreed",
+  "handover_scheduled",
+]);
+export const dealStatusEnum = pgEnum("deal_status", [
+  "active",
+  "completed",
+  "cancelled",
+]);
 
-export const users = pgTable("users", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  name: varchar("name", { length: 255 }),
-  email: varchar("email", { length: 255 }).unique(),
-  phone: varchar("phone", { length: 20 }).unique(),
-  passwordHash: text("password_hash"),
-  bio: text("bio"),
-  whatsapp: varchar("whatsapp", { length: 20 }),
-  avatarUrl: text("avatar_url"),
-  avatarObjectKey: text("avatar_object_key"),
-  role: roleEnum("role").notNull().default("user"),
-  isVerified: boolean("is_verified").notNull().default(false),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at").notNull().defaultNow(),
-});
+export const users = pgTable(
+  "users",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    name: varchar("name", { length: 255 }),
+    displayName: varchar("display_name", { length: 80 }),
+    email: varchar("email", { length: 255 }).unique(),
+    phone: varchar("phone", { length: 20 }).unique(),
+    passwordHash: text("password_hash"),
+    bio: text("bio"),
+    avatarUrl: text("avatar_url"),
+    avatarObjectKey: text("avatar_object_key"),
+    role: roleEnum("role").notNull().default("user"),
+    isVerified: boolean("is_verified").notNull().default(false),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (table) => [
+    // Case-insensitive unique buat display_name biar gak ada user kembar (mis. "Putu" vs "putu")
+    uniqueIndex("users_display_name_lower_unique")
+      .on(sql`LOWER(${table.displayName})`)
+      .where(sql`${table.displayName} IS NOT NULL`),
+  ],
+);
 
 export const otpCodes = pgTable("otp_codes", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -114,6 +140,8 @@ export const listings = pgTable(
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
     publishedAt: timestamp("published_at"),
+    reservedAt: timestamp("reserved_at"),
+    completedAt: timestamp("completed_at"),
   },
   (table) => [
     index("listings_seller_id_idx").on(table.sellerId),
@@ -152,5 +180,38 @@ export const favoriteListings = pgTable(
   (table) => [
     index("favorite_listings_listing_id_idx").on(table.listingId),
     uniqueIndex("favorite_listings_user_listing_unique").on(table.userId, table.listingId),
+  ],
+);
+
+export const listingDeals = pgTable(
+  "listing_deals",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    listingId: uuid("listing_id")
+      .notNull()
+      .references(() => listings.id, { onDelete: "cascade" }),
+    sellerId: uuid("seller_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    stage: dealStageEnum("stage").notNull().default("negotiating"),
+    status: dealStatusEnum("status").notNull().default("active"),
+    counterpartyName: varchar("counterparty_name", { length: 120 }),
+    counterpartyContact: varchar("counterparty_contact", { length: 80 }),
+    agreedPrice: integer("agreed_price"),
+    handoverMethod: varchar("handover_method", { length: 80 }),
+    handoverLocation: text("handover_location"),
+    scheduledAt: timestamp("scheduled_at"),
+    sellerNote: text("seller_note"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+    completedAt: timestamp("completed_at"),
+    cancelledAt: timestamp("cancelled_at"),
+  },
+  (table) => [
+    index("listing_deals_listing_id_idx").on(table.listingId),
+    index("listing_deals_seller_status_idx").on(table.sellerId, table.status),
+    uniqueIndex("listing_deals_one_active_per_listing_idx")
+      .on(table.listingId)
+      .where(sql`${table.status} = 'active'`),
   ],
 );

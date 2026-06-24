@@ -1,9 +1,7 @@
-import Link from "next/link";
 import { requireRole } from "@/lib/auth";
 import { getSellerListings } from "@/lib/listings";
-import { EmptyState, ListingThumb, ModeBadge, PageHeader, Panel, PrimaryLink } from "../../_components/SellerCenterUi";
-import { ListingStatusButton } from "../_components/ListingStatusButton";
-import { DeleteListingButton } from "../_components/DeleteListingButton";
+import { EmptyState, ListingThumb, ModeBadge, PageHeader, Panel, PrimaryLink, SecondaryLink } from "../../_components/SellerCenterUi";
+import { ListingLifecycleActions } from "../_components/ListingLifecycleActions";
 
 export default async function InactiveListingsPage() {
   const user = await requireRole("user");
@@ -25,6 +23,7 @@ export default async function InactiveListingsPage() {
             icon="lucide:archive"
             title="Belum ada listing nonaktif"
             description="Listing yang kamu sembunyikan dari marketplace akan muncul di sini."
+            action={<SecondaryLink href="/dashboard/listings" icon="lucide:list">Buka Semua Listing</SecondaryLink>}
           />
         ) : (
           <div className="divide-y divide-[var(--seller-rule)]">
@@ -38,27 +37,13 @@ export default async function InactiveListingsPage() {
                   </div>
                   <p className="mt-1 text-[12px] text-[var(--seller-muted)]">{listing.category} - {listing.location} - Diperbarui {listing.updatedAt.toLocaleDateString("id-ID")}</p>
                 </div>
-                <div className="flex flex-wrap gap-2">
-                  <Link
-                    href={`/dashboard/listings/${listing.id}/edit`}
-                    className="inline-flex h-9 items-center gap-2 rounded-[8px] border border-[var(--seller-rule-strong)] px-3 text-[12px] font-semibold text-[var(--seller-brand)] hover:bg-[var(--seller-brand-soft)]"
-                  >
-                    Edit
-                  </Link>
-                  <ListingStatusButton
-                    listingId={listing.id}
-                    newStatus="active"
-                    icon="lucide:rotate-ccw"
-                    label="Aktifkan"
-                    successMessage="Listing berhasil diaktifkan."
-                    className="inline-flex h-9 items-center gap-2 rounded-[8px] border border-[var(--seller-accent)] px-3 text-[12px] font-semibold text-[var(--seller-brand)] hover:bg-[var(--seller-accent-soft)]"
-                  />
-                  <DeleteListingButton
-                    listingId={listing.id}
-                    title={listing.title}
-                    className="inline-flex h-9 items-center gap-2 rounded-[8px] border border-[var(--seller-danger)] px-3 text-[12px] font-semibold text-[var(--seller-danger)] hover:bg-[#fff0f0]"
-                  />
-                </div>
+                <ListingLifecycleActions
+                  density="comfortable"
+                  listingId={listing.id}
+                  mode={listing.mode}
+                  status={listing.status}
+                  title={listing.title}
+                />
               </article>
             ))}
           </div>

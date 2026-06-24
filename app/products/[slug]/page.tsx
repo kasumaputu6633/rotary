@@ -99,6 +99,15 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
               </h1>
               <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 font-poppins text-[12px] text-[#6b7280]">
                 <span>{formatPrice(product.price, product.mode) === "Gratis" ? "Barang donasi" : "Barang dijual"}</span>
+                {product.status === "reserved" ? (
+                  <>
+                    <span className="h-1 w-1 rounded-full bg-[#cbd5e1]" aria-hidden="true" />
+                    <span className="inline-flex items-center gap-1 font-semibold text-[#17458f]">
+                      <Icon icon="lucide:clock-3" width={13} height={13} aria-hidden="true" />
+                      Sedang dipesan
+                    </span>
+                  </>
+                ) : null}
                 <span className="h-1 w-1 rounded-full bg-[#cbd5e1]" aria-hidden="true" />
                 <span>Dilihat {product.viewCount ?? 0} kali</span>
                 <span className="h-1 w-1 rounded-full bg-[#cbd5e1]" aria-hidden="true" />
@@ -116,7 +125,9 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
                 <h2 className="mb-3 text-[20px] font-semibold leading-tight">Deskripsi</h2>
                 <p className="whitespace-pre-line">{product.description || `${product.title} kondisi bekas siap pakai kembali. Mohon chat dulu untuk memastikan kondisi unit agar lebih aman.`}</p>
                 <div className="mt-5 rounded-lg border border-[#17458f]/15 bg-[#eef6ff] p-3 text-[12px] text-[#4b5563]">
-                  Rotary tidak memproses transaksi di dalam aplikasi. Chat pemilik barang untuk menyepakati harga, titik temu, pengiriman, atau penjemputan.
+                  {product.status === "reserved"
+                    ? "Barang ini sedang dipesan. Listing tetap ditampilkan sebagai informasi, tetapi kontak baru dijeda sampai pemilik memperbarui statusnya."
+                    : "Rotary tidak memproses transaksi di dalam aplikasi. Chat pemilik barang untuk menyepakati harga, titik temu, pengiriman, atau penjemputan."}
                 </div>
               </div>
 

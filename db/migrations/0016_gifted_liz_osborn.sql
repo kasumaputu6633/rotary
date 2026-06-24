@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX "users_display_name_lower_unique" ON "users" USING btree (LOWER("display_name")) WHERE "users"."display_name" IS NOT NULL;

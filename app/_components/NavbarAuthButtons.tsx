@@ -4,6 +4,7 @@ import { Icon } from "@iconify/react";
 import Link from "next/link";
 import { useState, useTransition, useRef, useEffect } from "react";
 import { logoutAction } from "@/app/actions";
+import { ConfirmDialog } from "./ConfirmDialog";
 
 function getInitials(name: string): string {
   return name
@@ -14,64 +15,15 @@ function getInitials(name: string): string {
     .join("");
 }
 
-function LogoutModal({
-  onConfirm,
-  onCancel,
-  isPending,
-}: {
-  onConfirm: () => void;
-  onCancel: () => void;
-  isPending: boolean;
-}) {
-  return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center"
-      onClick={onCancel}
-    >
-      <div className="absolute inset-0 bg-black/30 backdrop-blur-[2px]" />
-      <div
-        className="relative bg-white rounded-2xl shadow-xl px-8 py-8 flex flex-col items-center gap-5 w-[320px]"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="w-14 h-14 rounded-full bg-[#fff8ec] flex items-center justify-center">
-          <Icon icon="lucide:log-out" width={28} height={28} className="text-[#f7a81b]" aria-hidden="true" />
-        </div>
-
-        <div className="text-center">
-          <p className="font-poppins font-semibold text-[16px] text-black">
-            Keluar dari akun?
-          </p>
-          <p className="font-poppins text-[13px] text-[#968e8e] mt-1">
-            Anda harus masuk kembali untuk mengakses akun Anda.
-          </p>
-        </div>
-
-        <div className="flex gap-3 w-full">
-          <button
-            onClick={onCancel}
-            disabled={isPending}
-            className="flex-1 font-poppins font-semibold text-[14px] text-[#555] border-2 border-gray-200 rounded-[20px] py-2 hover:bg-gray-50 transition-colors disabled:opacity-50"
-          >
-            Batal
-          </button>
-          <button
-            onClick={onConfirm}
-            disabled={isPending}
-            className="flex-1 font-poppins font-semibold text-[14px] text-white bg-[#f7a81b] rounded-[20px] py-2 hover:bg-[#e09918] transition-colors disabled:opacity-50"
-          >
-            {isPending ? "..." : "Ya, Keluar"}
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 export default function NavbarAuthButtons({
-  userName,
+  userAvatarUrl,
+  userDisplayName,
+  userFullName,
   userRole,
 }: {
-  userName: string | null;
+  userAvatarUrl: string | null;
+  userDisplayName: string | null;
+  userFullName: string | null;
   userRole: string | null;
 }) {
   const [isPending, startTransition] = useTransition();
@@ -126,24 +78,31 @@ export default function NavbarAuthButtons({
     window.dispatchEvent(event);
   }, [showDropdown]);
 
-  if (userName) {
-    const firstName = userName.trim().split(/\s+/)[0];
+  const resolvedDisplayName = userDisplayName?.trim() || userFullName?.trim() || "";
+
+  if (resolvedDisplayName) {
     const isUser = userRole === "user";
+    const profileHref = isUser ? "/dashboard/profile" : "/admin/dashboard";
 
     return (
       <>
-        {showModal && (
-          <LogoutModal
-            onConfirm={handleLogout}
-            onCancel={() => setShowModal(false)}
-            isPending={isPending}
-          />
-        )}
+        <ConfirmDialog
+          isOpen={showModal}
+          title="Keluar dari akun?"
+          description="Sesi kamu akan diakhiri. Kamu perlu masuk kembali untuk mengakses Seller Center dan mengelola listing."
+          icon="lucide:log-out"
+          tone="accent"
+          confirmLabel="Ya, Keluar"
+          pendingLabel="Keluar..."
+          isPending={isPending}
+          onConfirm={handleLogout}
+          onCancel={() => setShowModal(false)}
+        />
         <div className="flex items-center gap-2 md:gap-3">
           {isUser && (
             <Link
               href="/dashboard/listings/new"
-              className="group inline-flex h-8 w-8 items-center justify-center rounded-full bg-[#f7a81b] font-poppins text-[12px] font-semibold text-white shadow-[0_6px_14px_rgba(247,168,27,0.22)] transition-all hover:-translate-y-0.5 hover:bg-[#e09918] hover:shadow-[0_10px_20px_rgba(247,168,27,0.28)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f7a81b] focus-visible:ring-offset-2 whitespace-nowrap md:h-9 md:w-auto md:gap-2 md:px-4 md:text-[13px]"
+              className="group inline-flex h-9 w-9 items-center justify-center rounded-full bg-[#f7a81b] font-poppins text-[12px] font-semibold text-white shadow-[0_6px_14px_rgba(247,168,27,0.22)] transition-all hover:bg-[#e09918] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f7a81b] focus-visible:ring-offset-2 whitespace-nowrap md:w-auto md:gap-2 md:px-4 md:text-[13px]"
               aria-label="Jual Barang"
             >
               <Icon icon="lucide:plus-circle" width={15} height={15} className="transition-transform group-hover:rotate-90" aria-hidden="true" />
@@ -154,16 +113,25 @@ export default function NavbarAuthButtons({
           <div className="relative" ref={dropdownRef}>
             <button
               ref={buttonRef}
+              type="button"
               onClick={() => setShowDropdown(!showDropdown)}
-              className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+              className="flex min-h-11 items-center gap-2 rounded-lg px-1 transition-colors hover:bg-[#fff7e8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#17458f] focus-visible:ring-offset-2"
+              aria-label={`Buka menu akun ${resolvedDisplayName}`}
+              aria-expanded={showDropdown}
+              aria-haspopup="menu"
             >
-              <div className="w-8 h-8 rounded-full bg-[#f7a81b] flex items-center justify-center shrink-0">
-                <span className="font-poppins font-bold text-[11px] text-white leading-none">
-                  {getInitials(userName)}
-                </span>
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#f7a81b]">
+                {userAvatarUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={userAvatarUrl} alt="" className="h-full w-full object-cover" />
+                ) : (
+                  <span className="font-poppins text-[11px] font-bold leading-none text-white">
+                    {getInitials(resolvedDisplayName)}
+                  </span>
+                )}
               </div>
-              <span className="hidden font-poppins font-semibold text-[13px] text-[#555] whitespace-nowrap max-w-22.5 truncate md:inline">
-                {firstName}
+              <span className="hidden max-w-24 truncate whitespace-nowrap font-poppins text-[13px] font-semibold text-[#555] xl:inline">
+                {resolvedDisplayName}
               </span>
               <Icon
                 icon="lucide:chevron-down"
@@ -183,7 +151,8 @@ export default function NavbarAuthButtons({
             {/* Dropdown container */}
             {showDropdown && isPositioned && (
               <div
-                className="fixed w-60 bg-white rounded-xl border border-gray-200/80 overflow-hidden z-[9999] animate-[dropdownSlideIn_180ms_cubic-bezier(0.2,0.8,0.2,1)_both]"
+                className="fixed z-[9999] w-64 overflow-hidden rounded-lg border border-gray-200 bg-white animate-[dropdownSlideIn_180ms_cubic-bezier(0.2,0.8,0.2,1)_both]"
+                role="menu"
                 style={{
                   top: `${dropdownPosition.top}px`,
                   right: `${dropdownPosition.right}px`,
@@ -193,59 +162,76 @@ export default function NavbarAuthButtons({
                 {/* User info header */}
                 <div className="px-4 py-3.5 border-b border-gray-100 bg-white">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-[#f7a81b] flex items-center justify-center shrink-0">
-                      <span className="font-poppins font-bold text-[13px] text-white leading-none">
-                        {getInitials(userName)}
-                      </span>
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#f7a81b]">
+                      {userAvatarUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={userAvatarUrl} alt="" className="h-full w-full object-cover" />
+                      ) : (
+                        <span className="font-poppins text-[13px] font-bold leading-none text-white">
+                          {getInitials(resolvedDisplayName)}
+                        </span>
+                      )}
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-poppins font-semibold text-[14px] text-black truncate">
-                        {userName}
+                        {resolvedDisplayName}
                       </p>
+                      {userFullName && userFullName !== resolvedDisplayName ? (
+                        <p className="mt-0.5 truncate font-poppins text-[11px] text-[#6b7280]">{userFullName}</p>
+                      ) : null}
                     </div>
                   </div>
                 </div>
 
                 <div>
                   <Link
-                    href="/dashboard"
+                    href={profileHref}
                     onClick={() => setShowDropdown(false)}
-                    className="group w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-[#fff7e8] focus-visible:bg-[#fff7e8] focus-visible:outline-none transition-colors"
+                    className="group flex min-h-11 w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-[#fff7e8] focus-visible:bg-[#fff7e8] focus-visible:outline-none"
+                    role="menuitem"
                   >
                     <Icon icon="lucide:user" width={16} height={16} className="text-[#555] transition-colors group-hover:text-[#17458f]" aria-hidden="true" />
                     <span className="font-poppins text-[13px] text-[#333] group-hover:text-[#17458f] group-hover:font-semibold transition-colors">
-                      Profil Saya
+                      {isUser ? "Profil Lapak" : "Dashboard Admin"}
                     </span>
                   </Link>
 
-                  <Link
-                    href="/dashboard/listings"
-                    onClick={() => setShowDropdown(false)}
-                    className="group w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-[#fff7e8] focus-visible:bg-[#fff7e8] focus-visible:outline-none transition-colors"
-                  >
-                    <Icon icon="lucide:file-text" width={16} height={16} className="text-[#555] transition-colors group-hover:text-[#17458f]" aria-hidden="true" />
-                    <span className="font-poppins text-[13px] text-[#333] group-hover:text-[#17458f] group-hover:font-semibold transition-colors">
-                      Listing Saya
-                    </span>
-                  </Link>
+                  {isUser ? (
+                    <>
+                      <Link
+                        href="/dashboard/listings"
+                        onClick={() => setShowDropdown(false)}
+                        className="group flex min-h-11 w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-[#fff7e8] focus-visible:bg-[#fff7e8] focus-visible:outline-none"
+                        role="menuitem"
+                      >
+                        <Icon icon="lucide:file-text" width={16} height={16} className="text-[#555] transition-colors group-hover:text-[#17458f]" aria-hidden="true" />
+                        <span className="font-poppins text-[13px] text-[#333] transition-colors group-hover:font-semibold group-hover:text-[#17458f]">
+                          Listing Saya
+                        </span>
+                      </Link>
 
-                  <Link
-                    href="/dashboard/favorites"
-                    onClick={() => setShowDropdown(false)}
-                    className="group w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-[#fff7e8] focus-visible:bg-[#fff7e8] focus-visible:outline-none transition-colors"
-                  >
-                    <Icon icon="lucide:heart" width={16} height={16} className="text-[#555] transition-colors group-hover:text-[#17458f]" aria-hidden="true" />
-                    <span className="font-poppins text-[13px] text-[#333] group-hover:text-[#17458f] group-hover:font-semibold transition-colors">
-                      Favorit
-                    </span>
-                  </Link>
+                      <Link
+                        href="/dashboard/favorites"
+                        onClick={() => setShowDropdown(false)}
+                        className="group flex min-h-11 w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-[#fff7e8] focus-visible:bg-[#fff7e8] focus-visible:outline-none"
+                        role="menuitem"
+                      >
+                        <Icon icon="lucide:heart" width={16} height={16} className="text-[#555] transition-colors group-hover:text-[#17458f]" aria-hidden="true" />
+                        <span className="font-poppins text-[13px] text-[#333] transition-colors group-hover:font-semibold group-hover:text-[#17458f]">
+                          Favorit
+                        </span>
+                      </Link>
+                    </>
+                  ) : null}
 
                   <button
+                    type="button"
                     onClick={() => {
                       setShowDropdown(false);
                       setShowModal(true);
                     }}
-                    className="group w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-red-50 focus-visible:bg-red-50 focus-visible:outline-none transition-colors"
+                    className="group flex min-h-11 w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-red-50 focus-visible:bg-red-50 focus-visible:outline-none"
+                    role="menuitem"
                   >
                     <Icon icon="lucide:log-out" width={16} height={16} className="text-red-500" aria-hidden="true" />
                     <span className="font-poppins text-[13px] text-red-500 font-medium">

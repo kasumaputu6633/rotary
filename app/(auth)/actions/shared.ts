@@ -32,6 +32,14 @@ export async function getPendingLoginUserId() {
   return getCookie("pending_login_user_id");
 }
 
+export async function setPendingLoginRedirect(path: string) {
+  (await cookies()).set("pending_login_redirect", path, COOKIE.pending);
+}
+
+export async function getPendingLoginRedirect() {
+  return getCookie("pending_login_redirect");
+}
+
 export async function createSession(userId: string) {
   const user = await db.query.users.findFirst({
     where: eq(users.id, userId),
@@ -52,6 +60,7 @@ export async function trustDevice(userId: string) {
 export async function clearPendingLogin() {
   const store = await cookies();
   store.delete("pending_login_user_id");
+  store.delete("pending_login_redirect");
   store.delete("pending_contact");
 }
 

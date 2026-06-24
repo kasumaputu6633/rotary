@@ -40,13 +40,21 @@ export function ListingModePriceFields({
         <input
           name="price"
           inputMode="numeric"
+          pattern="[0-9]*"
           defaultValue={defaultPrice ?? ""}
           disabled={isDonation}
+          required={!isDonation}
+          onInvalid={(event) => {
+            (event.target as HTMLInputElement).setCustomValidity("Harga wajib diisi untuk listing yang dijual.");
+          }}
+          onInput={(event) => {
+            (event.target as HTMLInputElement).setCustomValidity("");
+          }}
           className={`${fieldClass} disabled:cursor-not-allowed disabled:bg-[var(--seller-surface-2)] disabled:text-[var(--seller-muted)]`}
           placeholder={isDonation ? "Tidak perlu harga" : "180000"}
         />
         <span className="text-[11px] leading-relaxed text-[var(--seller-muted)]">
-          {isDonation ? "Listing donasi akan tampil sebagai Gratis." : "Kosongkan jika harga ingin dibicarakan langsung."}
+          {isDonation ? "Listing donasi akan tampil sebagai Gratis." : "Isi harga dalam rupiah, tanpa titik atau koma."}
         </span>
       </label>
     </>

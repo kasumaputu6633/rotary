@@ -8,5 +8,7 @@ export async function logoutAction() {
   cookieStore.delete("session_user_id");
   cookieStore.delete("session_role");
   cookieStore.delete("pending_contact");
+  cookieStore.delete("pending_login_user_id");
+  cookieStore.delete("pending_login_redirect");
   redirect("/login");
 }

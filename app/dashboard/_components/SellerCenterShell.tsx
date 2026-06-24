@@ -4,8 +4,9 @@ import { Icon } from "@iconify/react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, useTransition, type ReactNode } from "react";
 import { logoutAction } from "@/app/actions";
+import { ConfirmDialog } from "@/app/_components/ConfirmDialog";
 import { SellerToaster } from "./SellerToaster";
 
 type NavigationItem = {
@@ -13,6 +14,7 @@ type NavigationItem = {
   href: string;
   icon: string;
   badge?: string;
+  badgeTone?: "accent" | "danger" | "neutral";
   children?: NavigationItem[];
 };
 
@@ -57,23 +59,39 @@ function PartnerLogoLockup({ compact = false }: { compact?: boolean }) {
 export default function SellerCenterShell({
   attentionCount = 0,
   children,
+  completedCount,
   draftCount,
   inactiveCount,
+  isPhoneVerified = false,
+  profileMissingCount,
+  reservedCount,
   userAvatarUrl,
   userName,
 }: {
   attentionCount?: number;
   children: ReactNode;
+  completedCount?: number;
   draftCount?: number;
   inactiveCount?: number;
+  isPhoneVerified?: boolean;
+  profileMissingCount?: number;
+  reservedCount?: number;
   userAvatarUrl?: string | null;
   userName: string;
 }) {
   const pathname = usePathname();
   const initials = getInitials(userName) || "R";
+  const [isLogoutConfirmOpen, setIsLogoutConfirmOpen] = useState(false);
+  const [isLogoutPending, startLogoutTransition] = useTransition();
   const [profileMenuOpenPath, setProfileMenuOpenPath] = useState<string | null>(null);
+  const [isPhoneBannerDismissed, setPhoneBannerDismissed] = useState(false);
   const profileMenuRef = useRef<HTMLDivElement>(null);
   const isProfileMenuOpen = profileMenuOpenPath === pathname;
+  const showPhoneBanner = !isPhoneVerified && !isPhoneBannerDismissed && pathname !== "/dashboard/profile";
+
+  function handleLogout() {
+    startLogoutTransition(() => logoutAction());
+  }
 
   const navigation: NavigationItem[] = [
     { label: "Beranda", href: "/dashboard", icon: "lucide:home" },
@@ -84,13 +102,27 @@ export default function SellerCenterShell({
       children: [
         { label: "Semua Listing", href: "/dashboard/listings", icon: "lucide:list" },
         { label: "Tambah Barang", href: "/dashboard/listings/new", icon: "lucide:package-plus" },
+        { label: "Dipesan", href: "/dashboard/listings/reserved", icon: "lucide:handshake", badge: reservedCount ? String(reservedCount) : undefined },
+        { label: "Selesai", href: "/dashboard/listings/completed", icon: "lucide:circle-check-big", badge: completedCount ? String(completedCount) : undefined },
         { label: "Draft", href: "/dashboard/listings/drafts", icon: "lucide:file", badge: draftCount ? String(draftCount) : undefined },
         { label: "Nonaktif", href: "/dashboard/listings/inactive", icon: "lucide:archive", badge: inactiveCount ? String(inactiveCount) : undefined },
       ],
     },
-    { label: "Chat Pembeli", href: "/dashboard/chat", icon: "lucide:messages-square" },
+    {
+      label: "Kesepakatan",
+      href: "/dashboard/deals",
+      icon: "lucide:handshake",
+      badge: reservedCount ? String(reservedCount) : undefined,
+    },
+    { label: "Chat Pembeli", href: "/dashboard/chat", icon: "lucide:messages-square", badge: "Segera", badgeTone: "neutral" },
     { label: "Favorit", href: "/dashboard/favorites", icon: "lucide:heart" },
-    { label: "Profil Lapak", href: "/dashboard/profile", icon: "lucide:user-round-cog" },
+    {
+      label: "Profil Lapak",
+      href: "/dashboard/profile",
+      icon: "lucide:user-round-cog",
+      badge: profileMissingCount ? String(profileMissingCount) : undefined,
+      badgeTone: "accent",
+    },
   ];
 
   const mobileNavigation = navigation.flatMap((item) => [
@@ -146,13 +178,22 @@ export default function SellerCenterShell({
                           ? "bg-[var(--seller-brand)] text-white shadow-[var(--seller-shadow-tight)]"
                           : "text-[var(--seller-muted)] hover:bg-[var(--seller-brand-soft)] hover:text-[var(--seller-brand)]"
                       }`}
+                      aria-current={active ? "page" : undefined}
                     >
                       <span className="flex min-w-0 items-center gap-3">
                         <Icon icon={item.icon} width={17} height={17} aria-hidden="true" />
                         <span className="truncate">{item.label}</span>
                       </span>
                       {item.badge && (
-                        <span className={`ml-2 rounded-full px-1.5 py-0.5 text-[10px] font-bold ${active ? "bg-white/20 text-white" : "bg-[var(--seller-danger)] text-white"}`}>
+                        <span className={`ml-2 rounded-full px-1.5 py-0.5 text-[10px] font-bold ${
+                          active
+                            ? "bg-white/20 text-white"
+                            : item.badgeTone === "neutral"
+                              ? "bg-[var(--seller-surface-2)] text-[var(--seller-muted)] ring-1 ring-inset ring-[var(--seller-rule)]"
+                              : item.badgeTone === "accent"
+                                ? "bg-[var(--seller-accent-soft)] text-[var(--seller-brand)]"
+                                : "bg-[var(--seller-danger)] text-white"
+                        }`}>
                           {item.badge}
                         </span>
                       )}
@@ -166,11 +207,12 @@ export default function SellerCenterShell({
                             <Link
                               key={child.href}
                               href={child.href}
-                              className={`flex h-8 items-center justify-between rounded-[8px] px-2 text-[12px] transition-colors ${
+                              className={`flex min-h-10 items-center justify-between rounded-[8px] px-2 text-[12px] transition-colors ${
                                 childActive
                                   ? "bg-[var(--seller-accent-soft)] font-semibold text-[var(--seller-brand)]"
                                   : "text-[var(--seller-muted)] hover:bg-[var(--seller-surface-2)] hover:text-[var(--seller-brand)]"
                               }`}
+                              aria-current={childActive ? "page" : undefined}
                             >
                               <span className="truncate">{child.label}</span>
                               {child.badge && (
@@ -194,7 +236,7 @@ export default function SellerCenterShell({
                 Manual deal
               </div>
               <p className="mt-2 text-[11px] leading-relaxed text-[var(--seller-muted)]">
-                Rotary hanya membantu listing dan chat. Deal lanjut antar pengguna.
+                Rotary membantu listing dan pencatatan deal. Kontak serta serah terima tetap antar pengguna.
               </p>
             </div>
           </div>
@@ -208,7 +250,7 @@ export default function SellerCenterShell({
               </div>
 
               <form action="/dashboard/listings" className="hidden min-w-0 flex-1 md:block" role="search">
-                <div className="flex h-10 max-w-[560px] overflow-hidden rounded-[8px] border border-[var(--seller-rule-strong)] bg-[var(--seller-surface-2)] focus-within:border-[var(--seller-brand)] focus-within:ring-2 focus-within:ring-[var(--seller-accent-soft)]">
+                <div className="flex min-h-11 max-w-[560px] overflow-hidden rounded-[8px] border border-[var(--seller-rule-strong)] bg-[var(--seller-surface-2)] focus-within:border-[var(--seller-brand)] focus-within:ring-2 focus-within:ring-[var(--seller-accent-soft)]">
                   <button type="submit" className="flex w-11 items-center justify-center text-[var(--seller-muted)] hover:text-[var(--seller-brand)]" aria-label="Cari listing">
                     <Icon icon="lucide:search" width={17} height={17} aria-hidden="true" />
                   </button>
@@ -223,7 +265,7 @@ export default function SellerCenterShell({
 
               <Link
                 href="/dashboard/listings/new"
-                className="ml-auto hidden h-10 items-center gap-2 rounded-[8px] bg-[var(--seller-accent)] px-4 text-[12px] font-semibold text-white shadow-[var(--seller-shadow-tight)] transition hover:brightness-95 sm:inline-flex"
+                className="ml-auto hidden min-h-11 items-center gap-2 rounded-[8px] bg-[var(--seller-accent)] px-4 text-[12px] font-semibold text-white shadow-[var(--seller-shadow-tight)] transition hover:brightness-95 sm:inline-flex"
               >
                 <Icon icon="lucide:package-plus" width={15} height={15} aria-hidden="true" />
                 Tambah Barang
@@ -231,10 +273,10 @@ export default function SellerCenterShell({
 
               <Link
                 href="/dashboard"
-                className="relative flex h-10 w-10 items-center justify-center rounded-[8px] border border-[var(--seller-rule)] bg-[var(--seller-surface-2)] text-[var(--seller-brand)] hover:bg-[var(--seller-accent-soft)]"
+                className="relative flex h-11 w-11 items-center justify-center rounded-[8px] border border-[var(--seller-rule)] bg-[var(--seller-surface-2)] text-[var(--seller-brand)] hover:bg-[var(--seller-accent-soft)]"
                 aria-label={attentionCount > 0 ? `${attentionCount} tugas lapak perlu ditangani` : "Buka ringkasan tugas lapak"}
               >
-                <Icon icon="lucide:bell" width={18} height={18} aria-hidden="true" />
+                <Icon icon="lucide:clipboard-check" width={18} height={18} aria-hidden="true" />
                 {attentionCount > 0 ? (
                   <span className="absolute -right-1 -top-1 flex min-h-4 min-w-4 items-center justify-center rounded-full bg-[var(--seller-danger)] px-1 text-[9px] font-bold leading-none text-white">
                     {attentionCount > 9 ? "9+" : attentionCount}
@@ -251,6 +293,7 @@ export default function SellerCenterShell({
                   }`}
                   aria-expanded={isProfileMenuOpen}
                   aria-haspopup="menu"
+                  aria-label="Buka menu akun Seller Center"
                 >
                   <span className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-[8px] bg-[var(--seller-brand)] text-[12px] font-bold text-white">
                     {userAvatarUrl ? (
@@ -277,7 +320,7 @@ export default function SellerCenterShell({
                     <Link
                       href="/dashboard/profile"
                       onClick={() => setProfileMenuOpenPath(null)}
-                      className="flex items-center gap-2 px-3 py-2.5 text-[12px] font-semibold text-[var(--seller-ink)] hover:bg-[var(--seller-surface-2)]"
+                      className="flex min-h-11 items-center gap-2 px-3 py-2.5 text-[12px] font-semibold text-[var(--seller-ink)] hover:bg-[var(--seller-surface-2)]"
                       role="menuitem"
                     >
                       <Icon icon="lucide:user-round-cog" width={15} height={15} className="text-[var(--seller-brand)]" aria-hidden="true" />
@@ -286,18 +329,26 @@ export default function SellerCenterShell({
                     <Link
                       href="/products"
                       onClick={() => setProfileMenuOpenPath(null)}
-                      className="flex items-center gap-2 px-3 py-2.5 text-[12px] font-semibold text-[var(--seller-ink)] hover:bg-[var(--seller-surface-2)]"
+                      className="flex min-h-11 items-center gap-2 px-3 py-2.5 text-[12px] font-semibold text-[var(--seller-ink)] hover:bg-[var(--seller-surface-2)]"
                       role="menuitem"
                     >
                       <Icon icon="lucide:store" width={15} height={15} className="text-[var(--seller-brand)]" aria-hidden="true" />
                       Buka Marketplace
                     </Link>
-                    <form action={logoutAction} onSubmit={() => setProfileMenuOpenPath(null)} className="border-t border-[var(--seller-rule)]">
-                      <button type="submit" className="flex w-full items-center gap-2 px-3 py-2.5 text-left text-[12px] font-semibold text-[var(--seller-danger)] hover:bg-[var(--seller-danger-soft)]" role="menuitem">
+                    <div className="border-t border-[var(--seller-rule)]">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setProfileMenuOpenPath(null);
+                          setIsLogoutConfirmOpen(true);
+                        }}
+                        className="flex min-h-11 w-full items-center gap-2 px-3 py-2.5 text-left text-[12px] font-semibold text-[var(--seller-danger)] hover:bg-[var(--seller-danger-soft)]"
+                        role="menuitem"
+                      >
                         <Icon icon="lucide:log-out" width={15} height={15} aria-hidden="true" />
                         Keluar
                       </button>
-                    </form>
+                    </div>
                   </div>
                 ) : null}
               </div>
@@ -309,21 +360,77 @@ export default function SellerCenterShell({
                   <Link
                     key={`${item.href}-${item.label}`}
                     href={item.href}
-                    className={`inline-flex h-9 shrink-0 items-center gap-2 rounded-[8px] px-3 text-[12px] font-semibold ${
+                    className={`inline-flex min-h-11 shrink-0 items-center gap-2 rounded-[8px] px-3 text-[12px] font-semibold ${
                       active ? "bg-[var(--seller-brand)] text-white" : "bg-[var(--seller-surface-2)] text-[var(--seller-muted)]"
                     }`}
+                    aria-current={active ? "page" : undefined}
                   >
                     <Icon icon={item.icon} width={14} height={14} aria-hidden="true" />
                     {item.label}
+                    {item.badge ? (
+                      <span className={`rounded-full px-1.5 py-0.5 text-[9px] font-bold ${
+                        active
+                          ? "bg-white/20 text-white"
+                          : item.badgeTone === "neutral"
+                            ? "bg-[var(--seller-surface)] text-[var(--seller-muted)] ring-1 ring-inset ring-[var(--seller-rule)]"
+                            : "bg-[var(--seller-accent-soft)] text-[var(--seller-brand)]"
+                      }`}>
+                        {item.badge}
+                      </span>
+                    ) : null}
                   </Link>
                 );
               })}
             </nav>
           </header>
 
+          {showPhoneBanner ? (
+            <div
+              role="status"
+              className="flex items-center gap-2.5 border-b border-[var(--seller-rule)] bg-[var(--seller-accent-soft)] px-4 py-2 md:gap-3 md:px-6"
+            >
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[var(--seller-accent)] text-white">
+                <Icon icon="lucide:phone" width={14} height={14} aria-hidden="true" />
+              </span>
+              <p className="flex-1 text-[12px] leading-snug text-[var(--seller-ink)]">
+                <strong className="font-semibold">Verifikasi nomor HP kamu.</strong>{" "}
+                <span className="text-[var(--seller-muted)]">
+                  Aktifkan tombol WhatsApp di listing & perkuat keamanan akun.
+                </span>
+              </p>
+              <Link
+                href="/dashboard/profile"
+                className="hidden shrink-0 items-center gap-1 rounded-[6px] bg-[var(--seller-brand)] px-2.5 py-1 text-[11px] font-semibold text-white transition hover:brightness-110 sm:inline-flex"
+              >
+                Verifikasi
+                <Icon icon="lucide:arrow-right" width={12} height={12} aria-hidden="true" />
+              </Link>
+              <button
+                type="button"
+                onClick={() => setPhoneBannerDismissed(true)}
+                aria-label="Tutup pemberitahuan"
+                className="shrink-0 rounded-md p-1 text-[var(--seller-muted)] transition-colors hover:bg-white/60 hover:text-[var(--seller-ink)]"
+              >
+                <Icon icon="lucide:x" width={14} height={14} aria-hidden="true" />
+              </button>
+            </div>
+          ) : null}
+
           <main className="min-w-0 px-4 py-5 md:px-6 lg:min-h-0 lg:flex-1 lg:overflow-y-auto">{children}</main>
         </div>
       </div>
+      <ConfirmDialog
+        isOpen={isLogoutConfirmOpen}
+        title="Keluar dari Seller Center?"
+        description="Sesi kamu akan diakhiri. Kamu perlu masuk kembali untuk mengelola listing, profil lapak, dan kesepakatan."
+        icon="lucide:log-out"
+        tone="accent"
+        confirmLabel="Ya, Keluar"
+        pendingLabel="Keluar..."
+        isPending={isLogoutPending}
+        onConfirm={handleLogout}
+        onCancel={() => setIsLogoutConfirmOpen(false)}
+      />
       <SellerToaster />
     </div>
   );

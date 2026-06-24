@@ -18,6 +18,8 @@ import {
 } from "./shared";
 import { canBypassOtp } from "./otp-bypass";
 import { userWhereClause, isEmail } from "./helpers";
+import { createDefaultDisplayName } from "@/lib/profile";
+import { isDisplayNameTaken } from "@/lib/users";
 
 export async function registerAction(contact: string): Promise<ActionResult> {
   try {
@@ -70,15 +72,32 @@ export async function resendRegisterOtpAction(): Promise<ActionResult> {
   }
 }
 
-export async function updateProfileAction(name: string, password: string): Promise<ActionResult> {
+export async function updateProfileAction(
+  name: string,
+  displayName: string,
+  password: string,
+): Promise<ActionResult> {
   const contact = await getPendingContact();
   if (!contact) return { error: "Sesi habis, silakan mulai ulang." };
+  if (name.trim().length < 2) return { error: "Nama lengkap minimal 2 karakter." };
+
+  const trimmedDisplayName = displayName.trim().slice(0, 80);
+  if (trimmedDisplayName.length < 2) return { error: "Nama tampilan minimal 2 karakter." };
 
   try {
+    if (await isDisplayNameTaken(trimmedDisplayName)) {
+      return { error: "Nama tampilan sudah dipakai. Coba yang lain." };
+    }
+
     const passwordHash = await bcrypt.hash(password, 12);
     const [user] = await db
       .update(users)
-      .set({ name, passwordHash, updatedAt: new Date() })
+      .set({
+        name,
+        displayName: trimmedDisplayName || createDefaultDisplayName(name),
+        passwordHash,
+        updatedAt: new Date(),
+      })
       .where(userWhereClause(contact))
       .returning({ id: users.id });
 

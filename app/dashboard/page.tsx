@@ -15,6 +15,7 @@ import {
   Panel,
   PrimaryLink,
   SecondaryLink,
+  StatusBadge,
 } from "./_components/SellerCenterUi";
 
 const listingTips = [
@@ -37,9 +38,13 @@ export default async function LapakSayaPage() {
     getSellerListingStats(user.id),
   ]);
   const activeListings = sellerListings.filter((listing) => listing.status === "active");
+  const reservedListings = sellerListings.filter((listing) => listing.status === "reserved");
+  const completedListings = sellerListings.filter((listing) => listing.status === "completed");
   const draftListings = sellerListings.filter((listing) => listing.status === "draft");
   const inactiveListings = sellerListings.filter((listing) => listing.status === "inactive");
-  const latestActiveListings = activeListings.slice(0, 4);
+  const publicListings = [...activeListings, ...reservedListings]
+    .sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
+  const latestPublicListings = publicListings.slice(0, 4);
   const activeWithoutPhoto = activeListings.filter((listing) => !listing.imageUrl);
   const activeWithoutPreciseLocation = activeListings.filter((listing) => listing.latitude === null || listing.longitude === null);
   const activeWithoutHandover = activeListings.filter((listing) => !listing.handoverOptions || listing.handoverOptions.length === 0);
@@ -54,13 +59,13 @@ export default async function LapakSayaPage() {
   );
 
   const todoItems = [
-    ...(!user.whatsapp
+    ...(!user.phone
       ? [{
-          title: "Lengkapi WhatsApp lapak",
-          description: "Nomor WhatsApp membantu calon pembeli menghubungi kamu langsung dari halaman barang.",
+          title: "Verifikasi nomor HP",
+          description: "Verifikasi nomor lewat OTP WhatsApp untuk mengaktifkan tombol WA pada listing kamu.",
           icon: "lucide:phone",
           href: "/dashboard/profile",
-          action: "Edit profil",
+          action: "Verifikasi",
         }]
       : []),
     ...(!user.avatarUrl
@@ -79,6 +84,15 @@ export default async function LapakSayaPage() {
           icon: "lucide:file-pen-line",
           href: "/dashboard/listings/drafts",
           action: "Lihat draft",
+        }]
+      : []),
+    ...(reservedListings.length > 0
+      ? [{
+          title: "Konfirmasi barang yang dipesan",
+          description: `${reservedListings.length} listing sedang menunggu hasil kesepakatan manual dengan peminat.`,
+          icon: "lucide:handshake",
+          href: "/dashboard/deals",
+          action: "Catat progres",
         }]
       : []),
     ...(activeWithoutPhoto.length > 0
@@ -125,7 +139,7 @@ export default async function LapakSayaPage() {
         icon="lucide:store"
         kicker="Lapak Saya"
         title="Beranda Lapak"
-        description="Kelola barang bekas layak pakai, percakapan calon pembeli, dan draft listing dari satu meja kerja."
+        description="Kelola listing, status barang, dan kesepakatan manual dari satu meja kerja."
         meta={
           <>
             <Badge tone="brand">Listing langsung tampil</Badge>
@@ -142,8 +156,10 @@ export default async function LapakSayaPage() {
 
       <section className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_340px]">
         <div className="grid gap-4">
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-6">
             <MiniMetric icon="lucide:package-check" label="Aktif" value={activeListings.length} />
+            <MiniMetric icon="lucide:handshake" label="Dipesan" value={reservedListings.length} />
+            <MiniMetric icon="lucide:circle-check-big" label="Selesai" value={completedListings.length} />
             <MiniMetric icon="lucide:eye" label="Total dilihat" value={totals.viewCount} />
             <MiniMetric icon="lucide:heart" label="Disimpan" value={totals.favoriteCount} />
             <MiniMetric icon="lucide:file-pen-line" label="Draft" value={draftListings.length} />
@@ -165,7 +181,7 @@ export default async function LapakSayaPage() {
                       <span className="block text-[14px] font-semibold text-[var(--seller-ink)]">{item.title}</span>
                       <span className="mt-1 block text-[12px] leading-relaxed text-[var(--seller-muted)]">{item.description}</span>
                     </span>
-                    <span className="inline-flex h-8 items-center gap-2 rounded-full px-3 text-[12px] font-semibold text-[var(--seller-brand)]">
+                    <span className="inline-flex min-h-10 items-center gap-2 text-[12px] font-semibold text-[var(--seller-brand)]">
                       {item.action}
                       <Icon icon="lucide:arrow-right" width={14} height={14} className="transition-transform group-hover:translate-x-1" aria-hidden="true" />
                     </span>
@@ -188,18 +204,19 @@ export default async function LapakSayaPage() {
           </Panel>
 
           <Panel
-            title="Listing yang sedang tayang"
-            description="Pantau listing aktif dan pastikan detailnya masih sesuai."
+            title="Listing yang tampil di marketplace"
+            description="Listing tersedia dan yang sedang dipesan tetap terlihat publik dengan status yang jelas."
             actions={<IconButton href="/dashboard/listings" icon="lucide:arrow-right">Lihat semua</IconButton>}
           >
-            {latestActiveListings.length > 0 ? (
+            {latestPublicListings.length > 0 ? (
               <div className="divide-y divide-[var(--seller-rule)]">
-                {latestActiveListings.map((listing) => (
+                {latestPublicListings.map((listing) => (
                   <article key={listing.id} className="grid gap-3 px-4 py-3 sm:grid-cols-[56px_minmax(0,1fr)_auto] sm:items-center lg:grid-cols-[56px_minmax(0,1fr)_230px_auto]">
                     <ListingThumb imageUrl={listing.imageUrl} />
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
                         <h3 className="truncate text-[14px] font-semibold text-[var(--seller-ink)]">{listing.title}</h3>
+                        <StatusBadge status={listing.status} mode={listing.mode} />
                         <ModeBadge mode={listing.mode} />
                       </div>
                       <p className="mt-1 truncate text-[12px] text-[var(--seller-muted)]">{listing.category} - {listing.location} - {listing.updatedAt.toLocaleDateString("id-ID")}</p>
@@ -209,7 +226,7 @@ export default async function LapakSayaPage() {
                       viewCount={listingStats[listing.id]?.viewCount ?? 0}
                       favoriteCount={listingStats[listing.id]?.favoriteCount ?? 0}
                     />
-                    <Link href={`/dashboard/listings/${listing.id}/edit`} className="inline-flex h-8 items-center rounded-[8px] border border-[var(--seller-rule-strong)] px-3 text-[12px] font-semibold text-[var(--seller-brand)] hover:bg-[var(--seller-brand-soft)] sm:col-start-3 sm:row-span-2 sm:row-start-1 sm:self-center lg:col-auto lg:row-auto">
+                    <Link href={`/dashboard/listings/${listing.id}/edit`} className="inline-flex min-h-10 items-center rounded-[8px] border border-[var(--seller-rule-strong)] px-3 text-[12px] font-semibold text-[var(--seller-brand)] hover:bg-[var(--seller-brand-soft)] sm:col-start-3 sm:row-span-2 sm:row-start-1 sm:self-center lg:col-auto lg:row-auto">
                       Edit
                     </Link>
                   </article>
@@ -218,7 +235,7 @@ export default async function LapakSayaPage() {
             ) : (
               <EmptyState
                 icon="lucide:package-plus"
-                title="Belum ada listing aktif"
+                title="Belum ada listing yang tampil"
                 description="Terbitkan barang bekas layak pakai agar langsung muncul di marketplace Rotary."
                 action={<PrimaryLink href="/dashboard/listings/new" icon="lucide:package-plus">Tambah Barang</PrimaryLink>}
               />
@@ -232,6 +249,14 @@ export default async function LapakSayaPage() {
               <div className="flex items-center justify-between rounded-[8px] bg-[var(--seller-success-soft)] px-3 py-2">
                 <span className="text-[12px] font-semibold text-[var(--seller-success)]">Aktif</span>
                 <span className="text-[18px] font-semibold text-[var(--seller-ink)]">{activeListings.length}</span>
+              </div>
+              <div className="flex items-center justify-between rounded-[8px] bg-[var(--seller-brand-soft)] px-3 py-2">
+                <span className="text-[12px] font-semibold text-[var(--seller-brand)]">Dipesan</span>
+                <span className="text-[18px] font-semibold text-[var(--seller-ink)]">{reservedListings.length}</span>
+              </div>
+              <div className="flex items-center justify-between rounded-[8px] bg-[var(--seller-success-soft)] px-3 py-2">
+                <span className="text-[12px] font-semibold text-[var(--seller-success)]">Selesai</span>
+                <span className="text-[18px] font-semibold text-[var(--seller-ink)]">{completedListings.length}</span>
               </div>
               <div className="flex items-center justify-between rounded-[8px] bg-[var(--seller-accent-soft)] px-3 py-2">
                 <span className="text-[12px] font-semibold text-[var(--seller-brand)]">Draft</span>

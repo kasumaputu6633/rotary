@@ -22,7 +22,7 @@ export function ListingSubmitButtons({
         value="publish"
         type="submit"
         disabled={pending}
-        className="h-10 rounded-[8px] bg-[var(--seller-accent)] text-[12px] font-semibold text-white shadow-[var(--seller-shadow-tight)] transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-70"
+        className="min-h-11 rounded-[8px] bg-[var(--seller-accent)] text-[12px] font-semibold text-white shadow-[var(--seller-shadow-tight)] transition hover:brightness-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--seller-focus)] disabled:cursor-not-allowed disabled:opacity-70"
       >
         {pending ? "Menyimpan..." : publishLabel}
       </button>
@@ -32,7 +32,7 @@ export function ListingSubmitButtons({
           value="draft"
           type="submit"
           disabled={pending}
-          className="h-10 rounded-[8px] border border-[var(--seller-rule-strong)] bg-[var(--seller-surface)] text-[12px] font-semibold text-[var(--seller-brand)] transition hover:bg-[var(--seller-brand-soft)] disabled:cursor-not-allowed disabled:opacity-70"
+          className="min-h-11 rounded-[8px] border border-[var(--seller-rule-strong)] bg-[var(--seller-surface)] text-[12px] font-semibold text-[var(--seller-brand)] transition hover:bg-[var(--seller-brand-soft)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--seller-focus)] disabled:cursor-not-allowed disabled:opacity-70"
         >
           {pending ? "Menyimpan..." : draftLabel}
         </button>

@@ -1,5 +1,6 @@
 "use client";
 
+import { Icon } from "@iconify/react";
 import Link from "next/link";
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
@@ -7,21 +8,36 @@ import AuthIllustration from "../_components/AuthIllustration";
 import AuthCard from "../_components/AuthCard";
 import AuthInput from "../_components/AuthInput";
 import AuthButton from "../_components/AuthButton";
+import AuthMethodTabs, { type AuthMethod } from "../_components/AuthMethodTabs";
+import AuthPhoneInput, { validateIndonesianPhone } from "../_components/AuthPhoneInput";
 import { registerAction } from "../actions";
+
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function RegisterPage() {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
-  const [contact, setContact] = useState("");
+  const [method, setMethod] = useState<AuthMethod>("email");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [agreed, setAgreed] = useState(false);
   const [error, setError] = useState("");
 
-  const isValid = contact.trim() !== "" && agreed;
+  const isEmailValid = EMAIL_REGEX.test(email.trim());
+  const isPhoneValid = validateIndonesianPhone(phone);
+  const isContactValid = method === "email" ? isEmailValid : isPhoneValid;
+  const isFormValid = isContactValid && agreed && method === "email";
+
+  function handleMethodChange(next: AuthMethod) {
+    setMethod(next);
+    setError("");
+  }
 
   function handleSubmit() {
     setError("");
+    if (method === "phone") return; // Belum di-implement
     startTransition(async () => {
-      const result = await registerAction(contact.trim());
+      const result = await registerAction(email.trim());
       if (result?.error) {
         setError(result.error);
       } else if (result?.redirectTo) {
@@ -39,16 +55,36 @@ export default function RegisterPage() {
           Daftar
         </h1>
 
-        <div className="flex flex-col gap-[10px] items-start pt-[45px] pb-[42px] w-full">
-          <AuthInput
-            id="contact"
-            label="Masukkan No.Telp atau Email"
-            type="text"
-            placeholder="No. Telepon atau Email"
-            value={contact}
-            onChange={(e) => setContact(e.target.value)}
-            error={error}
-          />
+        <div className="flex flex-col gap-[10px] items-start pt-[25px] pb-[42px] w-full">
+          <AuthMethodTabs value={method} onChange={handleMethodChange} />
+
+          {method === "email" ? (
+            <AuthInput
+              id="email"
+              label="Email"
+              type="email"
+              placeholder="email@contoh.com"
+              autoComplete="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              error={
+                email && !isEmailValid
+                  ? "Format email tidak valid."
+                  : error || undefined
+              }
+            />
+          ) : (
+            <>
+              <AuthPhoneInput
+                id="phone"
+                label="Nomor HP"
+                value={phone}
+                onChange={setPhone}
+                disabled
+              />
+              <PhoneRegisterNotice />
+            </>
+          )}
 
           <label className="flex items-start gap-2 cursor-pointer mt-1">
             <input
@@ -71,7 +107,7 @@ export default function RegisterPage() {
           </Link>
         </div>
 
-        <AuthButton onClick={handleSubmit} disabled={!isValid} pending={isPending}>
+        <AuthButton onClick={handleSubmit} disabled={!isFormValid} pending={isPending}>
           Lanjut
         </AuthButton>
 
@@ -80,6 +116,18 @@ export default function RegisterPage() {
           <Link href="/login" className="text-[#17458f] underline font-semibold">Masuk</Link>
         </p>
       </AuthCard>
+    </div>
+  );
+}
+
+function PhoneRegisterNotice() {
+  return (
+    <div className="flex items-start gap-2 w-full rounded-[9px] border border-[#FFB81D] bg-[#FFF7E0] px-3 py-2">
+      <Icon icon="lucide:info" width={16} height={16} className="text-[#a87a00] shrink-0 mt-[2px]" aria-hidden="true" />
+      <p className="font-poppins text-[12px] leading-relaxed text-[#5a4400]">
+        <strong className="font-semibold">Dalam tahap pengembangan.</strong>{" "}
+        Daftar pakai nomor HP belum aktif. Sementara silakan pakai email — nomor HP bisa ditambahkan di profil.
+      </p>
     </div>
   );
 }

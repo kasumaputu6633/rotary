@@ -78,6 +78,55 @@
       "when": 1782097445512,
       "tag": "0010_open_black_panther",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1782291016011,
+      "tag": "0011_magenta_corsair",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1782293859345,
+      "tag": "0012_first_logan",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1782294110117,
+      "tag": "0013_polite_nico_minoru",
+      "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1782314732888,
+      "tag": "0014_narrow_lester",
+      "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "7",
+      "when": 1782322233613,
+      "tag": "0015_noisy_dormammu",
+      "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1782324083714,
+      "tag": "0016_gifted_liz_osborn",
+      "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1782326513590,
+      "tag": "0017_mighty_madame_hydra",
+      "breakpoints": true
     }
   ]
 }

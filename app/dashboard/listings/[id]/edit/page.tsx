@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { requireRole } from "@/lib/auth";
 import { getListingImages, getSellerListingById } from "@/lib/listings";
 import { updateListingAction } from "@/app/dashboard/actions";
-import { Badge, PageHeader } from "@/app/dashboard/_components/SellerCenterUi";
+import { Badge, PageHeader, StatusBadge } from "@/app/dashboard/_components/SellerCenterUi";
 import { ListingForm } from "@/app/dashboard/listings/_components/ListingForm";
 
 type Props = {
@@ -30,9 +30,7 @@ export default async function EditListingPage({ params }: Props) {
         description="Perbarui detail listing barang kamu. Perubahan langsung berlaku setelah disimpan."
         meta={
           <>
-            <Badge tone={listing.status === "active" ? "success" : listing.status === "draft" ? "accent" : "neutral"}>
-              {listing.status === "active" ? "Aktif" : listing.status === "draft" ? "Draft" : "Nonaktif"}
-            </Badge>
+            <StatusBadge status={listing.status} mode={listing.mode} />
             <Badge tone="neutral">{listing.category}</Badge>
           </>
         }
@@ -46,9 +44,13 @@ export default async function EditListingPage({ params }: Props) {
         submitDescription={
           listing.status === "active"
             ? "Listing aktif. Perubahan langsung tampil di marketplace."
-            : listing.status === "inactive"
-              ? "Simpan perubahan tanpa menampilkan listing, atau aktifkan lagi ke marketplace."
-              : "Simpan draft atau terbitkan ke marketplace sekarang."
+            : listing.status === "reserved"
+              ? "Listing sedang dipesan dan tetap terlihat publik. Perubahan detail tidak mengaktifkan kontak baru."
+              : listing.status === "completed"
+                ? "Listing sudah selesai dan tidak tampil publik. Gunakan aksi Tawarkan Lagi jika barang kembali tersedia."
+                : listing.status === "inactive"
+                  ? "Simpan perubahan tanpa menampilkan listing, atau aktifkan lagi ke marketplace."
+                  : "Simpan draft atau terbitkan ke marketplace sekarang."
         }
       />
     </div>

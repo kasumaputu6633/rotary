@@ -22,7 +22,9 @@ export default function ProductActionCard({
 
   return (
     <div className="rounded-lg border border-[#d8deea] bg-white p-4 font-poppins shadow-[0_10px_28px_rgba(15,23,42,0.08)]">
-      <h2 className="text-[15px] font-semibold text-black">Hubungi Pemilik</h2>
+      <h2 className="text-[15px] font-semibold text-black">
+        {product.status === "reserved" ? "Informasi Barang" : "Hubungi Pemilik"}
+      </h2>
 
       <div className="mt-4 flex gap-3 border-b border-[#edf0f5] pb-4">
         <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-md border border-[#e5e7eb] bg-[#f4f6f8]">

@@ -150,7 +150,16 @@ export function ListingImagePicker({
         type="file"
         accept="image/jpeg,image/png,image/webp"
         multiple
+        required={totalSlotsTaken === 0}
         onChange={handleChange}
+        onInvalid={(event) => {
+          (event.target as HTMLInputElement).setCustomValidity("Tambahkan minimal 1 foto barang.");
+        }}
+        onInput={(event) => {
+          (event.target as HTMLInputElement).setCustomValidity("");
+        }}
+        aria-hidden="true"
+        tabIndex={-1}
         className="sr-only"
       />
 

@@ -1,22 +1,30 @@
 "use client";
 
+import { Icon } from "@iconify/react";
 import Link from "next/link";
 import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
 import AuthIllustration from "../_components/AuthIllustration";
 import AuthCard from "../_components/AuthCard";
 import AuthInput from "../_components/AuthInput";
 import AuthButton from "../_components/AuthButton";
+import AuthMethodTabs, { type AuthMethod } from "../_components/AuthMethodTabs";
+import AuthPhoneInput, { validateIndonesianPhone } from "../_components/AuthPhoneInput";
 import { loginAction } from "../actions";
 
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 export default function LoginPage() {
-  const router = useRouter();
   const [isPending, startTransition] = useTransition();
-  const [contact, setContact] = useState("");
+  const [method, setMethod] = useState<AuthMethod>("email");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  const isValid = contact.trim() !== "" && password.trim() !== "";
+  const isEmailValid = EMAIL_REGEX.test(email.trim());
+  const isPhoneValid = validateIndonesianPhone(phone);
+  const isContactValid = method === "email" ? isEmailValid : isPhoneValid;
+  const isFormValid = isContactValid && password.trim() !== "" && method === "email";
 
   function getSafeRedirect() {
     const redirectTo = new URLSearchParams(window.location.search).get("redirect");
@@ -25,14 +33,20 @@ export default function LoginPage() {
     return redirectTo;
   }
 
+  function handleMethodChange(next: AuthMethod) {
+    setMethod(next);
+    setError("");
+  }
+
   function handleSubmit() {
     setError("");
+    if (method === "phone") return; // Belum di-implement
     startTransition(async () => {
-      const result = await loginAction(contact.trim(), password);
+      const result = await loginAction(email.trim(), password, getSafeRedirect());
       if (result?.error) {
         setError(result.error);
       } else if (result?.redirectTo) {
-        router.push(result.redirectTo === "/" ? getSafeRedirect() ?? result.redirectTo : result.redirectTo);
+        window.location.replace(result.redirectTo);
       }
     });
   }
@@ -46,39 +60,59 @@ export default function LoginPage() {
           Masuk
         </h1>
 
-        <div className="flex flex-col gap-[10px] items-start pt-[45px] pb-[42px] w-full">
-          <AuthInput
-            id="contact"
-            label="No.Telp atau Email"
-            type="text"
-            placeholder="No. Telepon atau Email"
-            value={contact}
-            onChange={(e) => setContact(e.target.value)}
-          />
+        <div className="flex flex-col gap-[10px] items-start pt-[25px] pb-[42px] w-full">
+          <AuthMethodTabs value={method} onChange={handleMethodChange} />
 
-          <AuthInput
-            id="password"
-            label="Kata Sandi"
-            type="password"
-            placeholder="Kata Sandi"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            error={error || undefined}
-          />
+          {method === "email" ? (
+            <>
+              <AuthInput
+                id="email"
+                label="Email"
+                type="email"
+                placeholder="email@contoh.com"
+                autoComplete="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                error={email && !isEmailValid ? "Format email tidak valid." : undefined}
+              />
 
-          <Link
-            href="/forgot-password"
-            className="font-poppins text-[14px] text-[#17458f] underline self-end"
-          >
-            Lupa Kata Sandi?
-          </Link>
+              <AuthInput
+                id="password"
+                label="Kata Sandi"
+                type="password"
+                placeholder="Kata Sandi"
+                autoComplete="current-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                error={error || undefined}
+              />
+
+              <Link
+                href="/forgot-password"
+                className="font-poppins text-[14px] text-[#17458f] underline self-end"
+              >
+                Lupa Kata Sandi?
+              </Link>
+            </>
+          ) : (
+            <>
+              <AuthPhoneInput
+                id="phone"
+                label="Nomor HP"
+                value={phone}
+                onChange={setPhone}
+                disabled
+              />
+              <PhoneLoginNotice />
+            </>
+          )}
 
           <Link href="/help" className="font-poppins text-[14px] text-[#17458f] underline">
             Perlu Bantuan?
           </Link>
         </div>
 
-        <AuthButton onClick={handleSubmit} disabled={!isValid} pending={isPending}>
+        <AuthButton onClick={handleSubmit} disabled={!isFormValid} pending={isPending}>
           Masuk
         </AuthButton>
 
@@ -87,6 +121,18 @@ export default function LoginPage() {
           <Link href="/register" className="text-[#17458f] underline font-semibold">Daftar</Link>
         </p>
       </AuthCard>
+    </div>
+  );
+}
+
+function PhoneLoginNotice() {
+  return (
+    <div className="flex items-start gap-2 w-full rounded-[9px] border border-[#FFB81D] bg-[#FFF7E0] px-3 py-2">
+      <Icon icon="lucide:info" width={16} height={16} className="text-[#a87a00] shrink-0 mt-[2px]" aria-hidden="true" />
+      <p className="font-poppins text-[12px] leading-relaxed text-[#5a4400]">
+        <strong className="font-semibold">Dalam tahap pengembangan.</strong>{" "}
+        Login pakai nomor HP belum aktif. Sementara silakan pakai email.
+      </p>
     </div>
   );
 }

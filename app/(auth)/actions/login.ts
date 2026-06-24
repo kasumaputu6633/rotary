@@ -12,18 +12,24 @@ import {
   getCookie,
   setPendingContact,
   setPendingLoginUserId,
+  setPendingLoginRedirect,
   getPendingContact,
   getPendingLoginUserId,
+  getPendingLoginRedirect,
   createSession,
   trustDevice,
   clearPendingLogin,
   createAndSendOtp,
   verifyOtp,
 } from "./shared";
-import { userWhereClause } from "./helpers";
+import { getSafeLoginRedirect, userWhereClause } from "./helpers";
 import { canBypassOtp } from "./otp-bypass";
 
-export async function loginAction(contact: string, password: string): Promise<ActionResult> {
+export async function loginAction(
+  contact: string,
+  password: string,
+  requestedRedirect?: string | null,
+): Promise<ActionResult> {
   try {
     const user = await db.query.users.findFirst({ where: userWhereClause(contact) });
 
@@ -37,9 +43,10 @@ export async function loginAction(contact: string, password: string): Promise<Ac
     const userRole = user.role ?? "user";
     const deviceToken = await getCookie("rotary_device");
     const otpContact = user.email ?? user.phone!;
-    const redirectPath = userRole === "admin" ? "/admin/dashboard" : "/";
+    const redirectPath = getSafeLoginRedirect(requestedRedirect, userRole);
 
     if (canBypassOtp(otpContact)) {
+      await clearPendingLogin();
       await createSession(user.id);
       await trustDevice(user.id);
       return { redirectTo: redirectPath };
@@ -52,6 +59,7 @@ export async function loginAction(contact: string, password: string): Promise<Ac
       }));
 
     if (isKnownDevice) {
+      await clearPendingLogin();
       await createSession(user.id);
       return { redirectTo: redirectPath };
     }
@@ -59,6 +67,7 @@ export async function loginAction(contact: string, password: string): Promise<Ac
     await createAndSendOtp(otpContact, "login_verify", user.name);
     await setPendingContact(otpContact);
     await setPendingLoginUserId(user.id);
+    await setPendingLoginRedirect(redirectPath);
     return { redirectTo: "/login/verify" };
   } catch {
     return { error: DB_ERROR };
@@ -68,22 +77,22 @@ export async function loginAction(contact: string, password: string): Promise<Ac
 export async function verifyLoginOtpAction(code: string): Promise<ActionResult> {
   const contact = await getPendingContact();
   const userId = await getPendingLoginUserId();
+  const requestedRedirect = await getPendingLoginRedirect();
   if (!contact || !userId) return { error: "Sesi habis, silakan masuk kembali." };
 
   try {
     const valid = canBypassOtp(contact) || await verifyOtp(contact, code, "login_verify");
     if (!valid) return { error: "Kode salah atau sudah kedaluarsa." };
 
-    await clearPendingLogin();
-    await trustDevice(userId);
-    await createSession(userId);
-
     const user = await db.query.users.findFirst({
       where: eq(users.id, userId),
       columns: { role: true },
     });
-    
-    const redirectPath = user?.role === "admin" ? "/admin/dashboard" : "/";
+
+    const redirectPath = getSafeLoginRedirect(requestedRedirect, user?.role ?? "user");
+    await clearPendingLogin();
+    await trustDevice(userId);
+    await createSession(userId);
     return { redirectTo: redirectPath };
   } catch {
     return { error: DB_ERROR };

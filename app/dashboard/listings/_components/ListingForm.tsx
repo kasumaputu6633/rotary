@@ -1,5 +1,7 @@
 import type { ListingMode, ListingStatus } from "@/lib/listing-format";
 import { ListingCategoryPicker } from "../new/_components/ListingCategoryPicker";
+import { ListingDescriptionField } from "../new/_components/ListingDescriptionField";
+import { ListingHandoverOptions } from "../new/_components/ListingHandoverOptions";
 import { ListingImagePicker } from "../new/_components/ListingImagePicker";
 import { ListingLocationPickerLazy as ListingLocationPicker } from "../new/_components/ListingLocationPickerLazy";
 import { ListingModePriceFields } from "../new/_components/ListingModePriceFields";
@@ -7,7 +9,6 @@ import { ListingSubmitButtons } from "../new/_components/ListingSubmitButtons";
 import { Panel } from "../../_components/SellerCenterUi";
 
 const conditionOptions = ["Baru dibuka", "Sangat baik", "Bekas layak pakai", "Perlu perbaikan ringan"];
-const deliveryOptions = ["Ambil di tempat", "Titik temu", "Bisa dikirim manual"];
 const fieldClass =
   "h-11 rounded-[8px] border border-[var(--seller-rule-strong)] bg-[var(--seller-surface)] px-3 text-[13px] outline-none transition focus:border-[var(--seller-brand)] focus:ring-2 focus:ring-[var(--seller-accent-soft)]";
 const labelClass = "grid gap-2";
@@ -43,7 +44,7 @@ type ListingFormProps = {
 };
 
 function getSubmitLabels(status?: ListingStatus) {
-  if (status === "active") {
+  if (status === "active" || status === "reserved" || status === "completed") {
     return {
       draftLabel: "Simpan Draft",
       publishLabel: "Simpan Perubahan",
@@ -99,15 +100,11 @@ export function ListingForm({
               />
             </label>
 
-            <label className={labelClass}>
-              <span className={labelTextClass}>Deskripsi</span>
-              <textarea
-                name="description"
-                defaultValue={values.description ?? ""}
-                className="min-h-32 rounded-[8px] border border-[var(--seller-rule-strong)] bg-[var(--seller-surface)] px-3 py-3 text-[13px] outline-none transition focus:border-[var(--seller-brand)] focus:ring-2 focus:ring-[var(--seller-accent-soft)]"
-                placeholder="Ceritakan kondisi barang, kelengkapan, ukuran, dan catatan penting."
-              />
-            </label>
+            <ListingDescriptionField
+              defaultValue={values.description}
+              labelClass={labelClass}
+              labelTextClass={labelTextClass}
+            />
 
             <div className={labelClass}>
               <span className={labelTextClass}>Lokasi Barang</span>
@@ -155,20 +152,8 @@ export function ListingForm({
 
         <section className="rounded-[8px] border border-[var(--seller-rule)] bg-[var(--seller-surface)] p-4 shadow-[var(--seller-shadow)]">
           <h2 className="text-[15px] font-semibold text-[var(--seller-ink)]">Serah Terima</h2>
-          <div className="mt-3 grid gap-2">
-            {deliveryOptions.map((option) => (
-              <label key={option} className="flex items-center gap-2 rounded-[8px] border border-[var(--seller-rule)] bg-[var(--seller-surface-2)] px-3 py-2 text-[12px] text-[var(--seller-ink)]">
-                <input
-                  name="handoverOptions"
-                  type="checkbox"
-                  value={option}
-                  defaultChecked={values.handoverOptions?.includes(option) ?? option === "Ambil di tempat"}
-                  className="accent-[var(--seller-brand)]"
-                />
-                {option}
-              </label>
-            ))}
-          </div>
+          <p className="mt-1 text-[12px] text-[var(--seller-muted)]">Pilih minimal 1 cara serah terima.</p>
+          <ListingHandoverOptions defaultValue={values.handoverOptions} />
         </section>
 
         <section className="rounded-[8px] border border-[var(--seller-rule)] bg-[var(--seller-accent-soft)] p-4">

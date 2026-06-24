@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
 import AuthIllustration from "../../_components/AuthIllustration";
 import AuthCard from "../../_components/AuthCard";
 import AuthInput from "../../_components/AuthInput";
@@ -11,24 +10,28 @@ import PasswordRequirements, { passwordValid } from "../../_components/PasswordR
 import { updateProfileAction } from "../../actions";
 
 export default function RegisterProfilePage() {
-  const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [name, setName] = useState("");
+  const [displayName, setDisplayName] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
 
   const passwordMismatch = confirmPassword !== "" && password !== confirmPassword;
-  const isValid = name.trim() !== "" && passwordValid(password) && password === confirmPassword;
+  const isValid =
+    name.trim().length >= 2
+    && displayName.trim().length >= 2
+    && passwordValid(password)
+    && password === confirmPassword;
 
   function handleSubmit() {
     setError("");
     startTransition(async () => {
-      const result = await updateProfileAction(name.trim(), password);
+      const result = await updateProfileAction(name.trim(), displayName.trim(), password);
       if (result?.error) {
         setError(result.error);
       } else if (result?.redirectTo) {
-        router.push(result.redirectTo);
+        window.location.replace(result.redirectTo);
       }
     });
   }
@@ -50,6 +53,15 @@ export default function RegisterProfilePage() {
             placeholder="Masukkan nama lengkap"
             value={name}
             onChange={(e) => setName(e.target.value)}
+          />
+
+          <AuthInput
+            id="displayName"
+            label="Nama Tampilan"
+            type="text"
+            placeholder="Nama singkat di marketplace"
+            value={displayName}
+            onChange={(e) => setDisplayName(e.target.value)}
           />
 
           <AuthInput

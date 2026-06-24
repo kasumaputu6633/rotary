@@ -2,7 +2,7 @@
 
 import { Icon } from "@iconify/react";
 import { useState } from "react";
-import { formatListingMode, type ListingCardData } from "@/lib/listing-format";
+import { formatListingMode, formatListingStatus, type ListingCardData } from "@/lib/listing-format";
 
 type ActiveTab = "detail" | "important";
 
@@ -52,6 +52,12 @@ export default function ProductInfoTabs({ product }: { product: ListingCardData 
             <dt className="text-[#6b7280]">Mode</dt>
             <dd className="font-medium text-black">{formatListingMode(product.mode)}</dd>
           </div>
+          <div className="grid grid-cols-[112px_1fr] gap-3">
+            <dt className="text-[#6b7280]">Status</dt>
+            <dd className={`font-semibold ${product.status === "reserved" ? "text-[#17458f]" : "text-[#2f7d49]"}`}>
+              {formatListingStatus(product.status, product.mode)}
+            </dd>
+          </div>
           {product.subcategory && (
             <div className="grid grid-cols-[112px_1fr] gap-3">
               <dt className="text-[#6b7280]">Subkategori</dt>
@@ -75,7 +81,9 @@ export default function ProductInfoTabs({ product }: { product: ListingCardData 
         <div className="mt-4 grid gap-2.5 font-poppins text-[13px] text-black">
           {[
             "Pastikan kondisi barang sudah sesuai sebelum membuat kesepakatan.",
-            "Gunakan fitur chat untuk menyepakati titik temu dan pengiriman.",
+            product.status === "reserved"
+              ? "Barang sedang dipesan oleh peminat lain dan kontak baru dijeda sementara."
+              : "Gunakan fitur chat untuk menyepakati titik temu dan pengiriman.",
             "Semua deal dilakukan langsung antar pengguna di luar aplikasi.",
           ].map((info) => (
             <div key={info} className="flex gap-2 rounded-lg border border-[#edf0f5] bg-white p-3">

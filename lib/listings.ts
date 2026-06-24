@@ -62,7 +62,9 @@ const listingSelection = {
   viewCount: listings.viewCount,
   updatedAt: listings.updatedAt,
   publishedAt: listings.publishedAt,
-  sellerName: users.name,
+  reservedAt: listings.reservedAt,
+  completedAt: listings.completedAt,
+  sellerName: sql<string | null>`coalesce(${users.displayName}, ${users.name})`,
   sellerAvatarUrl: users.avatarUrl,
   imageUrl: listingImages.imageUrl,
 };
@@ -99,7 +101,7 @@ function buildPublicListingConditions({
   minPrice,
   maxPrice,
 }: PublicListingsQuery) {
-  const conditions: SQL[] = [eq(listings.status, "active")];
+  const conditions: SQL[] = [inArray(listings.status, ["active", "reserved"])];
 
   if (excludeSlug) conditions.push(ne(listings.slug, excludeSlug));
   if (category) conditions.push(eq(listings.category, category));
@@ -166,7 +168,7 @@ export async function getPublicListingCategoryCounts() {
       count: sql<number>`count(*)::int`,
     })
     .from(listings)
-    .where(eq(listings.status, "active"))
+    .where(inArray(listings.status, ["active", "reserved"]))
     .groupBy(listings.category)
     .orderBy(asc(listings.category));
 }
@@ -177,13 +179,13 @@ export async function getPublicListingBySlug(slug: string, userId?: string | nul
       ...listingSelection,
       sellerId: listings.sellerId,
       handoverOptions: listings.handoverOptions,
-      sellerWhatsapp: users.whatsapp,
+      sellerWhatsapp: users.phone,
       isFavorite: userId ? favoriteExistsSubquery(userId) : sql<boolean>`false`,
     })
     .from(listings)
     .leftJoin(users, eq(users.id, listings.sellerId))
     .leftJoin(listingImages, and(eq(listingImages.listingId, listings.id), eq(listingImages.sortOrder, 0)))
-    .where(and(eq(listings.slug, slug), eq(listings.status, "active")))
+    .where(and(eq(listings.slug, slug), inArray(listings.status, ["active", "reserved"])))
     .limit(1);
 
   return row ? withFavorite(row) : null;
@@ -219,6 +221,8 @@ export async function getSellerListingById(id: string, userId: string) {
       longitude: listings.longitude,
       handoverOptions: listings.handoverOptions,
       updatedAt: listings.updatedAt,
+      reservedAt: listings.reservedAt,
+      completedAt: listings.completedAt,
     })
     .from(listings)
     .where(and(eq(listings.id, id), eq(listings.sellerId, userId)))
@@ -231,10 +235,16 @@ export async function getSellerListings(userId: string, status?: ListingStatus) 
   const conditions: SQL[] = [eq(listings.sellerId, userId)];
   if (status) conditions.push(eq(listings.status, status));
 
-  // Kalau tampil semua (tanpa filter status), grupkan aktif dulu → draft → nonaktif
+  // Kalau tampil semua, grupkan berdasarkan alur kerja seller.
   const statusOrder = status
     ? desc(listings.updatedAt)
-    : sql`CASE ${listings.status} WHEN 'active' THEN 0 WHEN 'draft' THEN 1 ELSE 2 END`;
+    : sql`CASE ${listings.status}
+        WHEN 'active' THEN 0
+        WHEN 'reserved' THEN 1
+        WHEN 'draft' THEN 2
+        WHEN 'completed' THEN 3
+        ELSE 4
+      END`;
 
   return db
     .select(listingSelection)
@@ -255,7 +265,7 @@ export async function getFavoriteListings(userId: string) {
     .innerJoin(listings, eq(listings.id, favoriteListings.listingId))
     .leftJoin(users, eq(users.id, listings.sellerId))
     .leftJoin(listingImages, and(eq(listingImages.listingId, listings.id), eq(listingImages.sortOrder, 0)))
-    .where(and(eq(favoriteListings.userId, userId), eq(listings.status, "active")))
+    .where(and(eq(favoriteListings.userId, userId), inArray(listings.status, ["active", "reserved"])))
     .orderBy(desc(favoriteListings.createdAt));
 
   return rows.map(withFavorite);

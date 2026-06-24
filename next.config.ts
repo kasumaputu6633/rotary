@@ -1,10 +1,12 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  allowedDevOrigins: ["local.heyputu.lol"],
   experimental: {
     serverActions: {
       // 4 foto × max 5MB = 20MB, kasih ruang lebih
       bodySizeLimit: "25mb",
+      allowedOrigins: ["local.heyputu.lol"],
     },
   },
   images: {

@@ -5,6 +5,7 @@ import { formatListingMode, formatPrice, formatPublicLocation, type ListingCardD
 
 export default function ProductCard({ product }: { product: ListingCardData }) {
   const isSale = product.mode === "sale";
+  const isReserved = product.status === "reserved";
   const publicLocation = formatPublicLocation(product.location);
 
   return (
@@ -24,11 +25,11 @@ export default function ProductCard({ product }: { product: ListingCardData }) {
               </span>
             )}
             <span
-              className={`absolute left-2 top-2 rounded-full px-2.5 py-1 text-[10px] font-semibold leading-none text-white shadow-sm ${
-                isSale ? "bg-[#17458f]" : "bg-[#2f7d49]"
+              className={`absolute left-2 top-2 rounded-[5px] px-2 py-1 text-[10px] font-semibold leading-none text-white ${
+                isReserved ? "bg-[var(--color-reserved)]" : isSale ? "bg-[#17458f]" : "bg-[#2f7d49]"
               }`}
             >
-              {formatListingMode(product.mode)}
+              {isReserved ? "Dipesan" : formatListingMode(product.mode)}
             </span>
           </div>
         </Link>

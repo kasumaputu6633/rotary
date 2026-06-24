@@ -1,9 +1,7 @@
-import Link from "next/link";
 import { requireRole } from "@/lib/auth";
 import { getSellerListings } from "@/lib/listings";
 import { EmptyState, ListingThumb, ModeBadge, PageHeader, Panel, PrimaryLink } from "../../_components/SellerCenterUi";
-import { ListingStatusButton } from "../_components/ListingStatusButton";
-import { DeleteListingButton } from "../_components/DeleteListingButton";
+import { ListingLifecycleActions } from "../_components/ListingLifecycleActions";
 
 export default async function DraftListingsPage() {
   const user = await requireRole("user");
@@ -32,27 +30,13 @@ export default async function DraftListingsPage() {
                   </div>
                   <p className="mt-1 text-[12px] text-[var(--seller-muted)]">{listing.category} - Diperbarui {listing.updatedAt.toLocaleDateString("id-ID")}</p>
                 </div>
-                <div className="flex flex-wrap gap-2">
-                  <Link
-                    href={`/dashboard/listings/${listing.id}/edit`}
-                    className="inline-flex h-9 items-center gap-2 rounded-[8px] border border-[var(--seller-rule-strong)] px-3 text-[12px] font-semibold text-[var(--seller-brand)] hover:bg-[var(--seller-brand-soft)]"
-                  >
-                    Edit
-                  </Link>
-                  <ListingStatusButton
-                    listingId={listing.id}
-                    newStatus="active"
-                    icon="lucide:send"
-                    label="Terbitkan"
-                    successMessage="Listing berhasil diterbitkan."
-                    className="inline-flex h-9 items-center gap-2 rounded-[8px] bg-[var(--seller-accent)] px-3 text-[12px] font-semibold text-white hover:brightness-95"
-                  />
-                  <DeleteListingButton
-                    listingId={listing.id}
-                    title={listing.title}
-                    className="inline-flex h-9 items-center gap-2 rounded-[8px] border border-[var(--seller-danger)] px-3 text-[12px] font-semibold text-[var(--seller-danger)] hover:bg-[#fff0f0]"
-                  />
-                </div>
+                <ListingLifecycleActions
+                  density="comfortable"
+                  listingId={listing.id}
+                  mode={listing.mode}
+                  status={listing.status}
+                  title={listing.title}
+                />
               </article>
             ))}
           </div>

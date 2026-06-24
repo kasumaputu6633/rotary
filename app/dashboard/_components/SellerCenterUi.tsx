@@ -1,6 +1,7 @@
 import { Icon } from "@iconify/react";
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { formatDealStage, type DealStage } from "@/lib/deal-format";
 import { formatListingMode, formatListingStatus, type ListingMode, type ListingStatus } from "@/lib/listing-format";
 
 const panelClass =
@@ -16,6 +17,8 @@ const badgeToneClass = {
 
 const statusTone: Record<ListingStatus, keyof typeof badgeToneClass> = {
   active: "success",
+  reserved: "brand",
+  completed: "success",
   draft: "accent",
   inactive: "neutral",
 };
@@ -101,12 +104,17 @@ export function Badge({
   );
 }
 
-export function StatusBadge({ status }: { status: ListingStatus }) {
-  return <Badge tone={statusTone[status]}>{formatListingStatus(status)}</Badge>;
+export function StatusBadge({ mode, status }: { mode?: ListingMode; status: ListingStatus }) {
+  return <Badge tone={statusTone[status]}>{formatListingStatus(status, mode)}</Badge>;
 }
 
 export function ModeBadge({ mode }: { mode: ListingMode }) {
   return <Badge tone={mode === "sale" ? "accent" : "success"}>{formatListingMode(mode)}</Badge>;
+}
+
+export function DealStageBadge({ stage }: { stage: DealStage }) {
+  const tone = stage === "handover_scheduled" ? "success" : stage === "agreed" ? "brand" : "neutral";
+  return <Badge tone={tone}>{formatDealStage(stage)}</Badge>;
 }
 
 export function ListingStatsPills({
@@ -146,7 +154,7 @@ export function PrimaryLink({
   return (
     <Link
       href={href}
-      className="inline-flex h-10 items-center justify-center gap-2 rounded-[8px] bg-[var(--seller-accent)] px-4 text-[12px] font-semibold text-white shadow-[var(--seller-shadow-tight)] transition hover:brightness-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--seller-focus)]"
+      className="inline-flex min-h-11 items-center justify-center gap-2 whitespace-nowrap rounded-[8px] bg-[var(--seller-accent)] px-4 text-[12px] font-semibold text-white shadow-[var(--seller-shadow-tight)] transition hover:brightness-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--seller-focus)]"
     >
       <Icon icon={icon} width={15} height={15} aria-hidden="true" />
       {children}
@@ -166,7 +174,7 @@ export function SecondaryLink({
   return (
     <Link
       href={href}
-      className="inline-flex h-10 items-center justify-center gap-2 rounded-[8px] border border-[var(--seller-rule-strong)] bg-[var(--seller-surface)] px-4 text-[12px] font-semibold text-[var(--seller-brand)] transition hover:bg-[var(--seller-brand-soft)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--seller-focus)]"
+      className="inline-flex min-h-11 items-center justify-center gap-2 whitespace-nowrap rounded-[8px] border border-[var(--seller-rule-strong)] bg-[var(--seller-surface)] px-4 text-[12px] font-semibold text-[var(--seller-brand)] transition hover:bg-[var(--seller-brand-soft)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--seller-focus)]"
     >
       <Icon icon={icon} width={15} height={15} aria-hidden="true" />
       {children}

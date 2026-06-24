@@ -1,4 +1,4 @@
-export type ListingStatus = "draft" | "active" | "inactive";
+export type ListingStatus = "draft" | "active" | "reserved" | "completed" | "inactive";
 export type ListingMode = "sale" | "donation";
 
 export type ListingCardData = {
@@ -15,6 +15,8 @@ export type ListingCardData = {
   location: string;
   updatedAt: Date;
   publishedAt: Date | null;
+  reservedAt?: Date | null;
+  completedAt?: Date | null;
   sellerId?: string;
   sellerName: string | null;
   sellerAvatarUrl?: string | null;
@@ -42,8 +44,14 @@ export function formatListingMode(mode: ListingMode) {
   return mode === "sale" ? "Dijual" : "Didonasi";
 }
 
-export function formatListingStatus(status: ListingStatus) {
+export function formatListingStatus(status: ListingStatus, mode?: ListingMode) {
   if (status === "active") return "Aktif";
+  if (status === "reserved") return "Dipesan";
+  if (status === "completed") {
+    if (mode === "sale") return "Terjual";
+    if (mode === "donation") return "Tersalurkan";
+    return "Selesai";
+  }
   if (status === "inactive") return "Nonaktif";
   return "Draft";
 }
