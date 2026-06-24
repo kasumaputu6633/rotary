@@ -2,7 +2,7 @@
 
 import { Icon } from "@iconify/react";
 import { useEffect, useMemo, useState } from "react";
-import { formatListingMode, type ListingCardData } from "@/lib/listing-format";
+import type { ListingCardData } from "@/lib/listing-format";
 
 function ImageFrame({
   product,
@@ -16,13 +16,13 @@ function ImageFrame({
   modal?: boolean;
 }) {
   const sizeClass = compact
-    ? "aspect-square text-[24px]"
+    ? "aspect-square text-[20px]"
     : modal
       ? "h-[min(68vh,620px)] min-h-[300px] text-[64px]"
       : "aspect-square text-[56px]";
 
   return (
-    <div className={`relative flex items-center justify-center overflow-hidden rounded-lg border border-[#e5e7eb] bg-[#f4f6f8] text-[#9aa7b8] shadow-[0_8px_24px_rgba(15,23,42,0.08)] ${sizeClass}`}>
+    <div className={`relative flex items-center justify-center overflow-hidden rounded-lg border border-[#dfe5ee] bg-[#f4f6f8] text-[#9aa7b8] ${compact ? "" : "shadow-[0_4px_16px_rgba(15,23,42,0.06)]"} ${sizeClass}`}>
       {imageUrl ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img src={imageUrl} alt={product.title} className="h-full w-full object-cover" />
@@ -31,32 +31,34 @@ function ImageFrame({
           <Icon icon="lucide:image" aria-hidden="true" />
         </span>
       )}
-      {!compact && (
-        <>
-          <span className="absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1 font-poppins text-[11px] font-semibold text-[#17458f] shadow-sm">
-            {formatListingMode(product.mode)}
-          </span>
-          <span className="absolute bottom-4 right-4 inline-flex items-center gap-1.5 rounded-full bg-white/90 px-3 py-1.5 font-poppins text-[11px] font-semibold text-[#17458f] shadow-sm">
-            <Icon icon="lucide:zoom-in" width={14} height={14} aria-hidden="true" />
-            Lihat Detail
-          </span>
-        </>
-      )}
     </div>
   );
 }
 
 export default function ProductGallery({
+  activeIndex,
   product,
   images,
+  onActiveIndexChange,
 }: {
+  activeIndex?: number;
   product: ListingCardData;
   images: string[];
+  onActiveIndexChange?: (index: number) => void;
 }) {
   const galleryImages = useMemo(() => (images.length > 0 ? images : [null]), [images]);
-  const [activeIndex, setActiveIndex] = useState(0);
+  const [internalActiveIndex, setInternalActiveIndex] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
-  const activeImage = galleryImages[activeIndex] ?? null;
+  const selectedIndex = Math.min(activeIndex ?? internalActiveIndex, galleryImages.length - 1);
+  const activeImage = galleryImages[selectedIndex] ?? null;
+
+  function handleActiveIndexChange(index: number) {
+    if (onActiveIndexChange) {
+      onActiveIndexChange(index);
+      return;
+    }
+    setInternalActiveIndex(index);
+  }
 
   useEffect(() => {
     if (!isOpen) return;
@@ -76,25 +78,27 @@ export default function ProductGallery({
 
   return (
     <>
-      <div>
+      <div data-product-gallery className="lg:sticky lg:top-[196px] lg:self-start">
         <button
           type="button"
           onClick={() => setIsOpen(true)}
-          className="group block w-full rounded-lg text-left transition-shadow hover:shadow-[0_18px_34px_rgba(15,23,42,0.10)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#17458f] focus-visible:ring-offset-2"
+          className="group block w-full rounded-lg text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#17458f] focus-visible:ring-offset-2"
           aria-label="Perbesar gambar produk"
         >
-          <div className="transition-transform duration-300 group-hover:scale-[1.01]">
+          <div className="transition-transform duration-300 group-hover:scale-[1.006]">
             <ImageFrame product={product} imageUrl={activeImage} />
           </div>
         </button>
 
-        <div className="mt-5 grid grid-cols-4 gap-3">
-          {galleryImages.slice(0, 4).map((imageUrl, index) => (
+        <div className="mt-3 grid grid-cols-5 gap-2">
+          {galleryImages.slice(0, 5).map((imageUrl, index) => (
             <button
               key={`${imageUrl ?? "placeholder"}-${index}`}
               type="button"
-              onClick={() => setActiveIndex(index)}
-              className={`rounded-lg transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_18px_rgba(15,23,42,0.10)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#17458f] focus-visible:ring-offset-2 ${index === activeIndex ? "ring-2 ring-[#f7a81b] shadow-[0_8px_18px_rgba(247,168,27,0.18)]" : ""}`}
+              onClick={() => handleActiveIndexChange(index)}
+              className={`rounded-md transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_18px_rgba(15,23,42,0.10)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#17458f] focus-visible:ring-offset-2 ${
+                index === selectedIndex ? "ring-2 ring-[#f7a81b] shadow-[0_8px_18px_rgba(247,168,27,0.18)]" : ""
+              }`}
               aria-label={`Pilih gambar produk ${index + 1} sebagai preview utama`}
             >
               <ImageFrame product={product} imageUrl={imageUrl} compact />
