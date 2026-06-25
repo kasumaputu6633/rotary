@@ -1,4 +1,4 @@
-import { getOnlineStatus } from "../hooks/useConversation";
+import { getOnlineStatus } from "../_hooks/useConversation";
 
 export function OnlineDot({ lastSeenAt }: { lastSeenAt: string | null }) {
   const status = getOnlineStatus(lastSeenAt);

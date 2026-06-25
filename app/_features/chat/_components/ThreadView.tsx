@@ -1,6 +1,6 @@
 import { Icon } from "@iconify/react";
 import { useEffect, useRef, useState } from "react";
-import { useConversation } from "../hooks/useConversation";
+import { useConversation } from "../_hooks/useConversation";
 import { OnlineDot } from "./OnlineDot";
 import { onlineLabel } from "../utils";
 import { MessageBubble } from "./MessageBubble";

@@ -1,7 +1,7 @@
 "use client";
 
 import { Icon } from "@iconify/react";
-import { useUnreadCount } from "@/app/_features/chat/hooks/useUnreadCount";
+import { useUnreadCount } from "@/app/_features/chat/_hooks/useUnreadCount";
 
 export default function NavbarChatButton() {
   const { count } = useUnreadCount();

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Poppins, Roboto_Serif } from "next/font/google";
 import DropdownOverlay from "./_components/DropdownOverlay";
-import FloatingChat from "./_features/chat/components/FloatingChat";
+import FloatingChat from "./_features/chat/_components/FloatingChat";
 import { getSessionUserId } from "@/lib/auth";
 import "./globals.css";
 

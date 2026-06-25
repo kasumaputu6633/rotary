@@ -1,4 +1,4 @@
-import type { ChatMessage } from "../hooks/useConversation";
+import type { ChatMessage } from "../_hooks/useConversation";
 import { formatTime } from "../utils";
 
 export function MessageBubble({ msg, isOwn }: { msg: ChatMessage; isOwn: boolean }) {
