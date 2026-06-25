@@ -10,6 +10,7 @@ type ProductActionCardProps = {
   product: ListingCardData;
   publicLocation: string;
   sellerWhatsapp?: string | null;
+  isOwner?: boolean;
 };
 
 export default function ProductActionCard({
@@ -17,6 +18,7 @@ export default function ProductActionCard({
   product,
   publicLocation,
   sellerWhatsapp,
+  isOwner,
 }: ProductActionCardProps) {
   const handoverOptions = product.handoverOptions ?? [];
 
@@ -80,12 +82,12 @@ export default function ProductActionCard({
           )}
         </div>
         <div className="min-w-0">
-          <p className="text-[11px] text-[#6b7280]">Informasi Pemilik</p>
+          <p className="text-[11px] text-[#6b7280]">{isOwner ? "Ini adalah barang Anda" : "Informasi Pemilik"}</p>
           <p className="truncate text-[13px] font-semibold text-black">{product.sellerName ?? "Pengguna Rotary"}</p>
         </div>
       </div>
 
-      <ProductContactActions product={product} sellerWhatsapp={sellerWhatsapp} />
+      <ProductContactActions product={product} sellerWhatsapp={sellerWhatsapp} isOwner={isOwner} />
 
       <div className="mt-3 grid grid-cols-2 gap-2 border-t border-[#edf0f5] pt-3">
         <form action={toggleFavoriteListingAction.bind(null, product.id, product.slug)}>

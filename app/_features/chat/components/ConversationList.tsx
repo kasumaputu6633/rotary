@@ -17,7 +17,7 @@ export function ConversationList({
   onClose: () => void;
 }) {
   return (
-    <aside className="flex flex-col border-r border-[#edf0f5] bg-white h-full">
+    <aside className="flex flex-col border-r border-[#edf0f5] bg-white h-full min-h-0">
       <div className="flex h-14 shrink-0 items-center justify-between border-b border-[#edf0f5] px-3.5">
         <h2 className="text-[18px] font-semibold text-black">Chat</h2>
         <button

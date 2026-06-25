@@ -1,16 +1,19 @@
 "use client";
 
 import { Icon } from "@iconify/react";
+import Link from "next/link";
 import { useState } from "react";
 import type { ContactPreference, ListingCardData } from "@/lib/listing-format";
 
 export default function ProductContactActions({
   product,
   sellerWhatsapp,
+  isOwner,
   onConversationCreated,
 }: {
   product: ListingCardData;
   sellerWhatsapp?: string | null;
+  isOwner?: boolean;
   onConversationCreated?: (conversationId: string) => void;
 }) {
   const isSale = product.mode === "sale";
@@ -59,6 +62,27 @@ export default function ProductContactActions({
     } finally {
       setCreating(false);
     }
+  }
+
+  if (isOwner) {
+    return (
+      <div className="mt-5 grid gap-2">
+        <Link
+          href={`/dashboard/listings/${product.id}/edit`}
+          className="flex h-10 items-center justify-center gap-2 rounded-lg bg-[#17458f] font-poppins text-[13px] font-semibold text-white shadow-[0_8px_18px_rgba(23,69,143,0.25)] transition-all hover:-translate-y-0.5 hover:bg-[#113268] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#17458f] focus-visible:ring-offset-2"
+        >
+          <Icon icon="lucide:pencil" width={16} height={16} aria-hidden="true" />
+          Edit Barang
+        </Link>
+        <Link
+          href="/dashboard/listings"
+          className="flex h-10 items-center justify-center gap-2 rounded-lg border border-[#d8deea] font-poppins text-[13px] font-semibold text-[#17458f] transition-all hover:-translate-y-0.5 hover:bg-[#eef6ff] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#17458f] focus-visible:ring-offset-2"
+        >
+          <Icon icon="lucide:layout-dashboard" width={16} height={16} aria-hidden="true" />
+          Kelola di Dashboard
+        </Link>
+      </div>
+    );
   }
 
   return (

@@ -132,7 +132,7 @@ export function ThreadView({
 
       {/* Footer */}
       <footer className="shrink-0 border-t border-[#edf0f5] bg-white px-4 py-3 md:px-5">
-        <div className="mb-2.5 flex gap-2 overflow-x-auto pb-1">
+        <div className="mb-2.5 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {quickReplies.map((reply) => (
             <button
               key={reply}

@@ -7,7 +7,7 @@ import type { ConversationSummary } from "../types";
 import { ConversationList } from "./ConversationList";
 import { ThreadView } from "./ThreadView";
 
-const hiddenPathPrefixes = ["/login", "/register", "/forgot-password", "/unauthorized", "/dashboard", "/account"];
+const hiddenPathPrefixes = ["/login", "/register", "/forgot-password", "/unauthorized", "/account"];
 
 export default function FloatingChat({ currentUserId }: { currentUserId: string | null }) {
   const pathname = usePathname();
@@ -153,7 +153,7 @@ export default function FloatingChat({ currentUserId }: { currentUserId: string 
             onClick={(e) => e.stopPropagation()}
           >
             {/* Sidebar */}
-            <div className={`${mobileView === "list" ? "flex flex-col" : "hidden"} md:flex md:flex-col border-r border-[#edf0f5]`}>
+            <div className={`${mobileView === "list" ? "flex flex-col" : "hidden"} md:flex md:flex-col min-h-0 border-r border-[#edf0f5]`}>
               <ConversationList
                 conversations={conversations}
                 loading={convLoading}
@@ -165,7 +165,7 @@ export default function FloatingChat({ currentUserId }: { currentUserId: string 
 
             {/* Thread: pakai grid saat ada conversation aktif, flex-center saat placeholder */}
             {activeConversationId ? (
-              <div className={`${mobileView === "thread" ? "grid" : "hidden"} min-w-0 grid-rows-[64px_minmax(0,1fr)_auto] md:grid`}>
+              <div className={`${mobileView === "thread" ? "grid" : "hidden"} min-w-0 min-h-0 grid-rows-[64px_minmax(0,1fr)_auto] md:grid`}>
                 <ThreadView
                   conversationId={activeConversationId}
                   currentUserId={currentUserId}

@@ -12,6 +12,7 @@ type ProductDetailExperienceProps = {
   product: ListingCardData;
   publicLocation: string;
   sellerWhatsapp?: string | null;
+  isOwner?: boolean;
 };
 
 export default function ProductDetailExperience({
@@ -20,6 +21,7 @@ export default function ProductDetailExperience({
   product,
   publicLocation,
   sellerWhatsapp,
+  isOwner,
 }: ProductDetailExperienceProps) {
   const galleryImages = useMemo(() => {
     if (imageUrls.length > 0) return imageUrls;
@@ -43,10 +45,11 @@ export default function ProductDetailExperience({
       <aside data-product-action-sticky className="lg:col-span-2 xl:sticky xl:top-[196px] xl:col-span-1 xl:self-start">
         <div className="xl:max-h-[calc(100vh-212px)] xl:overflow-y-auto xl:rounded-lg xl:[scrollbar-width:thin]">
           <ProductActionCard
-            imageUrl={activeImageUrl}
+            imageUrl={product.imageUrl}
             product={product}
             publicLocation={publicLocation}
             sellerWhatsapp={sellerWhatsapp}
+            isOwner={isOwner}
           />
         </div>
       </aside>

@@ -92,6 +92,7 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
             product={product}
             publicLocation={publicLocation}
             sellerWhatsapp={product.sellerWhatsapp}
+            isOwner={userId === product.sellerId}
           >
             <div className="min-w-0">
               <h1 className="font-poppins text-[19px] font-semibold leading-snug text-black md:text-[21px]">

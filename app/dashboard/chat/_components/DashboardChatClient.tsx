@@ -46,9 +46,11 @@ export default function DashboardChatClient({
         {conversations.map((conv) => {
           const hasUnread = conv.unreadCount > 0;
           return (
-            <div
+            <button
               key={conv.id}
-              className="flex items-center gap-3 px-4 py-3.5 transition-colors hover:bg-[var(--seller-brand-soft)]"
+              type="button"
+              onClick={() => openChat(conv.id)}
+              className="group flex w-full cursor-pointer items-center gap-3 px-4 py-3.5 text-left transition-colors hover:bg-[var(--seller-brand-soft)] focus-visible:bg-[var(--seller-brand-soft)] focus-visible:outline-none"
             >
               <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--seller-accent-soft)] text-[var(--seller-brand)]">
                 <Icon icon="lucide:user-round" width={18} height={18} aria-hidden="true" />
@@ -63,9 +65,6 @@ export default function DashboardChatClient({
                       {conv.unreadCount > 9 ? "9+" : conv.unreadCount}
                     </span>
                   )}
-                  <span className="ml-auto shrink-0 text-[11px] text-[var(--seller-muted)]">
-                    {formatRelativeTime(conv.lastMessageAt)}
-                  </span>
                 </div>
                 <p className="mt-0.5 truncate text-[11px] text-[var(--seller-muted)]">
                   {conv.listingTitle && (
@@ -77,15 +76,16 @@ export default function DashboardChatClient({
                   {conv.lastMessageContent ?? "Percakapan baru"}
                 </p>
               </div>
-              <button
-                type="button"
-                onClick={() => openChat(conv.id)}
-                className="shrink-0 flex h-8 items-center gap-1.5 rounded-[6px] border border-[var(--seller-rule-strong)] px-2.5 text-[11px] font-semibold text-[var(--seller-brand)] transition-colors hover:bg-[var(--seller-brand-soft)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--seller-brand)]"
-              >
-                <Icon icon="lucide:messages-square" width={13} height={13} aria-hidden="true" />
-                Buka
-              </button>
-            </div>
+              <div className="flex shrink-0 flex-col items-end gap-1.5">
+                <span className="text-[11px] text-[var(--seller-muted)]">
+                  {formatRelativeTime(conv.lastMessageAt)}
+                </span>
+                <span className="flex h-7 items-center gap-1.5 rounded-[6px] border border-[var(--seller-rule-strong)] px-2 text-[10px] font-semibold text-[var(--seller-brand)] transition-colors group-hover:border-[var(--seller-brand)] group-hover:bg-white">
+                  <Icon icon="lucide:messages-square" width={12} height={12} aria-hidden="true" />
+                  Buka
+                </span>
+              </div>
+            </button>
           );
         })}
       </div>
