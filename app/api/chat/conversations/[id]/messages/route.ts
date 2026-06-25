@@ -69,6 +69,7 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
       senderId: messages.senderId,
       content: messages.content,
       attachmentListingId: messages.attachmentListingId,
+      replyToMessageId: messages.replyToMessageId,
       isRead: messages.isRead,
       createdAt: messages.createdAt,
     })
@@ -85,10 +86,32 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
     .orderBy(asc(messages.createdAt))
     .limit(100);
 
-  // Batch-fetch attachment details untuk semua pesan yang punya attachment
-  const attachmentIds = [...new Set(
-    rows.map((r) => r.attachmentListingId).filter((x): x is string => x !== null)
+  // Batch-fetch reply messages first so we know if they have attachments
+  const replyIds = [...new Set(
+    rows.map((r) => r.replyToMessageId).filter((x): x is string => x !== null)
   )];
+
+  const replyMap = new Map<string, { id: string; content: string; senderId: string; attachmentListingId: string | null }>();
+  if (replyIds.length > 0) {
+    const repliedMsgs = await db
+      .select({
+        id: messages.id,
+        content: messages.content,
+        senderId: messages.senderId,
+        attachmentListingId: messages.attachmentListingId,
+      })
+      .from(messages)
+      .where(inArray(messages.id, replyIds));
+    for (const r of repliedMsgs) {
+      replyMap.set(r.id, r);
+    }
+  }
+
+  // Batch-fetch attachment details untuk semua pesan dan reply yang punya attachment
+  const attachmentIds = [...new Set([
+    ...rows.map((r) => r.attachmentListingId),
+    ...Array.from(replyMap.values()).map((r) => r.attachmentListingId)
+  ].filter((x): x is string => x !== null))];
 
   const attachmentMap = new Map<string, {
     id: string; title: string; slug: string; price: number | null; imageUrl: string | null;
@@ -116,16 +139,25 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
     }
   }
 
-  // Gabungkan attachment data ke tiap message
-  const messagesWithAttachments = rows.map((msg) => ({
-    id: msg.id,
-    conversationId: msg.conversationId,
-    senderId: msg.senderId,
-    content: msg.content,
-    isRead: msg.isRead,
-    createdAt: msg.createdAt,
-    attachment: msg.attachmentListingId ? (attachmentMap.get(msg.attachmentListingId) ?? null) : null,
-  }));
+  // Gabungkan attachment & reply data ke tiap message
+  const messagesWithAttachments = rows.map((msg) => {
+    const replyData = msg.replyToMessageId ? replyMap.get(msg.replyToMessageId) : null;
+    return {
+      id: msg.id,
+      conversationId: msg.conversationId,
+      senderId: msg.senderId,
+      content: msg.content,
+      isRead: msg.isRead,
+      createdAt: msg.createdAt,
+      attachment: msg.attachmentListingId ? (attachmentMap.get(msg.attachmentListingId) ?? null) : null,
+      replyToMessage: replyData ? {
+        id: replyData.id,
+        content: replyData.content,
+        senderId: replyData.senderId,
+        attachment: replyData.attachmentListingId ? (attachmentMap.get(replyData.attachmentListingId) ?? null) : null,
+      } : null,
+    };
+  });
 
   // Info lawan bicara (online status)
   const otherUser = await db.query.users.findFirst({
@@ -165,6 +197,7 @@ export async function POST(req: NextRequest, { params }: RouteContext) {
   const body = await req.json().catch(() => null);
   const content = typeof body?.content === "string" ? body.content.trim() : "";
   const attachmentListingId = typeof body?.attachmentListingId === "string" ? body.attachmentListingId : null;
+  const replyToMessageId = typeof body?.replyToMessageId === "string" ? body.replyToMessageId : null;
 
   // Boleh kirim attachment saja tanpa teks
   if (!content && !attachmentListingId) {
@@ -194,6 +227,7 @@ export async function POST(req: NextRequest, { params }: RouteContext) {
       senderId: user.id,
       content: content || " ", // simpan spasi jika pesan kosong (attachment-only)
       attachmentListingId: attachmentListingId ?? undefined,
+      replyToMessageId: replyToMessageId ?? undefined,
       createdAt: now,
     })
     .returning();
@@ -236,6 +270,9 @@ export async function POST(req: NextRequest, { params }: RouteContext) {
     isRead: newMessage.isRead,
     createdAt: newMessage.createdAt,
     attachment,
+    // Note: untuk optimasi front-end bisa saja replyToMessage dikirim utuh, tapi saat ini kita tidak query ulang saat send, 
+    // karena ThreadView sudah punya data pesannya di client state
+    replyToMessage: replyToMessageId ? { id: replyToMessageId } : null,
   }, { status: 201 });
 }
 

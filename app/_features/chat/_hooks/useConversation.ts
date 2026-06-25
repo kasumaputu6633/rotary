@@ -20,6 +20,12 @@ export type ChatMessage = {
   isRead: boolean;
   createdAt: string;
   attachment: MessageAttachment | null;
+  replyToMessage?: {
+    id: string;
+    content?: string;
+    senderId?: string;
+    attachment?: MessageAttachment | null;
+  } | null;
 };
 
 export type OtherUser = {
@@ -47,7 +53,7 @@ export function getOnlineStatus(lastSeenAt: string | null): "online" | "recent" 
   return "offline";
 }
 
-export function useConversation(conversationId: string | null) {
+export function useConversation(conversationId: string | null, currentUserId: string) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [otherUser, setOtherUser] = useState<OtherUser | null>(null);
   const [conversation, setConversation] = useState<ConversationInfo | null>(null);
@@ -154,10 +160,30 @@ export function useConversation(conversationId: string | null) {
   }, [conversationId, fetchMessages, stopPolling]);
 
   const sendMessage = useCallback(
-    async (content: string, attachmentListingId?: string): Promise<boolean> => {
+    async (content: string, attachmentListingId?: string, replyToMessage?: ChatMessage): Promise<boolean> => {
       if (!conversationId) return false;
       if (!content.trim() && !attachmentListingId) return false;
+      
+      const tempId = `temp-${Date.now()}`;
+      const newMsgOptimistic: ChatMessage = {
+        id: tempId,
+        conversationId,
+        senderId: currentUserId,
+        content: content.trim(),
+        isRead: false,
+        createdAt: new Date().toISOString(),
+        attachment: null,
+        replyToMessage: replyToMessage ? { 
+          id: replyToMessage.id, 
+          content: replyToMessage.content, 
+          senderId: replyToMessage.senderId,
+          attachment: replyToMessage.attachment
+        } : null,
+      };
+
+      setMessages((prev) => [...prev, newMsgOptimistic]);
       setSending(true);
+      
       try {
         const res = await fetch(`/api/chat/conversations/${conversationId}/messages`, {
           method: "POST",
@@ -165,11 +191,17 @@ export function useConversation(conversationId: string | null) {
           body: JSON.stringify({
             content: content.trim(),
             ...(attachmentListingId ? { attachmentListingId } : {}),
+            ...(replyToMessage ? { replyToMessageId: replyToMessage.id } : {}),
           }),
         });
-        if (!res.ok) return false;
+        
+        if (!res.ok) {
+          setMessages((prev) => prev.filter((m) => m.id !== tempId));
+          return false;
+        }
+
         const newMsg: ChatMessage = await res.json();
-        setMessages((prev) => [...prev, newMsg]);
+        setMessages((prev) => prev.map((m) => (m.id === tempId ? { ...newMsg, replyToMessage: m.replyToMessage } : m)));
         lastMessageIdRef.current = newMsg.id;
         return true;
       } catch {

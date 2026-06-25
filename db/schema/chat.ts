@@ -36,6 +36,8 @@ export const conversations = pgTable(
   ],
 );
 
+import { AnyPgColumn } from "drizzle-orm/pg-core";
+
 export const messages = pgTable(
   "messages",
   {
@@ -47,9 +49,10 @@ export const messages = pgTable(
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
     content: text("content").notNull(),
-    // Attachment produk opsional per pesan — FK ke listings, set null jika listing dihapus
     attachmentListingId: uuid("attachment_listing_id")
       .references(() => listings.id, { onDelete: "set null" }),
+    replyToMessageId: uuid("reply_to_message_id")
+      .references((): AnyPgColumn => messages.id, { onDelete: "set null" }),
     isRead: boolean("is_read").notNull().default(false),
     createdAt: timestamp("created_at").notNull().defaultNow(),
   },

@@ -13,6 +13,8 @@ const quickReplies = [
   "Bisa nego sedikit?",
 ];
 
+import type { ChatMessage } from "../_hooks/useConversation";
+
 export function ThreadView({
   conversationId,
   currentUserId,
@@ -28,9 +30,10 @@ export function ThreadView({
   onBack: () => void;
   onClose: () => void;
 }) {
-  const { messages, otherUser, loading, error, sending, sendMessage } = useConversation(conversationId);
+  const { messages, otherUser, loading, error, sending, sendMessage } = useConversation(conversationId, currentUserId);
   const [inputValue, setInputValue] = useState("");
   const [dismissedAttachment, setDismissedAttachment] = useState(false);
+  const [replyingTo, setReplyingTo] = useState<ChatMessage | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   // Track last attachment id to detect when user picks a new product
@@ -55,8 +58,15 @@ export function ThreadView({
     if (sending) return;
 
     setInputValue("");
+    const currentReplyingTo = replyingTo;
+    setReplyingTo(null);
 
-    await sendMessage(text, showAttachmentPreview ? pendingAttachment!.id : undefined);
+    if (showAttachmentPreview) {
+      await sendMessage("", pendingAttachment!.id, text ? undefined : currentReplyingTo ?? undefined);
+    }
+    if (text) {
+      await sendMessage(text, undefined, currentReplyingTo ?? undefined);
+    }
 
     if (showAttachmentPreview) {
       setDismissedAttachment(true);
@@ -148,7 +158,15 @@ export function ThreadView({
         ) : (
           <div className="mx-auto w-full max-w-4xl space-y-3">
             {messages.map((msg) => (
-              <MessageBubble key={msg.id} msg={msg} isOwn={msg.senderId === currentUserId} />
+              <MessageBubble 
+                key={msg.id} 
+                msg={msg} 
+                isOwn={msg.senderId === currentUserId} 
+                onReply={(msgToReply) => {
+                  setReplyingTo(msgToReply);
+                  inputRef.current?.focus();
+                }}
+              />
             ))}
             <div ref={messagesEndRef} />
           </div>
@@ -157,8 +175,46 @@ export function ThreadView({
 
       {/* Footer / Input Area */}
       <footer className="relative shrink-0 border-t border-[#edf0f5] bg-white px-4 py-3 md:px-5">
+        {/* Reply Preview Box */}
+        {replyingTo && (
+          <div className="absolute bottom-full left-0 right-0 border-t border-[#edf0f5] bg-white px-4 py-2.5 shadow-[0_-4px_10px_rgba(0,0,0,0.04)] md:px-5">
+            <div className="mx-auto flex max-w-4xl items-center gap-3 rounded-lg border border-[#e2e8f0] bg-[#f8fafc] p-2 border-l-4 border-l-[#f7a81b]">
+              {replyingTo.attachment && (
+                replyingTo.attachment.imageUrl ? (
+                  <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-[4px] bg-white">
+                    <Image src={replyingTo.attachment.imageUrl} alt={replyingTo.attachment.title} fill className="object-cover" sizes="40px" />
+                  </div>
+                ) : (
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[4px] bg-white text-[#94a3b8]">
+                    <Icon icon="lucide:image" width={16} height={16} />
+                  </div>
+                )
+              )}
+              <div className="min-w-0 flex-1 flex flex-col justify-center">
+                <p className="text-[12px] font-bold text-[#f7a81b] mb-0.5">Membalas {replyingTo.senderId === currentUserId ? "pesan Anda" : (otherUser?.name || "pesan")}</p>
+                <p className="truncate text-[12px] text-black">
+                  {replyingTo.content?.trim() ? replyingTo.content : replyingTo.attachment?.title || "Lampiran Produk"}
+                </p>
+                {!(replyingTo.content?.trim()) && replyingTo.attachment?.price != null && (
+                  <p className="truncate text-[11px] text-[#64748b]">
+                    {!replyingTo.attachment.price ? "Gratis" : new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(replyingTo.attachment.price)}
+                  </p>
+                )}
+              </div>
+              <button
+                type="button"
+                onClick={() => setReplyingTo(null)}
+                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[#94a3b8] transition-colors hover:bg-white hover:text-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#17458f] self-start"
+                aria-label="Batal balas"
+              >
+                <Icon icon="lucide:x" width={16} height={16} aria-hidden="true" />
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Attachment Preview Box */}
-        {showAttachmentPreview && pendingAttachment && (
+        {showAttachmentPreview && pendingAttachment && !replyingTo && (
           <div className="absolute bottom-full left-0 right-0 border-t border-[#edf0f5] bg-white px-4 py-2.5 shadow-[0_-4px_10px_rgba(0,0,0,0.04)] md:px-5">
             <div className="mx-auto flex max-w-4xl items-center gap-3 rounded-lg border border-[#e2e8f0] bg-[#f8fafc] p-2">
               {pendingAttachment.imageUrl ? (
@@ -172,11 +228,9 @@ export function ThreadView({
               )}
               <div className="min-w-0 flex-1">
                 <p className="truncate text-[12px] font-semibold text-black">{pendingAttachment.title}</p>
-                {pendingAttachment.price != null && (
-                  <p className="text-[11px] font-bold text-[#f7a81b]">
-                    {new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(pendingAttachment.price)}
-                  </p>
-                )}
+                <p className="text-[11px] font-bold text-[#f7a81b]">
+                  {!pendingAttachment.price ? "Gratis" : new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(pendingAttachment.price)}
+                </p>
               </div>
               <button
                 type="button"
