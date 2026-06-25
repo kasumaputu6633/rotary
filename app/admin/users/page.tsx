@@ -1,14 +1,81 @@
 import { requireRole } from "@/lib/auth";
+import { getAdminUsers } from "./actions";
+import UsersTable from "./UsersTable";
+import UsersStatsRow from "./UsersStatsRow";
 
-export default async function AdminUsersPage() {
-  await requireRole("admin");
-  return (
-    <div className="max-w-6xl mx-auto px-6 py-12">
-      <h1 className="font-poppins text-3xl font-bold text-[#17458f] mb-2">Kelola Pengguna</h1>
-      <p className="font-poppins text-gray-500 text-sm">Daftar semua pengguna terdaftar.</p>
-      <div className="mt-10 p-8 border-2 border-dashed border-gray-200 rounded-2xl text-center">
-        <p className="font-poppins text-gray-400 text-base">Tabel pengguna — coming soon</p>
-      </div>
-    </div>
-  );
+export const metadata = {
+    title: "Users Overview — Rotary Admin",
+    description: "Kelola semua pengguna terdaftar di platform Rotary.",
+};
+
+interface PageProps {
+    searchParams: Promise<{
+        search?: string;
+        role?: string;
+        page?: string;
+    }>;
+}
+
+const PAGE_SIZE = 10;
+
+export default async function AdminUsersPage({ searchParams }: PageProps) {
+    await requireRole("admin");
+
+    const params = await searchParams;
+    const search = params.search ?? "";
+    const role = (params.role === "user" || params.role === "admin") ? params.role : undefined;
+    const page = Math.max(1, Number(params.page) || 1);
+
+    // Fetch paginated users for the table + global stats simultaneously
+    const [tableData, allData] = await Promise.all([
+        getAdminUsers({ search, role, page, pageSize: PAGE_SIZE }),
+        getAdminUsers({ pageSize: 99999 }),
+    ]);
+
+    const globalAdmins = allData.users.filter((u) => u.role === "admin").length;
+    const globalUsers = allData.users.filter((u) => u.role === "user").length;
+    const globalVerified = allData.users.filter((u) => u.isVerified).length;
+
+    return (
+        <div className="mx-auto max-w-7xl space-y-6">
+            {/* Breadcrumb */}
+            <nav className="flex items-center gap-1.5 font-poppins text-[12px] text-gray-400">
+                <span>Dashboard</span>
+                <span className="text-gray-300">/</span>
+                <span className="font-semibold text-[#17458f]">Users</span>
+            </nav>
+
+            {/* Page Header */}
+            <div className="flex flex-wrap items-start justify-between gap-4">
+                <div>
+                    <h1 className="font-poppins text-2xl font-bold text-gray-900">
+                        Users Overview
+                    </h1>
+                    <p className="mt-0.5 font-poppins text-sm text-gray-500">
+                        Kelola semua anggota, peran, dan data pengguna platform.
+                    </p>
+                </div>
+            </div>
+
+            {/* Stats */}
+            <UsersStatsRow
+                total={allData.total}
+                totalRegularUsers={globalUsers}
+                totalAdmins={globalAdmins}
+                totalVerified={globalVerified}
+            />
+
+            {/* Table Card */}
+            <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+                <UsersTable
+                    users={tableData.users}
+                    total={tableData.total}
+                    page={page}
+                    pageSize={PAGE_SIZE}
+                    search={search}
+                    role={params.role ?? ""}
+                />
+            </div>
+        </div>
+    );
 }

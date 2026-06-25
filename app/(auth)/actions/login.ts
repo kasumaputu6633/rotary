@@ -59,7 +59,6 @@ export async function loginAction(
       });
       return { error: "Email/nomor telepon atau kata sandi salah." };
     }
-
     const userRole = user.role ?? "user";
     const redirectPath = getSafeLoginRedirect(requestedRedirect, userRole);
     const loginMethod = isEmail(normalizedContact) ? "email_password" : "phone_password";
@@ -196,7 +195,7 @@ export async function resendLoginOtpAction(): Promise<ActionResult> {
   const contact = await getPendingContact();
   const userId = await getPendingLoginUserId();
   if (!contact || !userId) return { error: "Sesi habis, silakan masuk kembali." };
-  
+
   try {
     if (canBypassOtp(contact)) return {};
     const user = await db.query.users.findFirst({
