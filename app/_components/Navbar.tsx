@@ -27,10 +27,6 @@ export default async function Navbar() {
   const userAvatarUrl = user?.avatarUrl ?? null;
   const userRole = user?.role ?? null;
 
-  const emailVerified = Boolean(user?.email?.trim() && user?.emailVerifiedAt);
-  const phoneVerified = Boolean(user?.phone?.trim() && user?.phoneVerifiedAt);
-  const sellerReady = emailVerified && phoneVerified;
-
   return (
     <>
       <header className="fixed inset-x-0 top-0 z-[960] w-full border-b border-gray-200 bg-white">
@@ -105,9 +101,6 @@ export default async function Navbar() {
                 userShopName={userShopName}
                 userFullName={userFullName}
                 userRole={userRole}
-                emailVerified={emailVerified}
-                phoneVerified={phoneVerified}
-                sellerReady={sellerReady}
               />
             </div>
           </div>

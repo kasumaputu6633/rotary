@@ -5,8 +5,6 @@ import Link from "next/link";
 import { useState, useTransition, useRef, useEffect } from "react";
 import { logoutAction } from "@/app/actions";
 import { ConfirmDialog } from "./ConfirmDialog";
-import { SellerVerificationModal } from "./SellerVerificationModal";
-
 function getInitials(name: string): string {
   return name
     .trim()
@@ -21,21 +19,14 @@ export default function NavbarAuthButtons({
   userShopName,
   userFullName,
   userRole,
-  emailVerified = false,
-  phoneVerified = false,
-  sellerReady = false,
 }: {
   userAvatarUrl: string | null;
   userShopName: string | null;
   userFullName: string | null;
   userRole: string | null;
-  emailVerified?: boolean;
-  phoneVerified?: boolean;
-  sellerReady?: boolean;
 }) {
   const [isPending, startTransition] = useTransition();
   const [showModal, setShowModal] = useState(false);
-  const [showVerificationModal, setShowVerificationModal] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const [isPositioned, setIsPositioned] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -109,34 +100,16 @@ export default function NavbarAuthButtons({
           onConfirm={handleLogout}
           onCancel={() => setShowModal(false)}
         />
-        <SellerVerificationModal 
-          isOpen={showVerificationModal} 
-          onClose={() => setShowVerificationModal(false)} 
-          emailVerified={emailVerified} 
-          phoneVerified={phoneVerified} 
-        />
         <div className="flex items-center gap-2 md:gap-3">
           {isUser && (
-            sellerReady ? (
-              <Link
-                href="/dashboard/listings/new"
-                className="group inline-flex h-9 w-9 items-center justify-center rounded-full bg-[#f7a81b] font-poppins text-[12px] font-semibold text-white shadow-[0_6px_14px_rgba(247,168,27,0.22)] transition-all hover:bg-[#e09918] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f7a81b] focus-visible:ring-offset-2 whitespace-nowrap md:w-auto md:gap-2 md:px-4 md:text-[13px]"
-                aria-label="Jual Barang"
-              >
-                <Icon icon="lucide:plus-circle" width={15} height={15} className="transition-transform group-hover:rotate-90" aria-hidden="true" />
-                <span className="hidden md:inline">Jual Barang</span>
-              </Link>
-            ) : (
-              <button
-                type="button"
-                onClick={() => setShowVerificationModal(true)}
-                className="group inline-flex h-9 w-9 items-center justify-center rounded-full bg-[#f7a81b] font-poppins text-[12px] font-semibold text-white shadow-[0_6px_14px_rgba(247,168,27,0.22)] transition-all hover:bg-[#e09918] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f7a81b] focus-visible:ring-offset-2 whitespace-nowrap md:w-auto md:gap-2 md:px-4 md:text-[13px]"
-                aria-label="Verifikasi untuk Jual Barang"
-              >
-                <Icon icon="lucide:plus-circle" width={15} height={15} className="transition-transform group-hover:rotate-90" aria-hidden="true" />
-                <span className="hidden md:inline">Jual Barang</span>
-              </button>
-            )
+            <Link
+              href="/dashboard/listings/new"
+              className="group inline-flex h-9 w-9 items-center justify-center rounded-full bg-[#f7a81b] font-poppins text-[12px] font-semibold text-white shadow-[0_6px_14px_rgba(247,168,27,0.22)] transition-all hover:bg-[#e09918] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f7a81b] focus-visible:ring-offset-2 whitespace-nowrap md:w-auto md:gap-2 md:px-4 md:text-[13px]"
+              aria-label="Jual Barang"
+            >
+              <Icon icon="lucide:plus-circle" width={15} height={15} className="transition-transform group-hover:rotate-90" aria-hidden="true" />
+              <span className="hidden md:inline">Jual Barang</span>
+            </Link>
           )}
 
           <div className="relative" ref={dropdownRef}>
