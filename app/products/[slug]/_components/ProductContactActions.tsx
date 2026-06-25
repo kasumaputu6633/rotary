@@ -46,18 +46,19 @@ export default function ProductContactActions({
 
       if (res.ok) {
         const data = await res.json();
+        const eventDetail = {
+          conversationId: data.conversationId,
+          listing: data.listing ?? null,
+        };
         if (onConversationCreated) {
           onConversationCreated(data.conversationId);
         } else {
           window.dispatchEvent(
-            new CustomEvent("rotaryOpenChat", {
-              detail: { conversationId: data.conversationId },
-            }),
+            new CustomEvent("rotaryOpenChat", { detail: eventDetail }),
           );
         }
       }
     } catch {
-      // Ignore error, fallback ke open chat tanpa conversationId
       window.dispatchEvent(new CustomEvent("rotaryOpenChat"));
     } finally {
       setCreating(false);

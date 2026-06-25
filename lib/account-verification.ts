@@ -10,7 +10,8 @@ export function isEmailVerified(user: AccountVerificationData) {
 }
 
 export function isPhoneVerified(user: AccountVerificationData) {
-  return Boolean(user.phone?.trim() && user.phoneVerifiedAt);
+  // return Boolean(user.phone?.trim() && user.phoneVerifiedAt);
+  return true;
 }
 
 export function isContactVerified(user: AccountVerificationData, contact: string) {

@@ -1,6 +1,5 @@
 import { Icon } from "@iconify/react";
 import type { ConversationSummary } from "../types";
-import { formatTime, onlineLabel } from "../utils";
 import { OnlineDot } from "./OnlineDot";
 
 export function ConversationList({
@@ -50,7 +49,7 @@ export function ConversationList({
             </span>
             <div>
               <p className="text-[13px] font-semibold text-black">Belum ada percakapan</p>
-              <p className="mt-1 text-[11px] text-[#6b7280]">Buka halaman produk dan klik "Chat Penjual" untuk memulai</p>
+              <p className="mt-1 text-[11px] text-[#6b7280]">Buka halaman produk dan klik &quot;Chat Penjual&quot; untuk memulai</p>
             </div>
           </div>
         ) : (
@@ -85,7 +84,7 @@ export function ConversationList({
                       )}
                     </span>
                     <span className={`mt-0.5 block truncate text-[11px] ${hasUnread ? "font-semibold text-[#374151]" : "text-[#6b7280]"}`}>
-                      {conv.lastMessageContent ?? conv.listingTitle ?? "Percakapan baru"}
+                      {(conv.lastMessageContent?.trim() || conv.listingTitle) ?? "Percakapan baru"}
                     </span>
                   </span>
                 </button>

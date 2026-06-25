@@ -4,6 +4,14 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 const POLL_INTERVAL_MS = 3_000;
 
+export type MessageAttachment = {
+  id: string;
+  title: string;
+  slug: string;
+  price: number | null;
+  imageUrl: string | null;
+};
+
 export type ChatMessage = {
   id: string;
   conversationId: string;
@@ -11,6 +19,7 @@ export type ChatMessage = {
   content: string;
   isRead: boolean;
   createdAt: string;
+  attachment: MessageAttachment | null;
 };
 
 export type OtherUser = {
@@ -22,7 +31,7 @@ export type OtherUser = {
 
 export type ConversationInfo = {
   id: string;
-  listingId: string;
+  listingId: string | null;
   buyerId: string;
   sellerId: string;
   lastMessageAt: string;
@@ -101,6 +110,7 @@ export function useConversation(conversationId: string | null) {
 
   // Load awal + mulai polling
   useEffect(() => {
+    /* eslint-disable react-hooks/set-state-in-effect */
     if (!conversationId) {
       setMessages([]);
       setOtherUser(null);
@@ -115,6 +125,7 @@ export function useConversation(conversationId: string | null) {
     setLoading(true);
     setMessages([]);
     setError(null);
+    /* eslint-enable react-hooks/set-state-in-effect */
 
     let stopped = false;
 
@@ -143,14 +154,18 @@ export function useConversation(conversationId: string | null) {
   }, [conversationId, fetchMessages, stopPolling]);
 
   const sendMessage = useCallback(
-    async (content: string): Promise<boolean> => {
-      if (!conversationId || !content.trim()) return false;
+    async (content: string, attachmentListingId?: string): Promise<boolean> => {
+      if (!conversationId) return false;
+      if (!content.trim() && !attachmentListingId) return false;
       setSending(true);
       try {
         const res = await fetch(`/api/chat/conversations/${conversationId}/messages`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ content: content.trim() }),
+          body: JSON.stringify({
+            content: content.trim(),
+            ...(attachmentListingId ? { attachmentListingId } : {}),
+          }),
         });
         if (!res.ok) return false;
         const newMsg: ChatMessage = await res.json();
@@ -176,3 +191,5 @@ export function useConversation(conversationId: string | null) {
     sendMessage,
   };
 }
+
+

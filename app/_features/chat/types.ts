@@ -1,6 +1,6 @@
 export type ConversationSummary = {
   id: string;
-  listingId: string;
+  listingId: string | null;
   listingTitle: string | null;
   listingSlug: string | null;
   listingImageUrl: string | null;

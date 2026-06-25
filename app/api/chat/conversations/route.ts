@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { conversations, messages, listings, users } from "@/db/schema";
+import { conversations, listings, listingImages, users } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth";
 import { and, desc, eq, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
@@ -21,8 +21,8 @@ export async function GET() {
       listingSlug: listings.slug,
       listingImageUrl: sql<string | null>`(
         select image_url from listing_images
-        where listing_id = ${conversations.listingId}
-          and sort_order = 0
+        where listing_images.listing_id = conversations.listing_id
+        order by sort_order asc
         limit 1
       )`,
       buyerId: conversations.buyerId,
@@ -54,7 +54,7 @@ export async function GET() {
       )`,
     })
     .from(conversations)
-    .innerJoin(listings, eq(listings.id, conversations.listingId))
+    .leftJoin(listings, eq(listings.id, conversations.listingId))
     .innerJoin(buyers, eq(buyers.id, conversations.buyerId))
     .innerJoin(sellers, eq(sellers.id, conversations.sellerId))
     .where(
@@ -69,7 +69,8 @@ export async function GET() {
   });
 }
 
-// POST /api/chat/conversations — find-or-create conversation
+// POST /api/chat/conversations — find-or-create conversation antar pasang buyer-seller
+// Satu sesi per pasang pengguna, bukan per produk
 export async function POST(req: NextRequest) {
   const user = await getCurrentUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -78,10 +79,10 @@ export async function POST(req: NextRequest) {
   const listingId = body?.listingId as string | undefined;
   if (!listingId) return NextResponse.json({ error: "listingId wajib diisi" }, { status: 400 });
 
-  // Cari listing
+  // Cari listing + data untuk attachment preview
   const listing = await db.query.listings.findFirst({
     where: eq(listings.id, listingId),
-    columns: { id: true, sellerId: true, contactPreference: true },
+    columns: { id: true, sellerId: true, contactPreference: true, title: true, slug: true, price: true },
   });
 
   if (!listing) return NextResponse.json({ error: "Listing tidak ditemukan" }, { status: 404 });
@@ -89,34 +90,50 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Tidak bisa chat dengan listing sendiri" }, { status: 400 });
   }
 
+  // Ambil gambar pertama produk untuk attachment preview
+  const [firstImage] = await db
+    .select({ imageUrl: listingImages.imageUrl })
+    .from(listingImages)
+    .where(eq(listingImages.listingId, listingId))
+    .orderBy(listingImages.sortOrder)
+    .limit(1);
+
+  const listingDetail = {
+    id: listing.id,
+    title: listing.title,
+    slug: listing.slug,
+    price: listing.price,
+    imageUrl: firstImage?.imageUrl ?? null,
+  };
+
   // Update lastSeenAt
   await db
     .update(users)
     .set({ lastSeenAt: new Date() })
     .where(eq(users.id, user.id));
 
-  // Find-or-create
+  // Find-or-create berdasarkan pasang buyer-seller (bukan per produk)
   const existing = await db.query.conversations.findFirst({
     where: and(
-      eq(conversations.listingId, listingId),
       eq(conversations.buyerId, user.id),
+      eq(conversations.sellerId, listing.sellerId),
     ),
     columns: { id: true },
   });
 
   if (existing) {
-    return NextResponse.json({ conversationId: existing.id });
+    return NextResponse.json({ conversationId: existing.id, listing: listingDetail });
   }
 
   const [newConv] = await db
     .insert(conversations)
     .values({
-      listingId,
+      listingId,  // simpan listingId pertama sebagai referensi historis
       buyerId: user.id,
       sellerId: listing.sellerId,
       contactMode: listing.contactPreference,
     })
     .returning({ id: conversations.id });
 
-  return NextResponse.json({ conversationId: newConv.id }, { status: 201 });
+  return NextResponse.json({ conversationId: newConv.id, listing: listingDetail }, { status: 201 });
 }

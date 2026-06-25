@@ -1,6 +1,8 @@
 import { Icon } from "@iconify/react";
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import { useConversation } from "../_hooks/useConversation";
+import type { MessageAttachment } from "../_hooks/useConversation";
 import { OnlineDot } from "./OnlineDot";
 import { onlineLabel } from "../utils";
 import { MessageBubble } from "./MessageBubble";
@@ -14,18 +16,33 @@ const quickReplies = [
 export function ThreadView({
   conversationId,
   currentUserId,
+  pendingAttachment,
+  onAttachmentSent,
   onBack,
   onClose,
 }: {
   conversationId: string;
   currentUserId: string;
+  pendingAttachment?: MessageAttachment | null;
+  onAttachmentSent?: () => void;
   onBack: () => void;
   onClose: () => void;
 }) {
   const { messages, otherUser, loading, error, sending, sendMessage } = useConversation(conversationId);
   const [inputValue, setInputValue] = useState("");
+  const [dismissedAttachment, setDismissedAttachment] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  // Track last attachment id to detect when user picks a new product
+  const lastAttachmentIdRef = useRef<string | undefined>(pendingAttachment?.id);
+  if (pendingAttachment?.id !== lastAttachmentIdRef.current) {
+    lastAttachmentIdRef.current = pendingAttachment?.id;
+    // Reset dismissed state synchronously before render when attachment changes
+    // This is safe because it's in the render path, not inside a useEffect
+    if (dismissedAttachment) setDismissedAttachment(false);
+  }
+
+  const showAttachmentPreview = !dismissedAttachment && Boolean(pendingAttachment);
 
   // Auto-scroll ke bawah saat ada pesan baru
   useEffect(() => {
@@ -34,9 +51,17 @@ export function ThreadView({
 
   async function handleSend() {
     const text = inputValue.trim();
-    if (!text || sending) return;
+    if (!text && !showAttachmentPreview) return;
+    if (sending) return;
+
     setInputValue("");
-    await sendMessage(text);
+
+    await sendMessage(text, showAttachmentPreview ? pendingAttachment!.id : undefined);
+
+    if (showAttachmentPreview) {
+      setDismissedAttachment(true);
+      onAttachmentSent?.();
+    }
   }
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
@@ -121,7 +146,7 @@ export function ThreadView({
             </div>
           </div>
         ) : (
-          <div className="mx-auto max-w-[420px] space-y-3">
+          <div className="mx-auto w-full max-w-4xl space-y-3">
             {messages.map((msg) => (
               <MessageBubble key={msg.id} msg={msg} isOwn={msg.senderId === currentUserId} />
             ))}
@@ -130,8 +155,41 @@ export function ThreadView({
         )}
       </div>
 
-      {/* Footer */}
-      <footer className="shrink-0 border-t border-[#edf0f5] bg-white px-4 py-3 md:px-5">
+      {/* Footer / Input Area */}
+      <footer className="relative shrink-0 border-t border-[#edf0f5] bg-white px-4 py-3 md:px-5">
+        {/* Attachment Preview Box */}
+        {showAttachmentPreview && pendingAttachment && (
+          <div className="absolute bottom-full left-0 right-0 border-t border-[#edf0f5] bg-white px-4 py-2.5 shadow-[0_-4px_10px_rgba(0,0,0,0.04)] md:px-5">
+            <div className="mx-auto flex max-w-4xl items-center gap-3 rounded-lg border border-[#e2e8f0] bg-[#f8fafc] p-2">
+              {pendingAttachment.imageUrl ? (
+                <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded bg-white">
+                  <Image src={pendingAttachment.imageUrl} alt={pendingAttachment.title} fill className="object-cover" sizes="40px" />
+                </div>
+              ) : (
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded bg-white text-[#b2b8c3]">
+                  <Icon icon="lucide:image" width={16} height={16} aria-hidden="true" />
+                </div>
+              )}
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-[12px] font-semibold text-black">{pendingAttachment.title}</p>
+                {pendingAttachment.price != null && (
+                  <p className="text-[11px] font-bold text-[#f7a81b]">
+                    {new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(pendingAttachment.price)}
+                  </p>
+                )}
+              </div>
+              <button
+                type="button"
+                onClick={() => setDismissedAttachment(true)}
+                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[#94a3b8] transition-colors hover:bg-white hover:text-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#17458f]"
+                aria-label="Hapus attachment"
+              >
+                <Icon icon="lucide:x" width={16} height={16} aria-hidden="true" />
+              </button>
+            </div>
+          </div>
+        )}
+
         <div className="mb-2.5 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {quickReplies.map((reply) => (
             <button
@@ -154,14 +212,14 @@ export function ThreadView({
               onChange={(e) => setInputValue(e.target.value)}
               onKeyDown={handleKeyDown}
               className="min-w-0 flex-1 bg-transparent text-[13px] text-black outline-none placeholder:text-[#b2b8c3]"
-              placeholder="Tulis pesan..."
+              placeholder={showAttachmentPreview ? "Tambahkan pesan (opsional)..." : "Tulis pesan..."}
               maxLength={2000}
             />
           </div>
           <button
             type="button"
             onClick={handleSend}
-            disabled={!inputValue.trim() || sending}
+            disabled={(!inputValue.trim() && !showAttachmentPreview) || sending}
             className="flex h-[42px] w-[42px] items-center justify-center rounded-full bg-[#f7a81b] text-white shadow-[0_8px_18px_rgba(247,168,27,0.28)] transition-all hover:-translate-y-0.5 hover:bg-[#e89a14] hover:shadow-[0_12px_24px_rgba(247,168,27,0.34)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f7a81b] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
             aria-label="Kirim pesan"
           >

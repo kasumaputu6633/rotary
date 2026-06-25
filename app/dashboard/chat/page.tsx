@@ -14,14 +14,23 @@ export const dynamic = "force-dynamic";
 export default async function SellerChatPage() {
   const user = await requireRole("user");
 
-  // Fetch conversations sebagai penjual
   const rows = await db
     .select({
       id: conversations.id,
+      listingId: conversations.listingId,
       listingTitle: listings.title,
       listingSlug: listings.slug,
+      listingImageUrl: sql<string | null>`(
+        select image_url from listing_images
+        where listing_images.listing_id = conversations.listing_id
+        order by sort_order asc
+        limit 1
+      )`,
+      buyerId: conversations.buyerId,
       buyerName: sql<string | null>`coalesce(${buyerUsers.shopName}, ${buyerUsers.fullName})`,
-      lastMessageAt: conversations.lastMessageAt,
+      sellerId: conversations.sellerId,
+      sellerName: sql<string | null>`${user.shopName ?? user.fullName}`, // since user is the seller
+      lastMessageAt: sql<string>`${conversations.lastMessageAt}::text`,
       lastMessageContent: sql<string | null>`(
         select content from messages
         where conversation_id = ${conversations.id}
@@ -34,9 +43,10 @@ export default async function SellerChatPage() {
           and sender_id != ${user.id}
           and is_read = false
       )`,
+      otherUserLastSeenAt: sql<string | null>`${buyerUsers.lastSeenAt}::text`,
     })
     .from(conversations)
-    .innerJoin(listings, eq(listings.id, conversations.listingId))
+    .leftJoin(listings, eq(listings.id, conversations.listingId))
     .innerJoin(buyerUsers, eq(buyerUsers.id, conversations.buyerId))
     .where(eq(conversations.sellerId, user.id))
     .orderBy(desc(conversations.lastMessageAt))
@@ -70,7 +80,7 @@ export default async function SellerChatPage() {
             <div>
               <p className="text-[14px] font-semibold text-[var(--seller-ink)]">Belum ada calon pembeli yang menghubungi</p>
               <p className="mt-1.5 text-[12px] leading-relaxed text-[var(--seller-muted)]">
-                Pastikan listing Anda aktif dan preferensi kontak disetel ke "Chat Rotary" agar calon pembeli bisa menghubungi Anda langsung.
+                Pastikan listing Anda aktif dan preferensi kontak disetel ke &quot;Chat Rotary&quot; agar calon pembeli bisa menghubungi Anda langsung.
               </p>
             </div>
           </div>

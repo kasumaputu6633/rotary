@@ -4,10 +4,11 @@ import { Icon } from "@iconify/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import type { ConversationSummary } from "../types";
+import type { MessageAttachment } from "../_hooks/useConversation";
 import { ConversationList } from "./ConversationList";
 import { ThreadView } from "./ThreadView";
 
-const hiddenPathPrefixes = ["/login", "/register", "/forgot-password", "/unauthorized", "/account"];
+const hiddenPathPrefixes = ["/login", "/register", "/forgot-password", "/unauthorized", "/account", "/dashboard/chat"];
 
 export default function FloatingChat({ currentUserId }: { currentUserId: string | null }) {
   const pathname = usePathname();
@@ -16,6 +17,7 @@ export default function FloatingChat({ currentUserId }: { currentUserId: string 
   const [isPanelClosing, setIsPanelClosing] = useState(false);
   const [mobileView, setMobileView] = useState<"list" | "thread">("list");
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
+  const [pendingAttachment, setPendingAttachment] = useState<MessageAttachment | null>(null);
   const [conversations, setConversations] = useState<ConversationSummary[]>([]);
   const [convLoading, setConvLoading] = useState(false);
   const launcherTimerRef = useRef<number | null>(null);
@@ -81,7 +83,9 @@ export default function FloatingChat({ currentUserId }: { currentUserId: string 
   // Listen to rotaryOpenChat event
   useEffect(() => {
     function handleOpenChat(e: Event) {
-      const detail = (e as CustomEvent).detail as { conversationId?: string } | undefined;
+      const detail = (e as CustomEvent).detail as { conversationId?: string; listing?: MessageAttachment | null } | undefined;
+      // Simpan attachment produk yang dipilih
+      if (detail?.listing) setPendingAttachment(detail.listing);
       openChat(detail?.conversationId);
     }
 
@@ -169,6 +173,8 @@ export default function FloatingChat({ currentUserId }: { currentUserId: string 
                 <ThreadView
                   conversationId={activeConversationId}
                   currentUserId={currentUserId}
+                  pendingAttachment={pendingAttachment}
+                  onAttachmentSent={() => setPendingAttachment(null)}
                   onBack={() => setMobileView("list")}
                   onClose={closeChat}
                 />

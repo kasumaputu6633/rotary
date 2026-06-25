@@ -15,9 +15,9 @@ export const conversations = pgTable(
   "conversations",
   {
     id: uuid("id").primaryKey().defaultRandom(),
+    // listingId sekarang opsional — hanya sebagai referensi produk pertama yang memulai chat
     listingId: uuid("listing_id")
-      .notNull()
-      .references(() => listings.id, { onDelete: "cascade" }),
+      .references(() => listings.id, { onDelete: "set null" }),
     buyerId: uuid("buyer_id")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
@@ -29,7 +29,8 @@ export const conversations = pgTable(
     createdAt: timestamp("created_at").notNull().defaultNow(),
   },
   (t) => [
-    uniqueIndex("conversations_listing_buyer_unique").on(t.listingId, t.buyerId),
+    // Satu sesi chat per pasang buyer-seller (tidak peduli produknya)
+    uniqueIndex("conversations_buyer_seller_unique").on(t.buyerId, t.sellerId),
     index("conversations_buyer_idx").on(t.buyerId, t.lastMessageAt),
     index("conversations_seller_idx").on(t.sellerId, t.lastMessageAt),
   ],
@@ -46,6 +47,9 @@ export const messages = pgTable(
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
     content: text("content").notNull(),
+    // Attachment produk opsional per pesan — FK ke listings, set null jika listing dihapus
+    attachmentListingId: uuid("attachment_listing_id")
+      .references(() => listings.id, { onDelete: "set null" }),
     isRead: boolean("is_read").notNull().default(false),
     createdAt: timestamp("created_at").notNull().defaultNow(),
   },

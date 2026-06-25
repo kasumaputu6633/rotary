@@ -176,6 +176,13 @@
       "when": 1782403974841,
       "tag": "0024_mushy_purple_man",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1782422778451,
+      "tag": "0025_violet_wildside",
+      "breakpoints": true
     }
   ]
 }
