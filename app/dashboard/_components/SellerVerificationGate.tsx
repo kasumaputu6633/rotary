@@ -100,7 +100,7 @@ export function SellerVerificationGate({
               Kembali ke beranda
             </Link>
             <Link
-              href="/dashboard/profile"
+              href="/account/settings?tab=contact"
               className="inline-flex min-h-11 items-center justify-center gap-2 rounded-[8px] bg-[var(--seller-brand)] px-4 text-[12px] font-semibold text-white shadow-[var(--seller-shadow-tight)] transition hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--seller-focus)]"
             >
               Lengkapi verifikasi

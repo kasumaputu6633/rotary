@@ -4,5 +4,8 @@ const OTP_BYPASS_CONTACTS = new Set([
 ]);
 
 export function canBypassOtp(contact?: string | null) {
-  return !!contact && OTP_BYPASS_CONTACTS.has(contact.trim().toLowerCase());
+  return process.env.NODE_ENV !== "production"
+    && process.env.AUTH_OTP_BYPASS === "true"
+    && !!contact
+    && OTP_BYPASS_CONTACTS.has(contact.trim().toLowerCase());
 }

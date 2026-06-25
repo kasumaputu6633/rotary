@@ -1,7 +1,7 @@
 "use client";
 
 import { Icon } from "@iconify/react";
-import { toggleFavoriteListingAction } from "@/app/dashboard/actions";
+import { toggleFavoriteListingAction } from "@/app/account/actions";
 import { formatListingMode, formatPrice, type ListingCardData } from "@/lib/listing-format";
 import ProductContactActions from "./ProductContactActions";
 

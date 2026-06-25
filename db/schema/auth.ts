@@ -10,6 +10,7 @@ import {
   doublePrecision,
   index,
   uniqueIndex,
+  check,
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 
@@ -19,8 +20,10 @@ export const otpTypeEnum = pgEnum("otp_type", [
   "login_verify",
   "phone_verify",
   "email_verify",
+  "two_factor",
 ]);
 export const roleEnum = pgEnum("role", ["user", "admin"]);
+export const twoFactorMethodEnum = pgEnum("two_factor_method", ["email", "whatsapp"]);
 export const listingModeEnum = pgEnum("listing_mode", ["sale", "donation"]);
 export const listingStatusEnum = pgEnum("listing_status", [
   "draft",
@@ -56,6 +59,8 @@ export const users = pgTable(
     isVerified: boolean("is_verified").notNull().default(false),
     emailVerifiedAt: timestamp("email_verified_at"),
     phoneVerifiedAt: timestamp("phone_verified_at"),
+    twoFactorEnabled: boolean("two_factor_enabled").notNull().default(false),
+    twoFactorMethod: twoFactorMethodEnum("two_factor_method").notNull().default("email"),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },
@@ -95,11 +100,80 @@ export const userDevices = pgTable(
     userId: uuid("user_id")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
-    deviceToken: varchar("device_token", { length: 64 }).notNull(),
+    deviceTokenHash: varchar("device_token_hash", { length: 64 }).notNull().unique(),
+    deviceName: varchar("device_name", { length: 120 }).notNull(),
+    userAgent: text("user_agent"),
+    ipAddress: varchar("ip_address", { length: 64 }),
+    lastUsedAt: timestamp("last_used_at").notNull().defaultNow(),
+    expiresAt: timestamp("expires_at").notNull(),
     createdAt: timestamp("created_at").notNull().defaultNow(),
   },
   (table) => [
     index("user_devices_user_id_idx").on(table.userId),
+    index("user_devices_user_expires_idx").on(table.userId, table.expiresAt),
+  ],
+);
+
+export const accountSessions = pgTable(
+  "account_sessions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    tokenHash: varchar("token_hash", { length: 64 }).notNull().unique(),
+    deviceId: uuid("device_id")
+      .references(() => userDevices.id, { onDelete: "set null" }),
+    userAgent: text("user_agent"),
+    ipAddress: varchar("ip_address", { length: 64 }),
+    lastActiveAt: timestamp("last_active_at").notNull().defaultNow(),
+    expiresAt: timestamp("expires_at").notNull(),
+    revokedAt: timestamp("revoked_at"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (table) => [
+    index("account_sessions_user_id_idx").on(table.userId),
+    index("account_sessions_device_id_idx").on(table.deviceId),
+    index("account_sessions_active_user_idx")
+      .on(table.userId, table.expiresAt)
+      .where(sql`${table.revokedAt} IS NULL`),
+  ],
+);
+
+export const loginActivities = pgTable(
+  "login_activities",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    event: varchar("event", { length: 40 }).notNull(),
+    status: varchar("status", { length: 16 }).notNull().default("success"),
+    method: varchar("method", { length: 24 }),
+    deviceName: varchar("device_name", { length: 120 }),
+    userAgent: text("user_agent"),
+    ipAddress: varchar("ip_address", { length: 64 }),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (table) => [
+    index("login_activities_user_created_idx").on(table.userId, table.createdAt),
+    check("login_activities_status_check", sql`${table.status} IN ('success', 'failed', 'info')`),
+  ],
+);
+
+export const userRecoveryCodes = pgTable(
+  "user_recovery_codes",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    codeHash: varchar("code_hash", { length: 64 }).notNull().unique(),
+    usedAt: timestamp("used_at"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (table) => [
+    index("user_recovery_codes_user_id_idx").on(table.userId),
   ],
 );
 

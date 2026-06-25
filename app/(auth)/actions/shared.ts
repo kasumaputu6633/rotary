@@ -1,7 +1,8 @@
 "use server";
 
 import { db } from "@/db";
-import { otpCodes, userDevices, users } from "@/db/schema";
+import { otpCodes } from "@/db/schema";
+import { createAccountSession, trustCurrentDevice } from "@/lib/auth-session";
 import { and, eq, gt } from "drizzle-orm";
 import { cookies } from "next/headers";
 import { sendOtpEmail, type OtpEmailType } from "@/lib/email";
@@ -40,27 +41,31 @@ export async function getPendingLoginRedirect() {
   return getCookie("pending_login_redirect");
 }
 
-export async function createSession(userId: string) {
-  const user = await db.query.users.findFirst({
-    where: eq(users.id, userId),
-    columns: { role: true },
-  });
-  const role = user?.role ?? "user";
-  const store = await cookies();
-  store.set("session_user_id", userId, COOKIE.session);
-  store.set("session_role", role, COOKIE.session);
+export async function setPendingLoginReason(reason: "two_factor" | "new_device") {
+  (await cookies()).set("pending_login_reason", reason, COOKIE.pending);
+}
+
+export async function getPendingLoginReason() {
+  return getCookie("pending_login_reason");
+}
+
+export async function createSession(
+  userId: string,
+  deviceId?: string | null,
+  method?: string,
+) {
+  return createAccountSession(userId, { deviceId, method });
 }
 
 export async function trustDevice(userId: string) {
-  const token = crypto.randomUUID();
-  await db.insert(userDevices).values({ userId, deviceToken: token });
-  (await cookies()).set("rotary_device", token, COOKIE.device);
+  return trustCurrentDevice(userId);
 }
 
 export async function clearPendingLogin() {
   const store = await cookies();
   store.delete("pending_login_user_id");
   store.delete("pending_login_redirect");
+  store.delete("pending_login_reason");
   store.delete("pending_contact");
 }
 
@@ -77,7 +82,10 @@ export async function createAndSendOtp(
 
   if (isEmail(contact)) {
     await sendOtpEmail(contact, code, type, name);
+    return;
   }
+
+  throw new Error("Pengiriman OTP WhatsApp belum tersedia.");
 }
 
 export async function verifyOtp(contact: string, code: string, type: OtpEmailType) {

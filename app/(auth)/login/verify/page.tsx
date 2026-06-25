@@ -17,8 +17,10 @@ export default async function LoginVerifyPage() {
   const cookieStore = await cookies();
   const contact = cookieStore.get("pending_contact")?.value;
   const userId = cookieStore.get("pending_login_user_id")?.value;
+  const reason = cookieStore.get("pending_login_reason")?.value;
 
   if (!contact || !userId) redirect("/login");
+  const isTwoFactor = reason === "two_factor";
 
   return (
     <div className="flex gap-[60px] items-center justify-center w-full max-w-5xl py-10">
@@ -26,7 +28,7 @@ export default async function LoginVerifyPage() {
 
       <AuthCard>
         <h1 className="font-roboto-serif font-semibold text-[24px] text-black">
-          Verifikasi Perangkat
+          {isTwoFactor ? "Verifikasi Dua Langkah" : "Verifikasi Perangkat"}
         </h1>
 
         <div className="flex flex-col gap-[10px] items-center pt-[45px] pb-[42px] w-full">
@@ -35,13 +37,15 @@ export default async function LoginVerifyPage() {
           </div>
 
           <p className="font-poppins text-[14px] text-black text-center">
-            Kami mendeteksi masuk dari perangkat baru. Kode verifikasi telah dikirim ke
+            {isTwoFactor
+              ? "Masukkan kode keamanan yang telah dikirim ke"
+              : "Kami mendeteksi masuk dari perangkat baru. Kode verifikasi telah dikirim ke"}
           </p>
           <p className="font-poppins font-semibold text-[14px] text-[#17458f]">
             {maskContact(contact)}
           </p>
 
-          <LoginOtpForm />
+          <LoginOtpForm allowRecoveryCode={isTwoFactor} />
         </div>
       </AuthCard>
     </div>

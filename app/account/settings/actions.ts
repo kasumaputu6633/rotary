@@ -1,10 +1,20 @@
 "use server";
 
 import { db } from "@/db";
-import { otpCodes, users } from "@/db/schema";
+import {
+  accountSessions,
+  otpCodes,
+  passwordResetTokens,
+  userDevices,
+  users,
+} from "@/db/schema";
 import { requireRole } from "@/lib/auth";
+import { getCurrentAccountSession, recordLoginActivity } from "@/lib/auth-session";
 import { sendOtpEmail } from "@/lib/email";
-import { and, eq, gt, ne } from "drizzle-orm";
+import { passwordValid } from "@/lib/password";
+import { and, eq, gt, isNull, ne } from "drizzle-orm";
+import bcrypt from "bcryptjs";
+import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
 
 // Sementara fix ke Indonesia. Begitu support multi-country tinggal ubah validasi & prefix.
@@ -14,6 +24,66 @@ const EMAIL_OTP_TYPE = "email_verify" as const;
 const OTP_EXPIRY_MS = 5 * 60 * 1000;
 
 type ActionResult = { error?: string; success?: boolean; message?: string };
+
+export async function changeAccountPasswordAction(
+  currentPassword: string,
+  newPassword: string,
+): Promise<ActionResult> {
+  try {
+    const user = await requireRole("user");
+    if (currentPassword.length > 128 || newPassword.length > 128) {
+      return { error: "Kata sandi maksimal 128 karakter." };
+    }
+    if (!passwordValid(newPassword)) {
+      return { error: "Kata sandi baru belum memenuhi semua persyaratan." };
+    }
+    if (user.passwordHash && currentPassword === newPassword) {
+      return { error: "Kata sandi baru harus berbeda dari kata sandi saat ini." };
+    }
+
+    if (user.passwordHash) {
+      const passwordMatches = await bcrypt.compare(currentPassword, user.passwordHash);
+      if (!passwordMatches) {
+        return { error: "Kata sandi saat ini tidak sesuai." };
+      }
+    }
+
+    const passwordHash = await bcrypt.hash(newPassword, 12);
+    const updatedAt = new Date();
+    const current = await getCurrentAccountSession();
+
+    await db.transaction(async (tx) => {
+      await tx
+        .update(users)
+        .set({ passwordHash, updatedAt })
+        .where(eq(users.id, user.id));
+      await tx.delete(passwordResetTokens).where(eq(passwordResetTokens.userId, user.id));
+      if (current) {
+        await tx.update(accountSessions)
+          .set({ revokedAt: updatedAt })
+          .where(and(
+            eq(accountSessions.userId, user.id),
+            ne(accountSessions.id, current.session.id),
+            isNull(accountSessions.revokedAt),
+          ));
+      }
+      await tx.delete(userDevices).where(eq(userDevices.userId, user.id));
+    });
+
+    (await cookies()).delete("rotary_device");
+    await recordLoginActivity(user.id, "password_changed", { method: "account_settings" });
+    revalidatePath("/account/settings");
+
+    return {
+      success: true,
+      message: user.passwordHash
+        ? "Kata sandi berhasil diubah. Sesi lain dan perangkat terpercaya telah direset."
+        : "Kata sandi berhasil dibuat. Sesi lain dan perangkat terpercaya telah direset.",
+    };
+  } catch {
+    return { error: "Gagal mengubah kata sandi. Coba lagi." };
+  }
+}
 
 function normalizeLocalPhone(rawLocal: string) {
   // Buang non-digit, hapus leading zero (08xx → 8xx)
@@ -131,7 +201,8 @@ export async function verifyEmailOtpAction(rawEmail: string, code: string): Prom
         .where(eq(users.id, user.id));
     });
 
-    revalidatePath("/dashboard/profile");
+    revalidatePath("/account/settings");
+    revalidatePath("/account", "layout");
     revalidatePath("/dashboard", "layout");
 
     return { success: true, message: "Email berhasil diverifikasi." };
@@ -229,7 +300,8 @@ export async function verifyPhoneOtpAction(localPhone: string, code: string): Pr
         .where(eq(users.id, user.id));
     });
 
-    revalidatePath("/dashboard/profile");
+    revalidatePath("/account/settings");
+    revalidatePath("/account", "layout");
     revalidatePath("/dashboard", "layout");
 
     return { success: true, message: "Nomor HP berhasil diverifikasi." };
@@ -245,7 +317,9 @@ export async function removeAccountPhoneAction(): Promise<ActionResult> {
       .update(users)
       .set({ phone: null, phoneVerifiedAt: null, updatedAt: new Date() })
       .where(eq(users.id, user.id));
-    revalidatePath("/dashboard/profile");
+    revalidatePath("/account/settings");
+    revalidatePath("/account", "layout");
+    revalidatePath("/dashboard", "layout");
     return { success: true, message: "Nomor HP dihapus dari akun." };
   } catch {
     return { error: "Gagal menghapus nomor HP." };

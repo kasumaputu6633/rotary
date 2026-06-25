@@ -52,9 +52,9 @@ export default async function SellerChatPage() {
         }
         actions={
           phoneVerified ? (
-            <SecondaryLink href="/dashboard/profile" icon="lucide:settings">Atur Kontak</SecondaryLink>
+            <SecondaryLink href="/account/settings?tab=contact" icon="lucide:settings">Atur Kontak</SecondaryLink>
           ) : (
-            <PrimaryLink href="/dashboard/profile" icon="lucide:phone">Verifikasi Nomor HP</PrimaryLink>
+            <PrimaryLink href="/account/settings?tab=contact" icon="lucide:phone">Verifikasi Nomor HP</PrimaryLink>
           )
         }
       />

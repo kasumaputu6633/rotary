@@ -29,7 +29,7 @@ const quickReplies = [
   "Bisa nego sedikit?",
 ];
 
-const hiddenPathPrefixes = ["/login", "/register", "/forgot-password", "/unauthorized", "/dashboard"];
+const hiddenPathPrefixes = ["/login", "/register", "/forgot-password", "/unauthorized", "/dashboard", "/account"];
 
 export default function FloatingChat() {
   const pathname = usePathname();

@@ -12,20 +12,13 @@ export type SellerProfileData = {
 export type ProfileChecklistItem = {
   complete: boolean;
   description: string;
-  key: "fullName" | "shopName" | "avatar" | "email" | "phone" | "bio";
+  key: "shopName" | "avatar" | "bio";
   label: string;
   publicNow: boolean;
 };
 
 export function getProfileChecklist(profile: SellerProfileData): ProfileChecklistItem[] {
   return [
-    {
-      key: "fullName",
-      label: "Nama lengkap",
-      description: "Identitas akun privat untuk kebutuhan administrasi.",
-      complete: Boolean(profile.fullName?.trim()),
-      publicNow: false,
-    },
     {
       key: "shopName",
       label: "Nama lapak",
@@ -36,22 +29,8 @@ export function getProfileChecklist(profile: SellerProfileData): ProfileChecklis
     {
       key: "avatar",
       label: "Foto profil",
-      description: "Membantu calon peminat mengenali pemilik listing.",
+      description: "Foto akun yang membantu calon peminat mengenali pemilik listing.",
       complete: Boolean(profile.avatarUrl),
-      publicNow: true,
-    },
-    {
-      key: "email",
-      label: "Email terverifikasi",
-      description: "Diperlukan untuk keamanan akun dan akses berjualan.",
-      complete: Boolean(profile.email?.trim() && profile.emailVerifiedAt),
-      publicNow: false,
-    },
-    {
-      key: "phone",
-      label: "Nomor HP terverifikasi",
-      description: "Mengaktifkan tombol WhatsApp pada listing dan keamanan akun.",
-      complete: Boolean(profile.phone?.trim() && profile.phoneVerifiedAt),
       publicNow: true,
     },
     {

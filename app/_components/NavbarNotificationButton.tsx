@@ -1,6 +1,7 @@
 "use client";
 
 import { Icon } from "@iconify/react";
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
 const listingShortcuts = [
@@ -116,13 +117,14 @@ export default function NavbarNotificationButton() {
               </div>
               <p className="mt-0.5 font-poppins text-[11px] text-[#6b7280]">Chat, minat barang, dan kabar listing.</p>
             </div>
-            <button
-              type="button"
+            <Link
+              href="/account/notifications"
+              onClick={() => setShowDropdown(false)}
               className="flex h-7 w-7 items-center justify-center rounded-full text-[#6b7280] transition-colors hover:bg-[#f4f6f8] hover:text-[#17458f]"
               aria-label="Pengaturan notifikasi"
             >
               <Icon icon="lucide:settings" width={17} height={17} aria-hidden="true" />
-            </button>
+            </Link>
           </div>
 
           <div className="max-h-[340px] overflow-y-auto">

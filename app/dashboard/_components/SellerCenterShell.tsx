@@ -147,7 +147,6 @@ export default function SellerCenterShell({
       badge: reservedCount ? String(reservedCount) : undefined,
     },
     { label: "Chat Pembeli", href: "/dashboard/chat", icon: "lucide:messages-square", badge: "Segera", badgeTone: "neutral" },
-    { label: "Favorit", href: "/dashboard/favorites", icon: "lucide:heart" },
     {
       label: "Profil Lapak",
       href: "/dashboard/profile",
@@ -350,6 +349,15 @@ export default function SellerCenterShell({
                 {isProfileMenuOpen ? (
                   <div className="absolute right-0 top-[calc(100%+8px)] z-50 w-56 overflow-hidden rounded-[8px] border border-[var(--seller-rule)] bg-[var(--seller-surface)] shadow-[var(--seller-shadow)]" role="menu">
                     <Link
+                      href="/account/settings"
+                      onClick={() => setProfileMenuOpenPath(null)}
+                      className="flex min-h-11 items-center gap-2 px-3 py-2.5 text-[12px] font-semibold text-[var(--seller-ink)] hover:bg-[var(--seller-surface-2)]"
+                      role="menuitem"
+                    >
+                      <Icon icon="lucide:circle-user-round" width={15} height={15} className="text-[var(--seller-brand)]" aria-hidden="true" />
+                      Akun Saya
+                    </Link>
+                    <Link
                       href="/dashboard/profile"
                       onClick={() => setProfileMenuOpenPath(null)}
                       className="flex min-h-11 items-center gap-2 px-3 py-2.5 text-[12px] font-semibold text-[var(--seller-ink)] hover:bg-[var(--seller-surface-2)]"
@@ -431,7 +439,7 @@ export default function SellerCenterShell({
                 </span>
               </p>
               <Link
-                href="/dashboard/profile"
+                href="/account/settings?tab=contact"
                 className="hidden shrink-0 items-center gap-1 rounded-[6px] bg-[var(--seller-brand)] px-2.5 py-1 text-[11px] font-semibold text-white transition hover:brightness-110 sm:inline-flex"
               >
                 Verifikasi sekarang

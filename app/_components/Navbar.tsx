@@ -1,10 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Icon } from "@iconify/react";
-import { cookies } from "next/headers";
-import { eq } from "drizzle-orm";
-import { db } from "@/db";
-import { users } from "@/db/schema";
+import { getCurrentUser } from "@/lib/auth";
 import NavbarSearch from "./NavbarSearch";
 import NavbarAuthButtons from "./NavbarAuthButtons";
 import NavbarChatButton from "./NavbarChatButton";
@@ -23,23 +20,12 @@ const navLinks = [
 ];
 
 export default async function Navbar() {
-  const cookieStore = await cookies();
-  const userId = cookieStore.get("session_user_id")?.value ?? null;
+  const user = await getCurrentUser();
 
-  let userFullName: string | null = null;
-  let userShopName: string | null = null;
-  let userAvatarUrl: string | null = null;
-  let userRole: string | null = null;
-  if (userId) {
-    const user = await db.query.users.findFirst({
-      where: eq(users.id, userId),
-      columns: { fullName: true, shopName: true, avatarUrl: true, role: true },
-    });
-    userFullName = user?.fullName ?? null;
-    userShopName = user?.shopName ?? user?.fullName ?? null;
-    userAvatarUrl = user?.avatarUrl ?? null;
-    userRole = user?.role ?? null;
-  }
+  const userFullName = user?.fullName ?? null;
+  const userShopName = user?.shopName ?? user?.fullName ?? null;
+  const userAvatarUrl = user?.avatarUrl ?? null;
+  const userRole = user?.role ?? null;
 
   return (
     <>

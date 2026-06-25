@@ -78,11 +78,14 @@ export default function NavbarAuthButtons({
     window.dispatchEvent(event);
   }, [showDropdown]);
 
-  const resolvedShopName = userShopName?.trim() || userFullName?.trim() || "";
+  const resolvedShopName =
+    userShopName?.trim()
+    || userFullName?.trim()
+    || (userRole ? "Pengguna Rotary" : "");
 
   if (resolvedShopName) {
     const isUser = userRole === "user";
-    const profileHref = isUser ? "/dashboard/profile" : "/admin/dashboard";
+    const profileHref = isUser ? "/account/settings" : "/admin/dashboard";
 
     return (
       <>
@@ -192,26 +195,14 @@ export default function NavbarAuthButtons({
                   >
                     <Icon icon="lucide:user" width={16} height={16} className="text-[#555] transition-colors group-hover:text-[#17458f]" aria-hidden="true" />
                     <span className="font-poppins text-[13px] text-[#333] group-hover:text-[#17458f] group-hover:font-semibold transition-colors">
-                      {isUser ? "Profil Lapak" : "Dashboard Admin"}
+                      {isUser ? "Akun Saya" : "Dashboard Admin"}
                     </span>
                   </Link>
 
                   {isUser ? (
                     <>
                       <Link
-                        href="/dashboard/listings"
-                        onClick={() => setShowDropdown(false)}
-                        className="group flex min-h-11 w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-[#fff7e8] focus-visible:bg-[#fff7e8] focus-visible:outline-none"
-                        role="menuitem"
-                      >
-                        <Icon icon="lucide:file-text" width={16} height={16} className="text-[#555] transition-colors group-hover:text-[#17458f]" aria-hidden="true" />
-                        <span className="font-poppins text-[13px] text-[#333] transition-colors group-hover:font-semibold group-hover:text-[#17458f]">
-                          Listing Saya
-                        </span>
-                      </Link>
-
-                      <Link
-                        href="/dashboard/favorites"
+                        href="/account/favorites"
                         onClick={() => setShowDropdown(false)}
                         className="group flex min-h-11 w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-[#fff7e8] focus-visible:bg-[#fff7e8] focus-visible:outline-none"
                         role="menuitem"
@@ -221,6 +212,32 @@ export default function NavbarAuthButtons({
                           Favorit
                         </span>
                       </Link>
+
+                      <Link
+                        href="/account/settings?tab=security"
+                        onClick={() => setShowDropdown(false)}
+                        className="group flex min-h-11 w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-[#fff7e8] focus-visible:bg-[#fff7e8] focus-visible:outline-none"
+                        role="menuitem"
+                      >
+                        <Icon icon="lucide:shield-check" width={16} height={16} className="text-[#555] transition-colors group-hover:text-[#17458f]" aria-hidden="true" />
+                        <span className="font-poppins text-[13px] text-[#333] transition-colors group-hover:font-semibold group-hover:text-[#17458f]">
+                          Keamanan Akun
+                        </span>
+                      </Link>
+
+                      <div className="border-t border-gray-100">
+                        <Link
+                          href="/dashboard"
+                          onClick={() => setShowDropdown(false)}
+                          className="group flex min-h-11 w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-[#fff7e8] focus-visible:bg-[#fff7e8] focus-visible:outline-none"
+                          role="menuitem"
+                        >
+                          <Icon icon="lucide:store" width={16} height={16} className="text-[#555] transition-colors group-hover:text-[#17458f]" aria-hidden="true" />
+                          <span className="font-poppins text-[13px] text-[#333] transition-colors group-hover:font-semibold group-hover:text-[#17458f]">
+                            Seller Center
+                          </span>
+                        </Link>
+                      </div>
                     </>
                   ) : null}
 

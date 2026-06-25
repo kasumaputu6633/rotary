@@ -67,7 +67,7 @@ export default async function LapakSayaPage() {
           title: "Verifikasi email untuk mulai berjualan",
           description: "Amankan akun sebelum menerbitkan listing barang di marketplace Rotary.",
           icon: "lucide:mail-check",
-          href: "/dashboard/profile",
+          href: "/account/settings?tab=contact",
           action: "Verifikasi",
         }]
       : []),
@@ -76,7 +76,7 @@ export default async function LapakSayaPage() {
           title: "Verifikasi nomor HP untuk mulai berjualan",
           description: "Aktifkan kontak WhatsApp agar calon peminat mudah menghubungi kamu dari halaman listing.",
           icon: "lucide:phone",
-          href: "/dashboard/profile",
+          href: "/account/settings?tab=contact",
           action: "Verifikasi",
         }]
       : []),
@@ -85,7 +85,7 @@ export default async function LapakSayaPage() {
           title: "Tambahkan foto profil",
           description: "Foto profil lapak membuat pemilik barang terlihat lebih tepercaya di halaman produk.",
           icon: "lucide:user-round-plus",
-          href: "/dashboard/profile",
+          href: "/account/settings?tab=profile",
           action: "Upload foto",
         }]
       : []),

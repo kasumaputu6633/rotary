@@ -112,8 +112,8 @@ export async function updateProfileAction(
       .returning({ id: users.id });
 
     await clearPendingContact();
-    await trustDevice(user.id);
-    await createSession(user.id);
+    const device = await trustDevice(user.id);
+    await createSession(user.id, device.id, "register");
     return { redirectTo: "/" };
   } catch {
     return { error: DB_ERROR };

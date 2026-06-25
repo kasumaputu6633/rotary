@@ -19,7 +19,7 @@ export default function ForgotPasswordSentPage() {
           </h1>
 
           <p className="font-poppins text-[14px] text-[#555] leading-relaxed">
-            Kami telah mengirimkan link reset kata sandi ke email Anda. Silakan cek inbox dan ikuti instruksinya.
+            Jika email terdaftar dan telah diverifikasi, kami akan mengirimkan link reset kata sandi. Silakan cek inbox dan folder spam.
           </p>
 
           <p className="font-poppins text-[12px] text-[#968e8e] leading-relaxed">

@@ -1,20 +1,14 @@
 import { Icon } from "@iconify/react";
+import { PASSWORD_RULES, passwordValid } from "@/lib/password";
 
-const RULES = [
-  { label: "Minimal 8 karakter",          test: (p: string) => p.length >= 8 },
-  { label: "Mengandung huruf kecil",       test: (p: string) => /[a-z]/.test(p) },
-  { label: "Mengandung huruf besar",       test: (p: string) => /[A-Z]/.test(p) },
-  { label: "Mengandung angka",             test: (p: string) => /[0-9]/.test(p) },
-];
-
-export const passwordValid = (p: string) => RULES.every((r) => r.test(p));
+export { passwordValid };
 
 export default function PasswordRequirements({ password }: { password: string }) {
   if (!password) return null;
 
   return (
     <ul className="flex flex-col gap-1.5 w-full mt-1">
-      {RULES.map(({ label, test }) => {
+      {PASSWORD_RULES.map(({ label, test }) => {
         const ok = test(password);
         return (
           <li key={label} className="flex items-center gap-2">

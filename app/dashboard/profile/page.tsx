@@ -1,4 +1,5 @@
 import { Icon } from "@iconify/react";
+import Link from "next/link";
 import { db } from "@/db";
 import { users } from "@/db/schema";
 import { requireRole } from "@/lib/auth";
@@ -71,8 +72,6 @@ export default async function ProfilePage() {
     db
       .select({
         fullName: users.fullName,
-        email: users.email,
-        emailVerifiedAt: users.emailVerifiedAt,
         phone: users.phone,
         phoneVerifiedAt: users.phoneVerifiedAt,
         bio: users.bio,
@@ -88,7 +87,6 @@ export default async function ProfilePage() {
 
   const completion = getProfileCompletion(profile ?? {});
   const resolvedShopName = resolveShopName(profile ?? {});
-  const emailVerified = Boolean(profile?.email && profile.emailVerifiedAt);
   const phoneVerified = Boolean(profile?.phone && profile.phoneVerifiedAt);
   const publicListingCount = sellerListings.filter((listing) =>
     listing.status === "active" || listing.status === "reserved",
@@ -100,14 +98,11 @@ export default async function ProfilePage() {
         icon="lucide:user-round-cog"
         kicker="Lapak Saya"
         title="Profil Lapak"
-        description="Atur nama lengkap akun, nama lapak publik, dan kontak yang menyertai listing kamu."
+        description="Atur nama lapak dan informasi publik yang menyertai listing kamu."
         meta={
           <>
             <Badge tone={completion.percentage === 100 ? "success" : "accent"}>
               {completion.percentage}% lengkap
-            </Badge>
-            <Badge tone={emailVerified ? "success" : "neutral"}>
-              Email {emailVerified ? "terverifikasi" : "belum terverifikasi"}
             </Badge>
             <Badge tone={phoneVerified ? "success" : "neutral"}>
               WhatsApp {phoneVerified ? "aktif" : "belum aktif"}
@@ -117,18 +112,12 @@ export default async function ProfilePage() {
       />
 
       <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_340px]">
-        <Panel title="Edit profil" description="Perubahan nama dan foto langsung berlaku pada listing publik.">
+        <Panel title="Edit profil" description="Perubahan nama lapak langsung berlaku pada listing publik.">
           <ProfileForm
             key={profile?.updatedAt?.getTime() ?? "profile"}
             defaultValues={{
-              fullName: profile?.fullName,
-              shopName: profile?.shopName,
+              shopName: resolvedShopName,
               bio: profile?.bio,
-              avatarUrl: profile?.avatarUrl,
-              email: profile?.email,
-              emailVerified,
-              phone: profile?.phone,
-              phoneVerified,
             }}
           />
         </Panel>
@@ -185,23 +174,26 @@ export default async function ProfilePage() {
             phone={phoneVerified ? profile?.phone : null}
           />
 
-          <Panel title="Privasi akun">
-            <dl className="divide-y divide-[var(--seller-rule)] px-4 text-[12px]">
-              <div className="grid grid-cols-[92px_minmax(0,1fr)] gap-3 py-3">
-                <dt className="text-[var(--seller-muted)]">Email</dt>
-                <dd className="text-right">
-                  <span className="block break-all font-semibold text-[var(--seller-ink)]">{profile?.email ?? "-"}</span>
-                  <span className={`mt-1 block text-[10px] font-semibold ${
-                    profile?.emailVerifiedAt ? "text-[var(--seller-success)]" : "text-[var(--seller-muted)]"
-                  }`}>
-                    {profile?.emailVerifiedAt ? "Terverifikasi" : "Belum terverifikasi"}
-                  </span>
-                </dd>
-              </div>
-            </dl>
-            <p className="border-t border-[var(--seller-rule)] px-4 py-3 text-[11px] leading-relaxed text-[var(--seller-muted)]">
-              Email hanya dipakai untuk login dan verifikasi. Data ini tidak ditampilkan ke publik.
-            </p>
+          <Panel
+            title="Akun dan keamanan"
+            description="Identitas privat serta verifikasi kontak dikelola terpisah dari profil lapak."
+          >
+            <div className="grid gap-2 p-4">
+              <Link
+                href="/account/settings?tab=profile"
+                className="inline-flex min-h-11 items-center justify-between gap-3 rounded-[8px] border border-[var(--seller-rule-strong)] px-3 text-[12px] font-semibold text-[var(--seller-brand)] transition-colors hover:bg-[var(--seller-brand-soft)]"
+              >
+                Profil dan foto akun
+                <Icon icon="lucide:arrow-right" width={14} height={14} aria-hidden="true" />
+              </Link>
+              <Link
+                href="/account/settings?tab=contact"
+                className="inline-flex min-h-11 items-center justify-between gap-3 rounded-[8px] border border-[var(--seller-rule-strong)] px-3 text-[12px] font-semibold text-[var(--seller-brand)] transition-colors hover:bg-[var(--seller-brand-soft)]"
+              >
+                Kontak dan verifikasi
+                <Icon icon="lucide:arrow-right" width={14} height={14} aria-hidden="true" />
+              </Link>
+            </div>
           </Panel>
         </aside>
       </div>

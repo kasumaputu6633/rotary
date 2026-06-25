@@ -1,0 +1,1 @@
+CREATE INDEX "account_sessions_device_id_idx" ON "account_sessions" USING btree ("device_id");

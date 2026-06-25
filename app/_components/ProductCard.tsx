@@ -1,6 +1,6 @@
 import { Icon } from "@iconify/react";
 import Link from "next/link";
-import { toggleFavoriteListingAction } from "@/app/dashboard/actions";
+import { toggleFavoriteListingAction } from "@/app/account/actions";
 import { formatListingMode, formatPrice, formatPublicLocation, type ListingCardData } from "@/lib/listing-format";
 
 export default function ProductCard({ product }: { product: ListingCardData }) {

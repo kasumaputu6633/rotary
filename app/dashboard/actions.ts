@@ -1,12 +1,12 @@
 "use server";
 
 import { db } from "@/db";
-import { favoriteListings, listingDeals, listingImages, listings, users } from "@/db/schema";
-import { requireAuth, requireRole, requireSellerReady } from "@/lib/auth";
+import { listingDeals, listingImages, listings, users } from "@/db/schema";
+import { requireRole, requireSellerReady } from "@/lib/auth";
 import type { DealStage } from "@/lib/deal-format";
 import type { ListingMode, ListingStatus } from "@/lib/listing-format";
 import { createUniqueListingSlug } from "@/lib/listings";
-import { deleteListingImage, deleteUserAvatar, uploadListingImage, uploadUserAvatar } from "@/lib/r2";
+import { deleteListingImage, uploadListingImage } from "@/lib/r2";
 import { and, desc, eq, inArray } from "drizzle-orm";
 import { geocodeLocationText } from "@/lib/mapbox";
 import { revalidatePath } from "next/cache";
@@ -38,11 +38,6 @@ function getImages(formData: FormData) {
     .getAll("images")
     .filter((value): value is File => value instanceof File && value.size > 0)
     .slice(0, 4);
-}
-
-function getOptionalFile(formData: FormData, key: string) {
-  const value = formData.get(key);
-  return value instanceof File && value.size > 0 ? value : null;
 }
 
 const DESCRIPTION_MAX_LENGTH = 2000;
@@ -424,45 +419,21 @@ export async function deleteListingAction(listingId: string) {
 
 export async function updateProfileAction(formData: FormData) {
   const user = await requireRole("user");
-  const fullName = getString(formData, "fullName").slice(0, 120);
   const shopName = getString(formData, "shopName").slice(0, 80);
   const bio = getString(formData, "bio").slice(0, 280);
-  const removeAvatar = getString(formData, "removeAvatar") === "1";
-  const avatarFile = getOptionalFile(formData, "avatar");
 
-  if (fullName.length < 2) {
-    throw new Error("Nama lengkap minimal 2 karakter.");
-  }
   if (shopName.length < 2) {
     throw new Error("Nama lapak minimal 2 karakter.");
   }
 
-  const currentProfile = await db.query.users.findFirst({
-    where: eq(users.id, user.id),
-    columns: { avatarObjectKey: true },
-  });
-
-  const uploadedAvatar = avatarFile ? await uploadUserAvatar(avatarFile, user.id) : null;
-  const shouldClearAvatar = removeAvatar && !uploadedAvatar;
-
   await db
     .update(users)
     .set({
-      fullName: fullName || null,
       shopName: shopName || null,
       bio: bio || null,
-      ...(uploadedAvatar
-        ? { avatarUrl: uploadedAvatar.imageUrl, avatarObjectKey: uploadedAvatar.objectKey }
-        : shouldClearAvatar
-          ? { avatarUrl: null, avatarObjectKey: null }
-          : {}),
       updatedAt: new Date(),
     })
     .where(eq(users.id, user.id));
-
-  if ((uploadedAvatar || shouldClearAvatar) && currentProfile?.avatarObjectKey) {
-    await deleteUserAvatar(currentProfile.avatarObjectKey);
-  }
 
   const sellerListings = await db
     .select({ slug: listings.slug })
@@ -472,28 +443,8 @@ export async function updateProfileAction(formData: FormData) {
   revalidatePath("/dashboard");
   revalidatePath("/dashboard", "layout");
   revalidatePath("/dashboard/profile");
+  revalidatePath("/account", "layout");
   revalidatePath("/");
   revalidatePath("/products");
   sellerListings.forEach((listing) => revalidatePath(`/products/${listing.slug}`));
-}
-
-export async function toggleFavoriteListingAction(listingId: string, slug?: string) {
-  const user = await requireAuth();
-  const existing = await db.query.favoriteListings.findFirst({
-    where: and(eq(favoriteListings.userId, user.id), eq(favoriteListings.listingId, listingId)),
-    columns: { id: true },
-  });
-
-  if (existing) {
-    await db.delete(favoriteListings).where(eq(favoriteListings.id, existing.id));
-  } else {
-    await db
-      .insert(favoriteListings)
-      .values({ userId: user.id, listingId })
-      .onConflictDoNothing();
-  }
-
-  revalidatePath("/");
-  revalidatePath("/dashboard/favorites");
-  if (slug) revalidatePath(`/products/${slug}`);
 }
