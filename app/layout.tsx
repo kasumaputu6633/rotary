@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { Poppins, Roboto_Serif } from "next/font/google";
 import DropdownOverlay from "./_components/DropdownOverlay";
-import FloatingChat from "./_components/FloatingChat";
+import FloatingChat from "./_features/chat/components/FloatingChat";
+import { getSessionUserId } from "@/lib/auth";
 import "./globals.css";
 
 const poppins = Poppins({
@@ -30,11 +31,13 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const currentUserId = await getSessionUserId();
+
   return (
     <html
       lang="id"
@@ -43,7 +46,7 @@ export default function RootLayout({
       <body id="page-top" className="min-h-full flex flex-col">
         <DropdownOverlay />
         {children}
-        <FloatingChat />
+        <FloatingChat currentUserId={currentUserId} />
       </body>
     </html>
   );

@@ -1,5 +1,6 @@
 export type ListingStatus = "draft" | "active" | "reserved" | "completed" | "inactive";
 export type ListingMode = "sale" | "donation";
+export type ContactPreference = "in_app" | "whatsapp";
 
 export type ListingCardData = {
   id: string;
@@ -28,6 +29,7 @@ export type ListingCardData = {
   imageUrl: string | null;
   isFavorite?: boolean;
   handoverOptions?: string[] | null;
+  contactPreference?: ContactPreference;
 };
 
 export function formatPrice(price: number | null, mode: ListingMode) {

@@ -1,3 +1,7 @@
+"use client";
+
+import { Icon } from "@iconify/react";
+import { useState } from "react";
 import type { ListingMode, ListingStatus } from "@/lib/listing-format";
 import { ListingCategoryPicker } from "../new/_components/ListingCategoryPicker";
 import { ListingDescriptionField } from "../new/_components/ListingDescriptionField";
@@ -28,6 +32,7 @@ export type ListingFormValues = {
   status?: ListingStatus;
   subcategory?: string | null;
   title?: string;
+  contactPreference?: "in_app" | "whatsapp";
 };
 
 type ListingFormImage = {
@@ -76,6 +81,9 @@ export function ListingForm({
   values = {},
 }: ListingFormProps) {
   const submitLabels = getSubmitLabels(values.status);
+  const [contactPref, setContactPref] = useState<"in_app" | "whatsapp">(
+    values.contactPreference ?? "in_app",
+  );
 
   return (
     <form action={action} className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_332px]">
@@ -158,6 +166,43 @@ export function ListingForm({
           <h2 className="text-[15px] font-semibold text-[var(--seller-ink)]">Serah Terima</h2>
           <p className="mt-1 text-[12px] text-[var(--seller-muted)]">Pilih minimal 1 cara serah terima.</p>
           <ListingHandoverOptions defaultValue={values.handoverOptions} />
+        </section>
+
+        <section className="rounded-[8px] border border-[var(--seller-rule)] bg-[var(--seller-surface)] p-4 shadow-[var(--seller-shadow)]">
+          <h2 className="text-[15px] font-semibold text-[var(--seller-ink)]">Preferensi Kontak</h2>
+          <p className="mt-1 text-[12px] text-[var(--seller-muted)]">Pilih cara calon pembeli menghubungi Anda.</p>
+          <input type="hidden" name="contactPreference" value={contactPref} />
+          <div className="mt-3 grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={() => setContactPref("in_app")}
+              className={`flex flex-col items-center gap-1.5 rounded-[8px] border-2 px-3 py-3 text-[11px] font-semibold transition-colors ${
+                contactPref === "in_app"
+                  ? "border-[var(--seller-brand)] bg-[var(--seller-brand-soft)] text-[var(--seller-brand)]"
+                  : "border-[var(--seller-rule-strong)] text-[var(--seller-muted)] hover:border-[var(--seller-brand)]"
+              }`}
+            >
+              <Icon icon="lucide:messages-square" width={18} height={18} aria-hidden="true" />
+              Chat Rotary
+            </button>
+            <button
+              type="button"
+              onClick={() => setContactPref("whatsapp")}
+              className={`flex flex-col items-center gap-1.5 rounded-[8px] border-2 px-3 py-3 text-[11px] font-semibold transition-colors ${
+                contactPref === "whatsapp"
+                  ? "border-[#25d366] bg-[#f0fdf4] text-[#16a34a]"
+                  : "border-[var(--seller-rule-strong)] text-[var(--seller-muted)] hover:border-[#25d366]"
+              }`}
+            >
+              <Icon icon="ic:baseline-whatsapp" width={18} height={18} aria-hidden="true" />
+              WhatsApp
+            </button>
+          </div>
+          {contactPref === "whatsapp" && (
+            <p className="mt-2 text-[11px] leading-relaxed text-[var(--seller-muted)]">
+              Nomor WA Anda (terverifikasi) akan ditampilkan. Pastikan nomor aktif di profil.
+            </p>
+          )}
         </section>
 
         <section className="rounded-[8px] border border-[var(--seller-rule)] bg-[var(--seller-accent-soft)] p-4">

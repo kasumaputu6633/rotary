@@ -169,6 +169,13 @@
       "when": 1782391901760,
       "tag": "0023_naive_morg",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1782403974841,
+      "tag": "0024_mushy_purple_man",
+      "breakpoints": true
     }
   ]
 }

@@ -91,6 +91,7 @@ async function getListingFormValues(formData: FormData) {
     latitude,
     longitude,
     handoverOptions,
+    contactPreference: getString(formData, "contactPreference") === "whatsapp" ? "whatsapp" as const : "in_app" as const,
   };
 }
 

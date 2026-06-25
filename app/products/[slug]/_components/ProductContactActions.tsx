@@ -1,25 +1,64 @@
 "use client";
 
 import { Icon } from "@iconify/react";
-import type { ListingCardData } from "@/lib/listing-format";
+import { useState } from "react";
+import type { ContactPreference, ListingCardData } from "@/lib/listing-format";
 
 export default function ProductContactActions({
   product,
   sellerWhatsapp,
+  onConversationCreated,
 }: {
   product: ListingCardData;
   sellerWhatsapp?: string | null;
+  onConversationCreated?: (conversationId: string) => void;
 }) {
   const isSale = product.mode === "sale";
   const isReserved = product.status === "reserved";
-
-  function openChat() {
-    window.dispatchEvent(new CustomEvent("rotaryOpenChat"));
-  }
+  const contactPref: ContactPreference = product.contactPreference ?? "in_app";
+  const [creating, setCreating] = useState(false);
 
   function waHref(number: string) {
     const normalized = number.replace(/\D/g, "").replace(/^0/, "62");
-    return `https://wa.me/${normalized}`;
+    const itemLabel = encodeURIComponent(
+      `Halo, saya tertarik dengan barang "${product.title}" di Rotary.`,
+    );
+    return `https://wa.me/${normalized}?text=${itemLabel}`;
+  }
+
+  async function handleOpenChat() {
+    setCreating(true);
+    try {
+      const res = await fetch("/api/chat/conversations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ listingId: product.id }),
+      });
+
+      if (res.status === 401) {
+        // User belum login → redirect ke login
+        window.location.href = `/login?next=${encodeURIComponent(window.location.pathname)}`;
+        return;
+      }
+
+      if (res.ok) {
+        const data = await res.json();
+        if (onConversationCreated) {
+          onConversationCreated(data.conversationId);
+        } else {
+          window.dispatchEvent(
+            new CustomEvent("rotaryOpenChat", {
+              detail: { conversationId: data.conversationId },
+            }),
+          );
+        }
+      }
+    } catch {
+      // Ignore error, fallback ke open chat tanpa conversationId
+      window.dispatchEvent(new CustomEvent("rotaryOpenChat"));
+    } finally {
+      setCreating(false);
+    }
   }
 
   return (
@@ -36,7 +75,7 @@ export default function ProductContactActions({
         </div>
       ) : (
         <div className="grid gap-2">
-          {sellerWhatsapp ? (
+          {contactPref === "whatsapp" && sellerWhatsapp ? (
             <a
               href={waHref(sellerWhatsapp)}
               target="_blank"
@@ -49,18 +88,23 @@ export default function ProductContactActions({
           ) : (
             <button
               type="button"
-              onClick={openChat}
-              className="flex h-10 items-center justify-center gap-2 rounded-lg bg-[#f7a81b] font-poppins text-[13px] font-semibold text-white shadow-[0_8px_18px_rgba(247,168,27,0.25)] transition-all hover:-translate-y-0.5 hover:bg-[#e89a14] hover:shadow-[0_12px_24px_rgba(247,168,27,0.34)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f7a81b] focus-visible:ring-offset-2"
+              onClick={handleOpenChat}
+              disabled={creating}
+              className="flex h-10 items-center justify-center gap-2 rounded-lg bg-[#f7a81b] font-poppins text-[13px] font-semibold text-white shadow-[0_8px_18px_rgba(247,168,27,0.25)] transition-all hover:-translate-y-0.5 hover:bg-[#e89a14] hover:shadow-[0_12px_24px_rgba(247,168,27,0.34)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f7a81b] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-70"
             >
-              <Icon icon="lucide:messages-square" width={16} height={16} aria-hidden="true" />
-              {isSale ? "Chat Penjual" : "Chat Pemilik"}
+              {creating ? (
+                <Icon icon="lucide:loader-circle" width={16} height={16} className="animate-spin" aria-hidden="true" />
+              ) : (
+                <Icon icon="lucide:messages-square" width={16} height={16} aria-hidden="true" />
+              )}
+              {creating ? "Membuka chat..." : isSale ? "Chat Penjual" : "Chat Pemilik"}
             </button>
           )}
 
           <button
             type="button"
             className="flex h-10 items-center justify-center gap-2 rounded-lg border border-[#f7a81b] font-poppins text-[13px] font-semibold text-[#17458f] transition-all hover:-translate-y-0.5 hover:bg-[#fff7e8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f7a81b] focus-visible:ring-offset-2"
-            onClick={openChat}
+            onClick={handleOpenChat}
           >
             <Icon icon={isSale ? "lucide:handshake" : "lucide:hand-heart"} width={16} height={16} aria-hidden="true" />
             {isSale ? "Saya Tertarik" : "Ajukan Ambil"}

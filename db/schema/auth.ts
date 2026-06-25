@@ -42,6 +42,7 @@ export const dealStatusEnum = pgEnum("deal_status", [
   "completed",
   "cancelled",
 ]);
+export const contactPreferenceEnum = pgEnum("contact_preference", ["in_app", "whatsapp"]);
 
 export const users = pgTable(
   "users",
@@ -61,6 +62,7 @@ export const users = pgTable(
     phoneVerifiedAt: timestamp("phone_verified_at"),
     twoFactorEnabled: boolean("two_factor_enabled").notNull().default(false),
     twoFactorMethod: twoFactorMethodEnum("two_factor_method").notNull().default("email"),
+    lastSeenAt: timestamp("last_seen_at"),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },
@@ -220,6 +222,7 @@ export const listings = pgTable(
     longitude: doublePrecision("longitude"),
     handoverOptions: text("handover_options").array(),
     status: listingStatusEnum("status").notNull().default("draft"),
+    contactPreference: contactPreferenceEnum("contact_preference").notNull().default("in_app"),
     viewCount: integer("view_count").notNull().default(0),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
