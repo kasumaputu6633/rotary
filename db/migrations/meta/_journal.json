@@ -162,6 +162,13 @@
       "when": 1782386579293,
       "tag": "0022_odd_the_santerians",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1782391901760,
+      "tag": "0023_naive_morg",
+      "breakpoints": true
     }
   ]
 }

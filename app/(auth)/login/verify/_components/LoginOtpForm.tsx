@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import AuthButton from "../../../_components/AuthButton";
 import {
   resendLoginOtpAction,
@@ -14,10 +14,20 @@ export default function LoginOtpForm({ allowRecoveryCode }: { allowRecoveryCode:
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState("");
   const [resent, setResent] = useState(false);
+  const [resendSeconds, setResendSeconds] = useState(60);
   const [useRecoveryCode, setUseRecoveryCode] = useState(false);
   const [recoveryCode, setRecoveryCode] = useState("");
   const { otp, inputs, handleChange, handleKeyDown, handlePaste, isComplete, code, reset } =
     useOtpInput();
+
+  useEffect(() => {
+    if (resendSeconds <= 0) return;
+    const timer = window.setTimeout(
+      () => setResendSeconds((seconds) => seconds - 1),
+      1000,
+    );
+    return () => window.clearTimeout(timer);
+  }, [resendSeconds]);
 
   function handleVerify() {
     setError("");
@@ -34,6 +44,7 @@ export default function LoginOtpForm({ allowRecoveryCode }: { allowRecoveryCode:
   }
 
   function handleResend() {
+    if (resendSeconds > 0) return;
     setResent(false);
     setError("");
     startTransition(async () => {
@@ -41,6 +52,7 @@ export default function LoginOtpForm({ allowRecoveryCode }: { allowRecoveryCode:
       if (result?.error) { setError(result.error); return; }
       reset();
       setResent(true);
+      setResendSeconds(60);
     });
   }
 
@@ -92,10 +104,10 @@ export default function LoginOtpForm({ allowRecoveryCode }: { allowRecoveryCode:
           <button
             type="button"
             onClick={handleResend}
-            disabled={isPending}
-            className="text-[#17458f] underline cursor-pointer disabled:opacity-50"
+            disabled={isPending || resendSeconds > 0}
+            className="text-[#17458f] underline cursor-pointer disabled:cursor-not-allowed disabled:no-underline disabled:opacity-50"
           >
-            Kirim ulang
+            {resendSeconds > 0 ? `Kirim ulang (${resendSeconds}s)` : "Kirim ulang"}
           </button>
         </p>
       ) : null}
@@ -122,7 +134,7 @@ export default function LoginOtpForm({ allowRecoveryCode }: { allowRecoveryCode:
           }}
           className="mt-4 font-poppins text-[13px] font-semibold text-[#17458f] underline"
         >
-          {useRecoveryCode ? "Gunakan kode dari email" : "Gunakan recovery code"}
+          {useRecoveryCode ? "Gunakan kode verifikasi" : "Gunakan recovery code"}
         </button>
       ) : null}
 

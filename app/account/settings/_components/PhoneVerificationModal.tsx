@@ -177,7 +177,7 @@ export function PhoneVerificationModal({ onClose, onVerified }: PhoneVerificatio
           {step === "input-phone" ? (
             <div className="grid gap-4">
               <p className="text-[12px] leading-relaxed text-[var(--color-muted)]">
-                Kami akan mengirim kode OTP ke nomor WhatsApp ini. Nomor disimpan privat untuk keamanan akun.
+                Kami akan mengirim kode OTP ke nomor WhatsApp ini. Setelah terverifikasi, nomor juga dipakai oleh tombol WhatsApp pada listing tanpa ditampilkan sebagai teks.
               </p>
 
               <div className="grid gap-1.5">

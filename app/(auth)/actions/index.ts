@@ -5,5 +5,11 @@ export {
   verifyLoginRecoveryCodeAction,
   resendLoginOtpAction,
 } from "./login";
-export { forgotPasswordAction, validateResetToken, resetPasswordAction } from "./password";
+export {
+  forgotPasswordAction,
+  resendPasswordResetOtpAction,
+  resetPasswordAction,
+  validateResetToken,
+  verifyPasswordResetOtpAction,
+} from "./password";
 export type { ActionResult } from "./constants";

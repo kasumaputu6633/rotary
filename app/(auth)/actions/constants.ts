@@ -1,4 +1,4 @@
-export type ActionResult = { error?: string; redirectTo?: string } | undefined;
+export type ActionResult = { error?: string; message?: string; redirectTo?: string } | undefined;
 
 export const DB_ERROR = "Terjadi kesalahan server. Silakan coba beberapa saat lagi.";
 

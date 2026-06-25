@@ -99,7 +99,7 @@ export default async function AccountSettingsPage({
               <div className="border-b border-[var(--seller-rule)] px-4 py-4 sm:px-5">
                 <h2 className="text-[16px] font-semibold text-[var(--seller-ink)]">Kontak dan verifikasi</h2>
                 <p className="mt-1 text-[12px] leading-relaxed text-[var(--seller-muted)]">
-                  Email dan nomor HP disimpan privat serta tidak ditampilkan kepada pengguna lain.
+                  Email tetap privat. Nomor HP dipakai untuk keamanan akun dan tombol WhatsApp pada listing.
                 </p>
               </div>
               <EmailVerificationCard email={user.email} verified={emailVerified} />
@@ -179,8 +179,12 @@ export default async function AccountSettingsPage({
             ) : activeSecuritySection === "two-factor" ? (
               <TwoFactorSettings
                 email={user.email}
+                emailVerified={emailVerified}
                 enabled={user.twoFactorEnabled}
                 hasPassword={Boolean(user.passwordHash)}
+                method={user.twoFactorMethod}
+                phone={user.phone}
+                phoneVerified={phoneVerified}
                 recoveryCodeCount={securityData.recoveryCodeCount}
               />
             ) : activeSecuritySection === "devices" ? (

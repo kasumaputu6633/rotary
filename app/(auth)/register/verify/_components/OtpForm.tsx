@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import AuthButton from "../../../_components/AuthButton";
 import { resendRegisterOtpAction, verifyRegisterOtpAction } from "../../../actions";
@@ -12,8 +12,18 @@ export default function OtpForm() {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState("");
   const [resent, setResent] = useState(false);
+  const [resendSeconds, setResendSeconds] = useState(60);
   const { otp, inputs, handleChange, handleKeyDown, handlePaste, isComplete, code, reset } =
     useOtpInput();
+
+  useEffect(() => {
+    if (resendSeconds <= 0) return;
+    const timer = window.setTimeout(
+      () => setResendSeconds((seconds) => seconds - 1),
+      1000,
+    );
+    return () => window.clearTimeout(timer);
+  }, [resendSeconds]);
 
   function handleVerify() {
     setError("");
@@ -28,6 +38,7 @@ export default function OtpForm() {
   }
 
   function handleResend() {
+    if (resendSeconds > 0) return;
     setResent(false);
     setError("");
     startTransition(async () => {
@@ -35,6 +46,7 @@ export default function OtpForm() {
       if (result?.error) { setError(result.error); return; }
       reset();
       setResent(true);
+      setResendSeconds(60);
     });
   }
 
@@ -67,10 +79,10 @@ export default function OtpForm() {
         <button
           type="button"
           onClick={handleResend}
-          disabled={isPending}
-          className="text-[#17458f] underline cursor-pointer disabled:opacity-50"
+          disabled={isPending || resendSeconds > 0}
+          className="text-[#17458f] underline cursor-pointer disabled:cursor-not-allowed disabled:no-underline disabled:opacity-50"
         >
-          Kirim ulang
+          {resendSeconds > 0 ? `Kirim ulang (${resendSeconds}s)` : "Kirim ulang"}
         </button>
       </p>
 

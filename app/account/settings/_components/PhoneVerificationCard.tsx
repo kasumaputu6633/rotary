@@ -6,6 +6,7 @@ import { useState, useTransition } from "react";
 import { createPortal } from "react-dom";
 import { toast } from "sonner";
 import { ConfirmDialog } from "@/app/_components/ConfirmDialog";
+import { formatIndonesianPhone } from "@/lib/phone";
 import { removeAccountPhoneAction } from "../actions";
 import { PhoneVerificationModal } from "./PhoneVerificationModal";
 
@@ -13,14 +14,6 @@ type PhoneVerificationCardProps = {
   phone: string | null;
   verified: boolean;
 };
-
-// Format +6281234567890 → +62 812-3456-7890
-function formatPhone(phone: string) {
-  const digits = phone.replace(/^\+62/, "");
-  if (digits.length <= 3) return `+62 ${digits}`;
-  if (digits.length <= 7) return `+62 ${digits.slice(0, 3)}-${digits.slice(3)}`;
-  return `+62 ${digits.slice(0, 3)}-${digits.slice(3, 7)}-${digits.slice(7)}`;
-}
 
 export function PhoneVerificationCard({ phone, verified }: PhoneVerificationCardProps) {
   const router = useRouter();
@@ -50,12 +43,12 @@ export function PhoneVerificationCard({ phone, verified }: PhoneVerificationCard
           <div className="flex flex-wrap items-center gap-2">
             <h2 className="text-[15px] font-semibold text-[var(--seller-ink)]">Nomor HP akun</h2>
             <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-[var(--seller-muted)]">
-              <Icon icon="lucide:lock-keyhole" width={12} height={12} aria-hidden="true" />
-              Privat
+              <Icon icon="lucide:message-circle-more" width={12} height={12} aria-hidden="true" />
+              Kontak listing
             </span>
           </div>
           <p className="mt-1 text-[11px] leading-relaxed text-[var(--seller-muted)]">
-            Dipakai untuk OTP keamanan akun via WhatsApp.
+            Dipakai untuk OTP keamanan dan tombol WhatsApp pada listing publik.
           </p>
         </div>
 
@@ -68,7 +61,7 @@ export function PhoneVerificationCard({ phone, verified }: PhoneVerificationCard
                 </span>
                 <div className="min-w-0 flex-1">
                   <p className="font-poppins text-[14px] font-semibold tabular-nums text-[var(--seller-ink)]">
-                    {formatPhone(phone!)}
+                    {formatIndonesianPhone(phone!)}
                   </p>
                   <p className="mt-0.5 inline-flex items-center gap-1 text-[11px] font-semibold text-[var(--seller-success)]">
                     <Icon icon="lucide:check" width={11} height={11} aria-hidden="true" />
@@ -88,7 +81,7 @@ export function PhoneVerificationCard({ phone, verified }: PhoneVerificationCard
                   <p className="mt-0.5 text-[11px] leading-relaxed text-[var(--seller-muted)]">
                     {phone
                       ? "Verifikasi ulang nomor HP untuk mengaktifkan keamanan dan kontak WhatsApp."
-                      : "Tambah nomor HP untuk lapis pengamanan akun lewat OTP WhatsApp."}
+                      : "Tambah nomor HP untuk OTP keamanan dan kontak WhatsApp listing."}
                   </p>
                 </div>
               </div>
@@ -123,9 +116,9 @@ export function PhoneVerificationCard({ phone, verified }: PhoneVerificationCard
           </div>
 
           <p className="flex items-start gap-2 border-t border-[var(--seller-rule)] px-4 py-3 text-[11px] leading-relaxed text-[var(--seller-muted)]">
-            <Icon icon="lucide:flask-conical" width={12} height={12} className="mt-0.5 shrink-0" aria-hidden="true" />
+            <Icon icon="lucide:shield-check" width={12} height={12} className="mt-0.5 shrink-0" aria-hidden="true" />
             <span>
-              Pengiriman OTP WhatsApp masih dalam pengembangan. Untuk sementara, kode muncul di log server.
+              Kode OTP dikirim langsung melalui WhatsApp dan berlaku selama 5 menit. Jangan bagikan kode kepada siapa pun.
             </span>
           </p>
         </div>

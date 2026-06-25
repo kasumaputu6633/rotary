@@ -17,6 +17,16 @@ import { ActionResult, DB_ERROR } from "./constants";
 import { userWhereClause } from "./helpers";
 import { passwordValid } from "@/lib/password";
 import { recordLoginActivity } from "@/lib/auth-session";
+import { normalizeAuthContact, isEmailContact } from "@/lib/auth-contact";
+import { otpErrorMessage } from "@/lib/otp";
+import {
+  clearPendingPasswordReset,
+  createAndSendOtp,
+  getPendingPasswordResetContact,
+  getPendingPasswordResetUserId,
+  setPendingPasswordReset,
+  verifyOtp,
+} from "./shared";
 
 async function getBaseUrl(): Promise<string> {
   const h = await headers();
@@ -26,22 +36,116 @@ async function getBaseUrl(): Promise<string> {
 }
 
 export async function forgotPasswordAction(contact: string): Promise<ActionResult> {
-  try {
-    const user = await db.query.users.findFirst({ where: userWhereClause(contact) });
-    if (user?.email && user.emailVerifiedAt) {
-      await db.delete(passwordResetTokens).where(eq(passwordResetTokens.userId, user.id));
-
-      const token = crypto.randomUUID().replace(/-/g, "");
-      const expiresAt = new Date(Date.now() + 30 * 60 * 1000);
-      await db.insert(passwordResetTokens).values({ userId: user.id, token, expiresAt });
-
-      const resetUrl = `${await getBaseUrl()}/forgot-password/reset?token=${token}`;
-      await sendPasswordResetEmail(user.email, resetUrl, user.fullName);
-    }
-  } catch {
-    // Respons sengaja tetap sama agar status keberadaan akun tidak dapat ditebak.
+  const normalizedContact = normalizeAuthContact(contact);
+  if (!normalizedContact) {
+    return { error: "Masukkan email atau nomor HP Indonesia yang valid." };
   }
-  redirect("/forgot-password/sent");
+
+  try {
+    const user = await db.query.users.findFirst({
+      where: userWhereClause(normalizedContact),
+    });
+
+    if (isEmailContact(normalizedContact)) {
+      if (user?.email && user.emailVerifiedAt) {
+        await db.delete(passwordResetTokens).where(eq(passwordResetTokens.userId, user.id));
+
+        const token = crypto.randomUUID().replace(/-/g, "");
+        const expiresAt = new Date(Date.now() + 30 * 60 * 1000);
+        await db.insert(passwordResetTokens).values({ userId: user.id, token, expiresAt });
+
+        const resetUrl = `${await getBaseUrl()}/forgot-password/reset?token=${token}`;
+        await sendPasswordResetEmail(user.email, resetUrl, user.fullName);
+      }
+      return { redirectTo: "/forgot-password/sent" };
+    }
+
+    const verifiedUser = user?.phone === normalizedContact && user.phoneVerifiedAt ? user : null;
+    await setPendingPasswordReset(normalizedContact, verifiedUser?.id);
+    if (verifiedUser) {
+      await createAndSendOtp(normalizedContact, "forgot_password", verifiedUser.fullName);
+    }
+    return { redirectTo: "/forgot-password/verify" };
+  } catch (error) {
+    // Respons sengaja tetap sama agar status keberadaan akun tidak dapat ditebak.
+    if (isEmailContact(normalizedContact)) {
+      return { redirectTo: "/forgot-password/sent" };
+    }
+    const pendingContact = await getPendingPasswordResetContact();
+    if (!pendingContact) {
+      await setPendingPasswordReset(normalizedContact);
+    }
+    if (process.env.NODE_ENV !== "production") {
+      console.error("Password reset WhatsApp delivery failed:", otpErrorMessage(error));
+    }
+    return { redirectTo: "/forgot-password/verify" };
+  }
+}
+
+async function createPasswordResetToken(userId: string) {
+  await db.delete(passwordResetTokens).where(eq(passwordResetTokens.userId, userId));
+  const token = crypto.randomUUID().replace(/-/g, "");
+  const expiresAt = new Date(Date.now() + 30 * 60 * 1000);
+  await db.insert(passwordResetTokens).values({ userId, token, expiresAt });
+  return token;
+}
+
+export async function verifyPasswordResetOtpAction(code: string): Promise<ActionResult> {
+  const contact = await getPendingPasswordResetContact();
+  const userId = await getPendingPasswordResetUserId();
+  if (!contact) return { error: "Sesi verifikasi habis. Mulai ulang pemulihan kata sandi." };
+  if (!/^\d{6}$/.test(code)) return { error: "Kode verifikasi harus 6 digit." };
+
+  try {
+    if (!userId) {
+      return { error: "Kode salah atau sudah kedaluwarsa." };
+    }
+
+    const result = await verifyOtp(contact, code, "forgot_password");
+    if (!result.ok) {
+      return {
+        error: result.reason === "attempts"
+          ? "Terlalu banyak percobaan. Minta kode baru."
+          : "Kode salah atau sudah kedaluwarsa.",
+      };
+    }
+
+    const user = await db.query.users.findFirst({
+      where: and(eq(users.id, userId), eq(users.phone, contact)),
+      columns: { id: true },
+    });
+    if (!user) return { error: "Kode salah atau sudah kedaluwarsa." };
+
+    const token = await createPasswordResetToken(user.id);
+    await clearPendingPasswordReset();
+    return { redirectTo: `/forgot-password/reset?token=${token}` };
+  } catch {
+    return { error: DB_ERROR };
+  }
+}
+
+export async function resendPasswordResetOtpAction(): Promise<ActionResult> {
+  const contact = await getPendingPasswordResetContact();
+  const userId = await getPendingPasswordResetUserId();
+  if (!contact) return { error: "Sesi verifikasi habis. Mulai ulang pemulihan kata sandi." };
+
+  try {
+    if (userId) {
+      const user = await db.query.users.findFirst({
+        where: and(eq(users.id, userId), eq(users.phone, contact)),
+        columns: { fullName: true, phoneVerifiedAt: true },
+      });
+      if (user?.phoneVerifiedAt) {
+        await createAndSendOtp(contact, "forgot_password", user.fullName);
+      }
+    }
+    return { message: "Jika nomor terdaftar, kode baru telah dikirim melalui WhatsApp." };
+  } catch (error) {
+    if (process.env.NODE_ENV !== "production") {
+      console.error("Password reset OTP resend failed:", otpErrorMessage(error));
+    }
+    return { message: "Jika nomor terdaftar, kode baru telah dikirim melalui WhatsApp." };
+  }
 }
 
 export async function validateResetToken(token: string) {
@@ -97,7 +201,7 @@ export async function resetPasswordAction(token: string, password: string): Prom
       await tx.delete(userDevices).where(eq(userDevices.userId, record.userId));
     });
 
-    await recordLoginActivity(record.userId, "password_reset", { method: "email_link" });
+    await recordLoginActivity(record.userId, "password_reset", { method: "reset_token" });
     const cookieStore = await cookies();
     cookieStore.delete("rotary_session");
     cookieStore.delete("rotary_device");

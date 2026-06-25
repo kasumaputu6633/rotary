@@ -1,6 +1,5 @@
 "use client";
 
-import { Icon } from "@iconify/react";
 import Link from "next/link";
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
@@ -9,7 +8,10 @@ import AuthCard from "../_components/AuthCard";
 import AuthInput from "../_components/AuthInput";
 import AuthButton from "../_components/AuthButton";
 import AuthMethodTabs, { type AuthMethod } from "../_components/AuthMethodTabs";
-import AuthPhoneInput, { validateIndonesianPhone } from "../_components/AuthPhoneInput";
+import AuthPhoneInput, {
+  getFullPhoneNumber,
+  validateIndonesianPhone,
+} from "../_components/AuthPhoneInput";
 import { registerAction } from "../actions";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -26,7 +28,7 @@ export default function RegisterPage() {
   const isEmailValid = EMAIL_REGEX.test(email.trim());
   const isPhoneValid = validateIndonesianPhone(phone);
   const isContactValid = method === "email" ? isEmailValid : isPhoneValid;
-  const isFormValid = isContactValid && agreed && method === "email";
+  const isFormValid = isContactValid && agreed;
 
   function handleMethodChange(next: AuthMethod) {
     setMethod(next);
@@ -35,9 +37,11 @@ export default function RegisterPage() {
 
   function handleSubmit() {
     setError("");
-    if (method === "phone") return; // Belum di-implement
     startTransition(async () => {
-      const result = await registerAction(email.trim());
+      const contact = method === "email"
+        ? email.trim()
+        : getFullPhoneNumber(phone);
+      const result = await registerAction(contact);
       if (result?.error) {
         setError(result.error);
       } else if (result?.redirectTo) {
@@ -74,16 +78,13 @@ export default function RegisterPage() {
               }
             />
           ) : (
-            <>
-              <AuthPhoneInput
-                id="phone"
-                label="Nomor HP"
-                value={phone}
-                onChange={setPhone}
-                disabled
-              />
-              <PhoneRegisterNotice />
-            </>
+            <AuthPhoneInput
+              id="phone"
+              label="Nomor HP WhatsApp"
+              value={phone}
+              onChange={setPhone}
+              error={error || undefined}
+            />
           )}
 
           <label className="flex items-start gap-2 cursor-pointer mt-1">
@@ -116,18 +117,6 @@ export default function RegisterPage() {
           <Link href="/login" className="text-[#17458f] underline font-semibold">Masuk</Link>
         </p>
       </AuthCard>
-    </div>
-  );
-}
-
-function PhoneRegisterNotice() {
-  return (
-    <div className="flex items-start gap-2 w-full rounded-[9px] border border-[#FFB81D] bg-[#FFF7E0] px-3 py-2">
-      <Icon icon="lucide:info" width={16} height={16} className="text-[#a87a00] shrink-0 mt-[2px]" aria-hidden="true" />
-      <p className="font-poppins text-[12px] leading-relaxed text-[#5a4400]">
-        <strong className="font-semibold">Dalam tahap pengembangan.</strong>{" "}
-        Daftar pakai nomor HP belum aktif. Sementara silakan pakai email — nomor HP bisa ditambahkan di profil.
-      </p>
     </div>
   );
 }

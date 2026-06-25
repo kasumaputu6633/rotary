@@ -3,25 +3,23 @@
 import { db } from "@/db";
 import {
   accountSessions,
-  otpCodes,
   passwordResetTokens,
   userDevices,
   users,
 } from "@/db/schema";
 import { requireRole } from "@/lib/auth";
 import { getCurrentAccountSession, recordLoginActivity } from "@/lib/auth-session";
-import { sendOtpEmail } from "@/lib/email";
+import { normalizeEmail } from "@/lib/auth-contact";
+import { otpErrorMessage, sendOtp, verifyOtp } from "@/lib/otp";
 import { passwordValid } from "@/lib/password";
-import { and, eq, gt, isNull, ne } from "drizzle-orm";
+import { normalizeIndonesianPhone } from "@/lib/phone";
+import { and, eq, isNull, ne } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
 
-// Sementara fix ke Indonesia. Begitu support multi-country tinggal ubah validasi & prefix.
-const PHONE_COUNTRY_PREFIX = "+62";
 const OTP_TYPE = "phone_verify" as const;
 const EMAIL_OTP_TYPE = "email_verify" as const;
-const OTP_EXPIRY_MS = 5 * 60 * 1000;
 
 type ActionResult = { error?: string; success?: boolean; message?: string };
 
@@ -85,41 +83,14 @@ export async function changeAccountPasswordAction(
   }
 }
 
-function normalizeLocalPhone(rawLocal: string) {
-  // Buang non-digit, hapus leading zero (08xx → 8xx)
-  return rawLocal.replace(/\D/g, "").replace(/^0+/, "");
-}
-
-function isValidIndonesianPhone(localDigits: string) {
-  return localDigits.length >= 9 && localDigits.length <= 13;
-}
-
-function fullPhone(localDigits: string) {
-  return `${PHONE_COUNTRY_PREFIX}${localDigits}`;
-}
-
-function normalizeEmail(rawEmail: string) {
-  return rawEmail.trim().toLowerCase();
-}
-
-function isValidEmail(email: string) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) && email.length <= 255;
-}
-
-// TODO(waha): ganti console.log dengan call ke WaHa endpoint.
-// Contoh: await fetch(`${process.env.WAHA_URL}/api/sendText`, { method: "POST", ... })
-async function sendOtpViaWhatsapp(phone: string, code: string) {
-  console.log(`[WhatsApp OTP] ${phone} → kode: ${code} (berlaku 5 menit)`);
-}
-
 export async function requestEmailOtpAction(rawEmail: string): Promise<ActionResult> {
+  const email = normalizeEmail(rawEmail);
+  if (!email) {
+    return { error: "Masukkan alamat email yang valid." };
+  }
+
   try {
     const user = await requireRole("user");
-    const email = normalizeEmail(rawEmail);
-
-    if (!isValidEmail(email)) {
-      return { error: "Masukkan alamat email yang valid." };
-    }
 
     const taken = await db.query.users.findFirst({
       where: and(eq(users.email, email), ne(users.id, user.id)),
@@ -129,54 +100,36 @@ export async function requestEmailOtpAction(rawEmail: string): Promise<ActionRes
       return { error: "Email ini sudah terdaftar di akun lain." };
     }
 
-    const code = Math.floor(100000 + Math.random() * 900000).toString();
-    const expiresAt = new Date(Date.now() + OTP_EXPIRY_MS);
-
-    await db.delete(otpCodes).where(and(
-      eq(otpCodes.contact, email),
-      eq(otpCodes.type, EMAIL_OTP_TYPE),
-    ));
-    await db.insert(otpCodes).values({
-      contact: email,
-      code,
-      type: EMAIL_OTP_TYPE,
-      expiresAt,
-    });
-
-    await sendOtpEmail(email, code, EMAIL_OTP_TYPE, user.fullName);
+    await sendOtp({ contact: email, type: EMAIL_OTP_TYPE, name: user.fullName });
 
     return {
       success: true,
       message: "Kode verifikasi sudah dikirim ke email kamu.",
     };
-  } catch {
-    return { error: "Tidak bisa mengirim kode verifikasi saat ini. Coba lagi." };
+  } catch (error) {
+    return { error: otpErrorMessage(error) };
   }
 }
 
 export async function verifyEmailOtpAction(rawEmail: string, code: string): Promise<ActionResult> {
+  const email = normalizeEmail(rawEmail);
+  if (!email) {
+    return { error: "Alamat email tidak valid." };
+  }
+
   try {
     const user = await requireRole("user");
-    const email = normalizeEmail(rawEmail);
-
-    if (!isValidEmail(email)) {
-      return { error: "Alamat email tidak valid." };
-    }
     if (!/^\d{6}$/.test(code)) {
       return { error: "Kode verifikasi harus 6 digit." };
     }
 
-    const otp = await db.query.otpCodes.findFirst({
-      where: and(
-        eq(otpCodes.contact, email),
-        eq(otpCodes.code, code),
-        eq(otpCodes.type, EMAIL_OTP_TYPE),
-        eq(otpCodes.used, false),
-        gt(otpCodes.expiresAt, new Date()),
-      ),
-    });
-    if (!otp) {
-      return { error: "Kode salah atau sudah kedaluarsa." };
+    const otpResult = await verifyOtp({ contact: email, code, type: EMAIL_OTP_TYPE });
+    if (!otpResult.ok) {
+      return {
+        error: otpResult.reason === "attempts"
+          ? "Terlalu banyak percobaan. Minta kode baru."
+          : "Kode salah atau sudah kedaluwarsa.",
+      };
     }
 
     const taken = await db.query.users.findFirst({
@@ -189,7 +142,6 @@ export async function verifyEmailOtpAction(rawEmail: string, code: string): Prom
 
     await db.transaction(async (tx) => {
       const verifiedAt = new Date();
-      await tx.update(otpCodes).set({ used: true }).where(eq(otpCodes.id, otp.id));
       await tx
         .update(users)
         .set({
@@ -206,21 +158,19 @@ export async function verifyEmailOtpAction(rawEmail: string, code: string): Prom
     revalidatePath("/dashboard", "layout");
 
     return { success: true, message: "Email berhasil diverifikasi." };
-  } catch {
-    return { error: "Gagal memverifikasi email. Coba lagi." };
+  } catch (error) {
+    return { error: otpErrorMessage(error) };
   }
 }
 
 export async function requestPhoneOtpAction(localPhone: string): Promise<ActionResult> {
+  const phone = normalizeIndonesianPhone(localPhone);
+  if (!phone) {
+    return { error: "Masukkan nomor HP Indonesia yang valid." };
+  }
+
   try {
     const user = await requireRole("user");
-    const normalized = normalizeLocalPhone(localPhone);
-
-    if (!isValidIndonesianPhone(normalized)) {
-      return { error: "Nomor HP harus 9–13 digit setelah +62." };
-    }
-
-    const phone = fullPhone(normalized);
 
     // Cek apakah nomor ini sudah dipakai user lain
     const taken = await db.query.users.findFirst({
@@ -231,50 +181,36 @@ export async function requestPhoneOtpAction(localPhone: string): Promise<ActionR
       return { error: "Nomor HP ini sudah terdaftar di akun lain." };
     }
 
-    const code = Math.floor(100000 + Math.random() * 900000).toString();
-    const expiresAt = new Date(Date.now() + OTP_EXPIRY_MS);
-
-    // Bersihin OTP lama buat kontak yang sama agar gak ambigu pas verify
-    await db.delete(otpCodes).where(and(eq(otpCodes.contact, phone), eq(otpCodes.type, OTP_TYPE)));
-    await db.insert(otpCodes).values({ contact: phone, code, type: OTP_TYPE, expiresAt });
-
-    await sendOtpViaWhatsapp(phone, code);
+    await sendOtp({ contact: phone, type: OTP_TYPE, name: user.fullName });
 
     return {
       success: true,
-      message: "Kode OTP dikirim ke WhatsApp. Cek log server untuk kode sementara (WaHa belum aktif).",
+      message: "Kode OTP telah dikirim ke WhatsApp kamu.",
     };
-  } catch {
-    return { error: "Tidak bisa mengirim OTP saat ini. Coba lagi." };
+  } catch (error) {
+    return { error: otpErrorMessage(error) };
   }
 }
 
 export async function verifyPhoneOtpAction(localPhone: string, code: string): Promise<ActionResult> {
+  const phone = normalizeIndonesianPhone(localPhone);
+  if (!phone) {
+    return { error: "Nomor HP tidak valid." };
+  }
+
   try {
     const user = await requireRole("user");
-    const normalized = normalizeLocalPhone(localPhone);
-
-    if (!isValidIndonesianPhone(normalized)) {
-      return { error: "Nomor HP tidak valid." };
-    }
     if (!/^\d{6}$/.test(code)) {
       return { error: "Kode OTP harus 6 digit." };
     }
 
-    const phone = fullPhone(normalized);
-
-    const otp = await db.query.otpCodes.findFirst({
-      where: and(
-        eq(otpCodes.contact, phone),
-        eq(otpCodes.code, code),
-        eq(otpCodes.type, OTP_TYPE),
-        eq(otpCodes.used, false),
-        gt(otpCodes.expiresAt, new Date()),
-      ),
-    });
-
-    if (!otp) {
-      return { error: "Kode salah atau sudah kedaluarsa." };
+    const otpResult = await verifyOtp({ contact: phone, code, type: OTP_TYPE });
+    if (!otpResult.ok) {
+      return {
+        error: otpResult.reason === "attempts"
+          ? "Terlalu banyak percobaan. Minta kode baru."
+          : "Kode salah atau sudah kedaluwarsa.",
+      };
     }
 
     // Cek lagi unique constraint sebelum simpen (race condition guard)
@@ -287,7 +223,6 @@ export async function verifyPhoneOtpAction(localPhone: string, code: string): Pr
     }
 
     await db.transaction(async (tx) => {
-      await tx.update(otpCodes).set({ used: true }).where(eq(otpCodes.id, otp.id));
       const verifiedAt = new Date();
       await tx
         .update(users)
@@ -305,14 +240,19 @@ export async function verifyPhoneOtpAction(localPhone: string, code: string): Pr
     revalidatePath("/dashboard", "layout");
 
     return { success: true, message: "Nomor HP berhasil diverifikasi." };
-  } catch {
-    return { error: "Gagal memverifikasi OTP. Coba lagi." };
+  } catch (error) {
+    return { error: otpErrorMessage(error) };
   }
 }
 
 export async function removeAccountPhoneAction(): Promise<ActionResult> {
   try {
     const user = await requireRole("user");
+    if (user.twoFactorEnabled && user.twoFactorMethod === "whatsapp") {
+      return {
+        error: "Ubah atau nonaktifkan verifikasi dua langkah WhatsApp sebelum menghapus nomor HP.",
+      };
+    }
     await db
       .update(users)
       .set({ phone: null, phoneVerifiedAt: null, updatedAt: new Date() })

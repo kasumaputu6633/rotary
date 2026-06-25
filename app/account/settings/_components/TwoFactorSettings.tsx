@@ -62,23 +62,40 @@ function PasswordPrompt({
 
 export function TwoFactorSettings({
   email,
+  emailVerified,
   enabled,
   hasPassword,
+  method: activeMethod,
+  phone,
+  phoneVerified,
   recoveryCodeCount,
 }: {
   email: string | null;
+  emailVerified: boolean;
   enabled: boolean;
   hasPassword: boolean;
+  method: "email" | "whatsapp";
+  phone: string | null;
+  phoneVerified: boolean;
   recoveryCodeCount: number;
 }) {
   const router = useRouter();
+  const [selectedMethod, setSelectedMethod] = useState<"email" | "whatsapp">(
+    enabled
+      ? activeMethod
+      : emailVerified
+        ? "email"
+        : phoneVerified
+          ? "whatsapp"
+          : "email",
+  );
   const [activationStarted, setActivationStarted] = useState(false);
   const [activationCode, setActivationCode] = useState("");
   const [recoveryCodes, setRecoveryCodes] = useState<string[]>([]);
   const [isConfirming, startConfirmTransition] = useTransition();
 
   async function requestSetup(password: string) {
-    const result = await requestTwoFactorSetupAction(password);
+    const result = await requestTwoFactorSetupAction(password, selectedMethod);
     if (result.error) {
       toast.error(result.error);
       return;
@@ -89,7 +106,7 @@ export function TwoFactorSettings({
 
   function confirmSetup() {
     startConfirmTransition(async () => {
-      const result = await confirmTwoFactorSetupAction(activationCode);
+      const result = await confirmTwoFactorSetupAction(activationCode, selectedMethod);
       if (result.error) {
         toast.error(result.error);
         return;
@@ -101,6 +118,12 @@ export function TwoFactorSettings({
       router.refresh();
     });
   }
+
+  const displayedMethod = enabled ? activeMethod : selectedMethod;
+  const channelLabel = displayedMethod === "whatsapp" ? "WhatsApp" : "email";
+  const displayedContact = displayedMethod === "whatsapp"
+    ? phone ?? "Nomor HP belum tersedia"
+    : email ?? "Email belum tersedia";
 
   async function disable(password: string) {
     const result = await disableTwoFactorAction(password);
@@ -136,7 +159,9 @@ export function TwoFactorSettings({
           </span>
           <div>
             <div className="flex flex-wrap items-center gap-2">
-              <h3 className="text-[14px] font-semibold text-[var(--seller-ink)]">Verifikasi dua langkah via email</h3>
+              <h3 className="text-[14px] font-semibold text-[var(--seller-ink)]">
+                Verifikasi dua langkah via {displayedMethod === "whatsapp" ? "WhatsApp" : "email"}
+              </h3>
               <span className={`rounded-full px-2 py-0.5 text-[9px] font-semibold ${
                 enabled
                   ? "bg-[var(--seller-success-soft)] text-[var(--seller-success)]"
@@ -148,12 +173,17 @@ export function TwoFactorSettings({
             <p className="mt-1 text-[11px] leading-relaxed text-[var(--seller-muted)]">
               Ketika aktif, kode keamanan akan diminta pada setiap login meskipun perangkat sudah dikenal.
             </p>
-            <p className="mt-2 text-[11px] font-semibold text-[var(--seller-ink)]">{email ?? "Email belum tersedia"}</p>
+            <p className="mt-2 text-[11px] font-semibold text-[var(--seller-ink)]">{displayedContact}</p>
           </div>
         </div>
         <span className="inline-flex items-center gap-1 rounded-full bg-[var(--seller-surface-2)] px-2 py-1 text-[9px] font-semibold text-[var(--seller-muted)]">
-          <Icon icon="lucide:message-circle-more" width={11} height={11} aria-hidden="true" />
-          WhatsApp setelah WAHA aktif
+          <Icon
+            icon={displayedMethod === "whatsapp" ? "lucide:message-circle-more" : "lucide:mail"}
+            width={11}
+            height={11}
+            aria-hidden="true"
+          />
+          {enabled ? `Metode aktif: ${channelLabel}` : "Pilih metode di bawah"}
         </span>
       </section>
 
@@ -195,12 +225,73 @@ export function TwoFactorSettings({
             </div>
           </div>
         </div>
-      ) : activationStarted ? (
+      ) : (
+        <>
+          <section className="grid gap-3">
+            <div>
+              <h3 className="text-[13px] font-semibold text-[var(--seller-ink)]">Pilih metode keamanan</h3>
+              <p className="mt-1 text-[11px] leading-relaxed text-[var(--seller-muted)]">
+                Kode login akan dikirim melalui kontak yang sudah terverifikasi.
+              </p>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {([
+                {
+                  available: emailVerified,
+                  contact: email,
+                  icon: "lucide:mail",
+                  label: "Email",
+                  method: "email" as const,
+                },
+                {
+                  available: phoneVerified,
+                  contact: phone,
+                  icon: "lucide:message-circle-more",
+                  label: "WhatsApp",
+                  method: "whatsapp" as const,
+                },
+              ]).map((option) => {
+                const selected = selectedMethod === option.method;
+                return (
+                  <button
+                    key={option.method}
+                    type="button"
+                    disabled={!option.available || activationStarted}
+                    onClick={() => {
+                      setSelectedMethod(option.method);
+                      setActivationCode("");
+                    }}
+                    className={`flex min-h-[72px] items-center gap-3 rounded-[8px] border p-3 text-left transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
+                      selected
+                        ? "border-[var(--seller-brand)] bg-[var(--seller-accent-soft)]"
+                        : "border-[var(--seller-rule)] bg-white hover:border-[var(--seller-rule-strong)]"
+                    }`}
+                  >
+                    <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-[8px] ${
+                      selected
+                        ? "bg-white text-[var(--seller-brand)]"
+                        : "bg-[var(--seller-surface-2)] text-[var(--seller-muted)]"
+                    }`}>
+                      <Icon icon={option.icon} width={17} height={17} aria-hidden="true" />
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block text-[12px] font-semibold text-[var(--seller-ink)]">{option.label}</span>
+                      <span className="mt-0.5 block truncate text-[10px] text-[var(--seller-muted)]">
+                        {option.available ? option.contact : `${option.label} belum terverifikasi`}
+                      </span>
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </section>
+
+          {activationStarted ? (
         <div className="grid gap-3 rounded-[8px] border border-[var(--seller-accent)] bg-[var(--seller-accent-soft)] p-4">
           <div>
             <h3 className="text-[13px] font-semibold text-[var(--seller-ink)]">Masukkan kode aktivasi</h3>
             <p className="mt-1 text-[11px] leading-relaxed text-[var(--seller-muted)]">
-              Kode 6 digit telah dikirim ke email terverifikasi dan berlaku selama 5 menit.
+              Kode 6 digit telah dikirim melalui {channelLabel} dan berlaku selama 5 menit.
             </p>
           </div>
           <input
@@ -232,14 +323,15 @@ export function TwoFactorSettings({
             </button>
           </div>
         </div>
-      ) : (
-        <PasswordPrompt
-          buttonLabel="Kirim kode aktivasi"
-          description="Untuk keamanan, konfirmasi kata sandi terlebih dahulu. Kode aktivasi akan dikirim ke email terverifikasi."
-          onSubmit={requestSetup}
-        />
+          ) : (
+            <PasswordPrompt
+              buttonLabel="Kirim kode aktivasi"
+              description={`Untuk keamanan, konfirmasi kata sandi terlebih dahulu. Kode aktivasi akan dikirim melalui ${channelLabel}.`}
+              onSubmit={requestSetup}
+            />
+          )}
+        </>
       )}
     </div>
   );
 }
-

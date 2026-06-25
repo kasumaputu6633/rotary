@@ -4,14 +4,7 @@ import { redirect } from "next/navigation";
 import AuthIllustration from "../../_components/AuthIllustration";
 import AuthCard from "../../_components/AuthCard";
 import LoginOtpForm from "./_components/LoginOtpForm";
-
-function maskContact(contact: string): string {
-  if (contact.includes("@")) {
-    const [local, domain] = contact.split("@");
-    return `${local.slice(0, 2)}***@${domain}`;
-  }
-  return contact.slice(0, 4) + "****" + contact.slice(-3);
-}
+import { maskContact } from "@/lib/phone";
 
 export default async function LoginVerifyPage() {
   const cookieStore = await cookies();
@@ -38,8 +31,8 @@ export default async function LoginVerifyPage() {
 
           <p className="font-poppins text-[14px] text-black text-center">
             {isTwoFactor
-              ? "Masukkan kode keamanan yang telah dikirim ke"
-              : "Kami mendeteksi masuk dari perangkat baru. Kode verifikasi telah dikirim ke"}
+              ? `Masukkan kode keamanan yang telah dikirim melalui ${contact.includes("@") ? "email" : "WhatsApp"} ke`
+              : `Kami mendeteksi masuk dari perangkat baru. Kode dikirim melalui ${contact.includes("@") ? "email" : "WhatsApp"} ke`}
           </p>
           <p className="font-poppins font-semibold text-[14px] text-[#17458f]">
             {maskContact(contact)}

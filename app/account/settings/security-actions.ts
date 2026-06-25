@@ -5,7 +5,6 @@ import { db } from "@/db";
 import {
   accountSessions,
   loginActivities,
-  otpCodes,
   userDevices,
   userRecoveryCodes,
   users,
@@ -18,7 +17,7 @@ import {
   revokeOtherSessions,
 } from "@/lib/auth-session";
 import { requireRole } from "@/lib/auth";
-import { sendOtpEmail } from "@/lib/email";
+import { otpErrorMessage, sendOtp, verifyOtp } from "@/lib/otp";
 import { and, eq, gt, isNull, ne } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import { revalidatePath } from "next/cache";
@@ -30,9 +29,9 @@ type SecurityActionResult = {
   success?: boolean;
 };
 
-const TWO_FACTOR_OTP_EXPIRY_MS = 5 * 60 * 1000;
 const RECOVERY_CODE_COUNT = 8;
 const RECOVERY_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+type TwoFactorMethod = "email" | "whatsapp";
 
 function generateRecoveryCode() {
   const bytes = randomBytes(8);
@@ -67,6 +66,7 @@ async function replaceRecoveryCodes(userId: string) {
 
 export async function requestTwoFactorSetupAction(
   password: string,
+  method: TwoFactorMethod,
 ): Promise<SecurityActionResult> {
   try {
     const user = await requireRole("user");
@@ -76,69 +76,67 @@ export async function requestTwoFactorSetupAction(
     if (!await passwordMatches(password, user.passwordHash)) {
       return { error: "Kata sandi tidak sesuai." };
     }
-    if (!user.email || !user.emailVerifiedAt) {
-      return { error: "Verifikasi email terlebih dahulu untuk memakai verifikasi dua langkah." };
-    }
     if (user.twoFactorEnabled) {
       return { error: "Verifikasi dua langkah sudah aktif." };
     }
 
-    const code = Math.floor(100000 + Math.random() * 900000).toString();
-    const expiresAt = new Date(Date.now() + TWO_FACTOR_OTP_EXPIRY_MS);
-    await db.delete(otpCodes).where(and(
-      eq(otpCodes.contact, user.email),
-      eq(otpCodes.type, "two_factor"),
-    ));
-    await db.insert(otpCodes).values({
-      contact: user.email,
-      code,
-      type: "two_factor",
-      expiresAt,
-    });
-    await sendOtpEmail(user.email, code, "two_factor", user.fullName);
+    const contact = method === "whatsapp"
+      ? user.phone && user.phoneVerifiedAt ? user.phone : null
+      : user.email && user.emailVerifiedAt ? user.email : null;
+    if (!contact) {
+      return {
+        error: method === "whatsapp"
+          ? "Verifikasi nomor HP terlebih dahulu untuk memakai 2FA WhatsApp."
+          : "Verifikasi email terlebih dahulu untuk memakai 2FA email.",
+      };
+    }
+
+    await sendOtp({ contact, type: "two_factor", name: user.fullName });
 
     return {
       success: true,
-      message: "Kode aktivasi dikirim ke email terverifikasi kamu.",
+      message: method === "whatsapp"
+        ? "Kode aktivasi dikirim ke WhatsApp terverifikasi kamu."
+        : "Kode aktivasi dikirim ke email terverifikasi kamu.",
     };
-  } catch {
-    return { error: "Tidak dapat mengirim kode aktivasi saat ini." };
+  } catch (error) {
+    return { error: otpErrorMessage(error) };
   }
 }
 
 export async function confirmTwoFactorSetupAction(
   code: string,
+  method: TwoFactorMethod,
 ): Promise<SecurityActionResult> {
   try {
     const user = await requireRole("user");
-    if (!user.email || !user.emailVerifiedAt) {
-      return { error: "Email terverifikasi tidak tersedia." };
-    }
     if (!/^\d{6}$/.test(code)) {
       return { error: "Kode aktivasi harus 6 digit." };
     }
 
-    const otp = await db.query.otpCodes.findFirst({
-      where: and(
-        eq(otpCodes.contact, user.email),
-        eq(otpCodes.code, code),
-        eq(otpCodes.type, "two_factor"),
-        eq(otpCodes.used, false),
-        gt(otpCodes.expiresAt, new Date()),
-      ),
-    });
-    if (!otp) {
-      return { error: "Kode aktivasi salah atau sudah kedaluwarsa." };
+    const contact = method === "whatsapp"
+      ? user.phone && user.phoneVerifiedAt ? user.phone : null
+      : user.email && user.emailVerifiedAt ? user.email : null;
+    if (!contact) {
+      return { error: "Kontak terverifikasi untuk metode ini tidak tersedia." };
+    }
+
+    const otpResult = await verifyOtp({ contact, code, type: "two_factor" });
+    if (!otpResult.ok) {
+      return {
+        error: otpResult.reason === "attempts"
+          ? "Terlalu banyak percobaan. Minta kode aktivasi baru."
+          : "Kode aktivasi salah atau sudah kedaluwarsa.",
+      };
     }
 
     const recoveryCodes = createRecoveryCodes();
     const changedAt = new Date();
     await db.transaction(async (tx) => {
-      await tx.update(otpCodes).set({ used: true }).where(eq(otpCodes.id, otp.id));
       await tx.update(users)
         .set({
           twoFactorEnabled: true,
-          twoFactorMethod: "email",
+          twoFactorMethod: method,
           updatedAt: changedAt,
         })
         .where(eq(users.id, user.id));
@@ -151,7 +149,7 @@ export async function confirmTwoFactorSetupAction(
       );
     });
 
-    await recordLoginActivity(user.id, "two_factor_enabled", { method: "email" });
+    await recordLoginActivity(user.id, "two_factor_enabled", { method });
     revalidatePath("/account/settings");
 
     return {

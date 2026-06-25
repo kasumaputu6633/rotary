@@ -31,23 +31,30 @@ import {
   hashRecoveryCode,
   recordLoginActivity,
 } from "@/lib/auth-session";
+import { normalizeAuthContact } from "@/lib/auth-contact";
+import { otpErrorMessage } from "@/lib/otp";
 
 export async function loginAction(
   contact: string,
   password: string,
   requestedRedirect?: string | null,
 ): Promise<ActionResult> {
-  try {
-    const user = await db.query.users.findFirst({ where: userWhereClause(contact) });
+  const normalizedContact = normalizeAuthContact(contact);
+  if (!normalizedContact) {
+    return { error: "Email/nomor telepon atau kata sandi salah." };
+  }
 
-    if (!user || !user.passwordHash || !isContactVerified(user, contact)) {
+  try {
+    const user = await db.query.users.findFirst({ where: userWhereClause(normalizedContact) });
+
+    if (!user || !user.passwordHash || !isContactVerified(user, normalizedContact)) {
       return { error: "Email/nomor telepon atau kata sandi salah." };
     }
 
     const isMatch = await bcrypt.compare(password, user.passwordHash);
     if (!isMatch) {
       await recordLoginActivity(user.id, "login_failed", {
-        method: isEmail(contact) ? "email_password" : "phone_password",
+        method: isEmail(normalizedContact) ? "email_password" : "phone_password",
         status: "failed",
       });
       return { error: "Email/nomor telepon atau kata sandi salah." };
@@ -55,9 +62,9 @@ export async function loginAction(
 
     const userRole = user.role ?? "user";
     const redirectPath = getSafeLoginRedirect(requestedRedirect, userRole);
-    const loginMethod = isEmail(contact) ? "email_password" : "phone_password";
+    const loginMethod = isEmail(normalizedContact) ? "email_password" : "phone_password";
 
-    if (canBypassOtp(contact)) {
+    if (canBypassOtp(normalizedContact)) {
       await clearPendingLogin();
       const device = await trustDevice(user.id);
       await createSession(user.id, device.id, loginMethod);
@@ -72,10 +79,14 @@ export async function loginAction(
       return { redirectTo: redirectPath };
     }
 
-    const otpContact = user.email && user.emailVerifiedAt ? user.email : null;
+    const otpContact = user.twoFactorEnabled
+      ? user.twoFactorMethod === "whatsapp"
+        ? user.phone && user.phoneVerifiedAt ? user.phone : null
+        : user.email && user.emailVerifiedAt ? user.email : null
+      : normalizedContact;
     if (!otpContact) {
       return {
-        error: "Email terverifikasi diperlukan untuk verifikasi login saat ini.",
+        error: "Kontak verifikasi untuk login tidak tersedia. Perbarui keamanan akun.",
       };
     }
 
@@ -85,12 +96,14 @@ export async function loginAction(
     await setPendingLoginRedirect(redirectPath);
     await setPendingLoginReason(user.twoFactorEnabled ? "two_factor" : "new_device");
     await recordLoginActivity(user.id, "login_challenge", {
-      method: user.twoFactorEnabled ? "two_factor_email" : "new_device_email",
+      method: user.twoFactorEnabled
+        ? `two_factor_${isEmail(otpContact) ? "email" : "whatsapp"}`
+        : `new_device_${isEmail(otpContact) ? "email" : "whatsapp"}`,
       status: "info",
     });
     return { redirectTo: "/login/verify" };
-  } catch {
-    return { error: DB_ERROR };
+  } catch (error) {
+    return { error: otpErrorMessage(error) || DB_ERROR };
   }
 }
 
@@ -102,8 +115,16 @@ export async function verifyLoginOtpAction(code: string): Promise<ActionResult> 
   if (!contact || !userId) return { error: "Sesi habis, silakan masuk kembali." };
 
   try {
-    const valid = canBypassOtp(contact) || await verifyOtp(contact, code, "login_verify");
-    if (!valid) return { error: "Kode salah atau sudah kedaluarsa." };
+    const result = canBypassOtp(contact)
+      ? { ok: true as const }
+      : await verifyOtp(contact, code, "login_verify");
+    if (!result.ok) {
+      return {
+        error: result.reason === "attempts"
+          ? "Terlalu banyak percobaan. Minta kode baru."
+          : "Kode salah atau sudah kedaluwarsa.",
+      };
+    }
 
     const user = await db.query.users.findFirst({
       where: eq(users.id, userId),
@@ -116,11 +137,13 @@ export async function verifyLoginOtpAction(code: string): Promise<ActionResult> 
     await createSession(
       userId,
       device.id,
-      reason === "two_factor" ? "two_factor_email" : "new_device_email",
+      reason === "two_factor"
+        ? `two_factor_${isEmail(contact) ? "email" : "whatsapp"}`
+        : `new_device_${isEmail(contact) ? "email" : "whatsapp"}`,
     );
     return { redirectTo: redirectPath };
-  } catch {
-    return { error: DB_ERROR };
+  } catch (error) {
+    return { error: otpErrorMessage(error) || DB_ERROR };
   }
 }
 
@@ -164,8 +187,8 @@ export async function verifyLoginRecoveryCodeAction(code: string): Promise<Actio
     const device = await trustDevice(userId);
     await createSession(userId, device.id, "two_factor_recovery");
     return { redirectTo: redirectPath };
-  } catch {
-    return { error: DB_ERROR };
+  } catch (error) {
+    return { error: otpErrorMessage(error) || DB_ERROR };
   }
 }
 

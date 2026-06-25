@@ -4,10 +4,16 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 const FROM = "Rotary <noreply@rotary.kasuma.my.id>";
 
-export type OtpEmailType = "register" | "login_verify" | "email_verify" | "two_factor";
+export type OtpEmailType =
+  | "register"
+  | "forgot_password"
+  | "login_verify"
+  | "email_verify"
+  | "two_factor";
 
 const EMAIL_SUBJECTS: Record<OtpEmailType, string> = {
   register:     "Kode Verifikasi Pendaftaran — Rotary",
+  forgot_password: "Kode Reset Kata Sandi — Rotary",
   login_verify: "Verifikasi Perangkat Baru — Rotary",
   email_verify: "Verifikasi Email Akun — Rotary",
   two_factor: "Aktifkan Verifikasi Dua Langkah — Rotary",
@@ -16,6 +22,8 @@ const EMAIL_SUBJECTS: Record<OtpEmailType, string> = {
 const EMAIL_MESSAGES: Record<OtpEmailType, string> = {
   register:
     "Terima kasih telah mendaftar di Rotary. Gunakan kode berikut untuk memverifikasi akun Anda.",
+  forgot_password:
+    "Gunakan kode berikut untuk memverifikasi permintaan reset kata sandi akun Rotary Anda.",
   login_verify:
     "Kami mendeteksi percobaan masuk dari perangkat yang belum dikenal. Untuk menjaga keamanan akun Anda, masukkan kode verifikasi berikut.",
   email_verify:

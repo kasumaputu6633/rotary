@@ -1,6 +1,10 @@
 "use client";
 
 import { Icon } from "@iconify/react";
+import {
+  normalizeIndonesianPhone,
+  normalizeLocalIndonesianPhone,
+} from "@/lib/phone";
 
 type AuthPhoneInputProps = {
   id?: string;
@@ -60,10 +64,9 @@ export default function AuthPhoneInput({ id, label, value, onChange, disabled, e
 }
 
 export function getFullPhoneNumber(localNumber: string) {
-  return `${COUNTRY.dialCode}${localNumber}`;
+  return normalizeIndonesianPhone(localNumber) ?? `${COUNTRY.dialCode}${localNumber}`;
 }
 
 export function validateIndonesianPhone(localNumber: string) {
-  const digits = localNumber.replace(/\D/g, "");
-  return digits.length >= 9 && digits.length <= 13;
+  return normalizeLocalIndonesianPhone(localNumber) !== null;
 }

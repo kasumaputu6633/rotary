@@ -66,15 +66,23 @@ export const users = pgTable(
   },
 );
 
-export const otpCodes = pgTable("otp_codes", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  contact: varchar("contact", { length: 255 }).notNull(),
-  code: varchar("code", { length: 6 }).notNull(),
-  type: otpTypeEnum("type").notNull(),
-  expiresAt: timestamp("expires_at").notNull(),
-  used: boolean("used").notNull().default(false),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-});
+export const otpCodes = pgTable(
+  "otp_codes",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    contact: varchar("contact", { length: 255 }).notNull(),
+    codeHash: varchar("code_hash", { length: 64 }).notNull(),
+    type: otpTypeEnum("type").notNull(),
+    expiresAt: timestamp("expires_at").notNull(),
+    attempts: integer("attempts").notNull().default(0),
+    used: boolean("used").notNull().default(false),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (table) => [
+    index("otp_codes_contact_type_created_idx").on(table.contact, table.type, table.createdAt),
+    check("otp_codes_attempts_check", sql`${table.attempts} >= 0 AND ${table.attempts} <= 5`),
+  ],
+);
 
 export const passwordResetTokens = pgTable(
   "password_reset_tokens",

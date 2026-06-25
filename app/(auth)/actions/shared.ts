@@ -1,13 +1,13 @@
 "use server";
 
-import { db } from "@/db";
-import { otpCodes } from "@/db/schema";
 import { createAccountSession, trustCurrentDevice } from "@/lib/auth-session";
-import { and, eq, gt } from "drizzle-orm";
 import { cookies } from "next/headers";
-import { sendOtpEmail, type OtpEmailType } from "@/lib/email";
 import { COOKIE } from "./constants";
-import { isEmail } from "./helpers";
+import {
+  sendOtp,
+  verifyOtp as verifyStoredOtp,
+  type OtpType,
+} from "@/lib/otp";
 
 export async function getCookie(name: string) {
   return (await cookies()).get(name)?.value ?? null;
@@ -23,6 +23,30 @@ export async function getPendingContact() {
 
 export async function clearPendingContact() {
   (await cookies()).delete("pending_contact");
+}
+
+export async function setPendingPasswordReset(contact: string, userId?: string) {
+  const store = await cookies();
+  store.set("pending_password_reset_contact", contact, COOKIE.pending);
+  if (userId) {
+    store.set("pending_password_reset_user_id", userId, COOKIE.pending);
+  } else {
+    store.delete("pending_password_reset_user_id");
+  }
+}
+
+export async function getPendingPasswordResetContact() {
+  return getCookie("pending_password_reset_contact");
+}
+
+export async function getPendingPasswordResetUserId() {
+  return getCookie("pending_password_reset_user_id");
+}
+
+export async function clearPendingPasswordReset() {
+  const store = await cookies();
+  store.delete("pending_password_reset_contact");
+  store.delete("pending_password_reset_user_id");
 }
 
 export async function setPendingLoginUserId(userId: string) {
@@ -71,34 +95,12 @@ export async function clearPendingLogin() {
 
 export async function createAndSendOtp(
   contact: string,
-  type: OtpEmailType,
+  type: OtpType,
   name?: string | null,
 ) {
-  const code = Math.floor(100000 + Math.random() * 900000).toString();
-  const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
-
-  await db.delete(otpCodes).where(and(eq(otpCodes.contact, contact), eq(otpCodes.type, type)));
-  await db.insert(otpCodes).values({ contact, code, type, expiresAt });
-
-  if (isEmail(contact)) {
-    await sendOtpEmail(contact, code, type, name);
-    return;
-  }
-
-  throw new Error("Pengiriman OTP WhatsApp belum tersedia.");
+  return sendOtp({ contact, type, name });
 }
 
-export async function verifyOtp(contact: string, code: string, type: OtpEmailType) {
-  const otp = await db.query.otpCodes.findFirst({
-    where: and(
-      eq(otpCodes.contact, contact),
-      eq(otpCodes.code, code),
-      eq(otpCodes.type, type),
-      eq(otpCodes.used, false),
-      gt(otpCodes.expiresAt, new Date()),
-    ),
-  });
-  if (!otp) return false;
-  await db.update(otpCodes).set({ used: true }).where(eq(otpCodes.id, otp.id));
-  return true;
+export async function verifyOtp(contact: string, code: string, type: OtpType) {
+  return verifyStoredOtp({ contact, code, type });
 }

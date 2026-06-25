@@ -1,12 +1,15 @@
 import { users } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { isEmailContact, normalizeAuthContact } from "@/lib/auth-contact";
+import { eq, sql } from "drizzle-orm";
 
 export function isEmail(contact: string) {
-  return contact.includes("@");
+  return isEmailContact(contact);
 }
 
 export function userWhereClause(contact: string) {
-  return isEmail(contact) ? eq(users.email, contact) : eq(users.phone, contact);
+  const normalized = normalizeAuthContact(contact);
+  if (!normalized) return sql`false`;
+  return isEmail(normalized) ? eq(users.email, normalized) : eq(users.phone, normalized);
 }
 
 export function getSafeLoginRedirect(value: string | null | undefined, role: "user" | "admin") {
