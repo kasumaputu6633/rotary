@@ -7,6 +7,7 @@ import { ListingLocationPickerLazy as ListingLocationPicker } from "../new/_comp
 import { ListingModePriceFields } from "../new/_components/ListingModePriceFields";
 import { ListingSubmitButtons } from "../new/_components/ListingSubmitButtons";
 import { Panel } from "../../_components/SellerCenterUi";
+import { SellerSelect } from "../../_components/SellerSelect";
 
 const conditionOptions = ["Baru dibuka", "Sangat baik", "Bekas layak pakai", "Perlu perbaikan ringan"];
 const fieldClass =
@@ -118,7 +119,7 @@ export function ListingForm({
               />
             </div>
 
-            <div className="grid gap-4 md:grid-cols-3">
+            <div className="grid items-start gap-4 md:grid-cols-3">
               <ListingModePriceFields
                 defaultMode={values.mode}
                 defaultPrice={values.price}
@@ -126,14 +127,17 @@ export function ListingForm({
                 labelClass={labelClass}
                 labelTextClass={labelTextClass}
               />
-              <label className={labelClass}>
+              <div className={labelClass}>
                 <span className={labelTextClass}>Kondisi</span>
-                <select name="condition" required defaultValue={values.condition} className={fieldClass}>
-                  {conditionOptions.map((option) => (
-                    <option key={option}>{option}</option>
-                  ))}
-                </select>
-              </label>
+                <SellerSelect
+                  ariaLabel="Kondisi"
+                  name="condition"
+                  defaultValue={values.condition ?? conditionOptions[0]}
+                  dropdownDirection="up"
+                  className={fieldClass}
+                  options={conditionOptions.map((option) => ({ value: option, label: option }))}
+                />
+              </div>
             </div>
           </div>
         </Panel>

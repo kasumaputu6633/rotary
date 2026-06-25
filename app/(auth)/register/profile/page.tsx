@@ -11,23 +11,23 @@ import { updateProfileAction } from "../../actions";
 
 export default function RegisterProfilePage() {
   const [isPending, startTransition] = useTransition();
-  const [name, setName] = useState("");
-  const [displayName, setDisplayName] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [shopName, setShopName] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
 
   const passwordMismatch = confirmPassword !== "" && password !== confirmPassword;
   const isValid =
-    name.trim().length >= 2
-    && displayName.trim().length >= 2
+    fullName.trim().length >= 2
+    && shopName.trim().length >= 2
     && passwordValid(password)
     && password === confirmPassword;
 
   function handleSubmit() {
     setError("");
     startTransition(async () => {
-      const result = await updateProfileAction(name.trim(), displayName.trim(), password);
+      const result = await updateProfileAction(fullName.trim(), shopName.trim(), password);
       if (result?.error) {
         setError(result.error);
       } else if (result?.redirectTo) {
@@ -47,21 +47,21 @@ export default function RegisterProfilePage() {
 
         <div className="flex flex-col gap-2.5 items-start pt-11.25 pb-10.5 w-full">
           <AuthInput
-            id="name"
+            id="fullName"
             label="Nama Lengkap"
             type="text"
             placeholder="Masukkan nama lengkap"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
           />
 
           <AuthInput
-            id="displayName"
-            label="Nama Tampilan"
+            id="shopName"
+            label="Nama Lapak"
             type="text"
-            placeholder="Nama singkat di marketplace"
-            value={displayName}
-            onChange={(e) => setDisplayName(e.target.value)}
+            placeholder="Nama lapak di marketplace"
+            value={shopName}
+            onChange={(e) => setShopName(e.target.value)}
           />
 
           <AuthInput

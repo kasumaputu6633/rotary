@@ -127,6 +127,20 @@
       "when": 1782326513590,
       "tag": "0017_mighty_madame_hydra",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1782340895835,
+      "tag": "0018_happy_meltdown",
+      "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1782342077390,
+      "tag": "0019_smiling_harrier",
+      "breakpoints": true
     }
   ]
 }

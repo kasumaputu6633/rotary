@@ -1,6 +1,7 @@
 import { Icon } from "@iconify/react";
 import Link from "next/link";
 import { requireRole } from "@/lib/auth";
+import { isEmailVerified, isPhoneVerified } from "@/lib/account-verification";
 import { formatPrice } from "@/lib/listing-format";
 import { getSellerListings, getSellerListingStats } from "@/lib/listings";
 import {
@@ -33,6 +34,8 @@ function getCurrentTimestamp() {
 
 export default async function LapakSayaPage() {
   const user = await requireRole("user");
+  const emailVerified = isEmailVerified(user);
+  const phoneVerified = isPhoneVerified(user);
   const [sellerListings, listingStats] = await Promise.all([
     getSellerListings(user.id),
     getSellerListingStats(user.id),
@@ -59,10 +62,19 @@ export default async function LapakSayaPage() {
   );
 
   const todoItems = [
-    ...(!user.phone
+    ...(!emailVerified
       ? [{
-          title: "Verifikasi nomor HP",
-          description: "Verifikasi nomor lewat OTP WhatsApp untuk mengaktifkan tombol WA pada listing kamu.",
+          title: "Verifikasi email untuk mulai berjualan",
+          description: "Amankan akun sebelum menerbitkan listing barang di marketplace Rotary.",
+          icon: "lucide:mail-check",
+          href: "/dashboard/profile",
+          action: "Verifikasi",
+        }]
+      : []),
+    ...(!phoneVerified
+      ? [{
+          title: "Verifikasi nomor HP untuk mulai berjualan",
+          description: "Aktifkan kontak WhatsApp agar calon peminat mudah menghubungi kamu dari halaman listing.",
           icon: "lucide:phone",
           href: "/dashboard/profile",
           action: "Verifikasi",

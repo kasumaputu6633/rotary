@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { requireRole } from "@/lib/auth";
 import { getSellerListings } from "@/lib/listings";
-import { getProfileCompletion, resolveDisplayName } from "@/lib/profile";
+import { getProfileCompletion, resolveShopName } from "@/lib/profile";
+import { isEmailVerified, isPhoneVerified } from "@/lib/account-verification";
 import SellerCenterShell from "./_components/SellerCenterShell";
 
 export const metadata: Metadata = {
@@ -43,15 +44,16 @@ export default async function LapakSayaLayout({
 
   return (
     <SellerCenterShell
-      userName={resolveDisplayName(user)}
+      userName={resolveShopName(user)}
       userAvatarUrl={user.avatarUrl}
       attentionCount={attentionCount}
       completedCount={completedCount}
       draftCount={draftCount}
       inactiveCount={inactiveCount}
+      isEmailVerified={isEmailVerified(user)}
       profileMissingCount={profileCompletion.missingCount}
       reservedCount={reservedCount}
-      isPhoneVerified={Boolean(user.phone)}
+      isPhoneVerified={isPhoneVerified(user)}
     >
       {children}
     </SellerCenterShell>

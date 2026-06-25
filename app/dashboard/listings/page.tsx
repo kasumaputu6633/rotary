@@ -13,6 +13,7 @@ import {
   PrimaryLink,
   StatusBadge,
 } from "../_components/SellerCenterUi";
+import { SellerSelect } from "../_components/SellerSelect";
 import { ListingLifecycleActions } from "./_components/ListingLifecycleActions";
 
 type SellerListingsPageProps = {
@@ -197,41 +198,49 @@ export default async function SellerListingsPage({ searchParams }: SellerListing
             />
           </label>
 
-          <label className="grid gap-1.5">
+          <div className="grid gap-1.5">
             <span className="text-[11px] font-semibold uppercase text-[var(--seller-muted)]">Status</span>
-            <select name="status" defaultValue={status} className="min-h-11 rounded-[8px] border border-[var(--seller-rule-strong)] bg-[var(--seller-surface)] px-3 text-[12px] outline-none focus:border-[var(--seller-brand)] focus:ring-2 focus:ring-[var(--seller-accent-soft)]">
-              {statusOptions.map((option) => (
-                <option key={option.value} value={option.value}>{option.label}</option>
-              ))}
-            </select>
-          </label>
+            <SellerSelect
+              ariaLabel="Status"
+              name="status"
+              defaultValue={status}
+              options={statusOptions}
+              className="min-h-11 rounded-[8px] border border-[var(--seller-rule-strong)] bg-[var(--seller-surface)] px-3 text-[12px] outline-none focus:border-[var(--seller-brand)] focus:ring-2 focus:ring-[var(--seller-accent-soft)]"
+            />
+          </div>
 
-          <label className="grid gap-1.5">
+          <div className="grid gap-1.5">
             <span className="text-[11px] font-semibold uppercase text-[var(--seller-muted)]">Mode</span>
-            <select name="mode" defaultValue={mode} className="min-h-11 rounded-[8px] border border-[var(--seller-rule-strong)] bg-[var(--seller-surface)] px-3 text-[12px] outline-none focus:border-[var(--seller-brand)] focus:ring-2 focus:ring-[var(--seller-accent-soft)]">
-              {modeOptions.map((option) => (
-                <option key={option.value} value={option.value}>{option.label}</option>
-              ))}
-            </select>
-          </label>
+            <SellerSelect
+              ariaLabel="Mode"
+              name="mode"
+              defaultValue={mode}
+              options={modeOptions}
+              className="min-h-11 rounded-[8px] border border-[var(--seller-rule-strong)] bg-[var(--seller-surface)] px-3 text-[12px] outline-none focus:border-[var(--seller-brand)] focus:ring-2 focus:ring-[var(--seller-accent-soft)]"
+            />
+          </div>
 
-          <label className="grid gap-1.5">
+          <div className="grid gap-1.5">
             <span className="text-[11px] font-semibold uppercase text-[var(--seller-muted)]">Perlu Dicek</span>
-            <select name="issue" defaultValue={issue} className="min-h-11 rounded-[8px] border border-[var(--seller-rule-strong)] bg-[var(--seller-surface)] px-3 text-[12px] outline-none focus:border-[var(--seller-brand)] focus:ring-2 focus:ring-[var(--seller-accent-soft)]">
-              {issueOptions.map((option) => (
-                <option key={option.value} value={option.value}>{option.label}</option>
-              ))}
-            </select>
-          </label>
+            <SellerSelect
+              ariaLabel="Perlu Dicek"
+              name="issue"
+              defaultValue={issue}
+              options={issueOptions}
+              className="min-h-11 rounded-[8px] border border-[var(--seller-rule-strong)] bg-[var(--seller-surface)] px-3 text-[12px] outline-none focus:border-[var(--seller-brand)] focus:ring-2 focus:ring-[var(--seller-accent-soft)]"
+            />
+          </div>
 
-          <label className="grid gap-1.5">
+          <div className="grid gap-1.5">
             <span className="text-[11px] font-semibold uppercase text-[var(--seller-muted)]">Urutkan</span>
-            <select name="sort" defaultValue={sort} className="min-h-11 rounded-[8px] border border-[var(--seller-rule-strong)] bg-[var(--seller-surface)] px-3 text-[12px] outline-none focus:border-[var(--seller-brand)] focus:ring-2 focus:ring-[var(--seller-accent-soft)]">
-              {sortOptions.map((option) => (
-                <option key={option.value} value={option.value}>{option.label}</option>
-              ))}
-            </select>
-          </label>
+            <SellerSelect
+              ariaLabel="Urutkan"
+              name="sort"
+              defaultValue={sort}
+              options={sortOptions}
+              className="min-h-11 rounded-[8px] border border-[var(--seller-rule-strong)] bg-[var(--seller-surface)] px-3 text-[12px] outline-none focus:border-[var(--seller-brand)] focus:ring-2 focus:ring-[var(--seller-accent-soft)]"
+            />
+          </div>
 
           <button type="submit" className="min-h-11 rounded-[8px] bg-[var(--seller-brand)] px-4 text-[12px] font-semibold text-white transition hover:brightness-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--seller-focus)]">
             Terapkan

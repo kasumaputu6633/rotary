@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { ListingMode } from "@/lib/listing-format";
+import { SellerSelect } from "@/app/dashboard/_components/SellerSelect";
 
 type ListingModePriceFieldsProps = {
   defaultMode?: ListingMode;
@@ -23,18 +24,21 @@ export function ListingModePriceFields({
 
   return (
     <>
-      <label className={labelClass}>
+      <div className={labelClass}>
         <span className={labelTextClass}>Mode Listing</span>
-        <select
+        <SellerSelect
+          ariaLabel="Mode Listing"
           name="mode"
           value={mode}
-          onChange={(event) => setMode(event.target.value === "donation" ? "donation" : "sale")}
+          dropdownDirection="up"
+          onValueChange={(nextMode) => setMode(nextMode === "donation" ? "donation" : "sale")}
           className={fieldClass}
-        >
-          <option value="sale">Dijual</option>
-          <option value="donation">Didonasi</option>
-        </select>
-      </label>
+          options={[
+            { value: "sale", label: "Dijual" },
+            { value: "donation", label: "Didonasi" },
+          ]}
+        />
+      </div>
       <label className={labelClass}>
         <span className={labelTextClass}>Harga jika dijual</span>
         <input

@@ -22,8 +22,9 @@ import {
   createAndSendOtp,
   verifyOtp,
 } from "./shared";
-import { getSafeLoginRedirect, userWhereClause } from "./helpers";
+import { getSafeLoginRedirect, isEmail, userWhereClause } from "./helpers";
 import { canBypassOtp } from "./otp-bypass";
+import { isContactVerified } from "@/lib/account-verification";
 
 export async function loginAction(
   contact: string,
@@ -33,7 +34,7 @@ export async function loginAction(
   try {
     const user = await db.query.users.findFirst({ where: userWhereClause(contact) });
 
-    if (!user || !user.passwordHash || !user.isVerified) {
+    if (!user || !user.passwordHash || !isContactVerified(user, contact)) {
       return { error: "Email/nomor telepon atau kata sandi salah." };
     }
 
@@ -42,7 +43,7 @@ export async function loginAction(
 
     const userRole = user.role ?? "user";
     const deviceToken = await getCookie("rotary_device");
-    const otpContact = user.email ?? user.phone!;
+    const otpContact = isEmail(contact) ? user.email! : user.phone!;
     const redirectPath = getSafeLoginRedirect(requestedRedirect, userRole);
 
     if (canBypassOtp(otpContact)) {
@@ -64,7 +65,7 @@ export async function loginAction(
       return { redirectTo: redirectPath };
     }
 
-    await createAndSendOtp(otpContact, "login_verify", user.name);
+    await createAndSendOtp(otpContact, "login_verify", user.fullName);
     await setPendingContact(otpContact);
     await setPendingLoginUserId(user.id);
     await setPendingLoginRedirect(redirectPath);
@@ -108,9 +109,9 @@ export async function resendLoginOtpAction(): Promise<ActionResult> {
     if (canBypassOtp(contact)) return {};
     const user = await db.query.users.findFirst({
       where: eq(users.id, userId),
-      columns: { name: true },
+      columns: { fullName: true },
     });
-    await createAndSendOtp(contact, "login_verify", user?.name);
+    await createAndSendOtp(contact, "login_verify", user?.fullName);
   } catch {
     return { error: DB_ERROR };
   }

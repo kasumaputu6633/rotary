@@ -1,6 +1,7 @@
 import { Icon } from "@iconify/react";
 import Link from "next/link";
 import { requireRole } from "@/lib/auth";
+import { isPhoneVerified } from "@/lib/account-verification";
 import { getSellerListings } from "@/lib/listings";
 import {
   Badge,
@@ -30,6 +31,7 @@ const currentFlow = [
 
 export default async function SellerChatPage() {
   const user = await requireRole("user");
+  const phoneVerified = isPhoneVerified(user);
   const sellerListings = await getSellerListings(user.id);
   const contactableListingCount = sellerListings.filter((listing) => listing.status === "active").length;
 
@@ -43,13 +45,13 @@ export default async function SellerChatPage() {
         meta={
           <>
             <Badge tone="neutral">Belum tersedia</Badge>
-            <Badge tone={user.phone ? "success" : "danger"}>
-              WhatsApp {user.phone ? "aktif" : "belum diisi"}
+            <Badge tone={phoneVerified ? "success" : "danger"}>
+              WhatsApp {phoneVerified ? "aktif" : "belum terverifikasi"}
             </Badge>
           </>
         }
         actions={
-          user.phone ? (
+          phoneVerified ? (
             <SecondaryLink href="/dashboard/profile" icon="lucide:settings">Atur Kontak</SecondaryLink>
           ) : (
             <PrimaryLink href="/dashboard/profile" icon="lucide:phone">Verifikasi Nomor HP</PrimaryLink>
@@ -85,18 +87,18 @@ export default async function SellerChatPage() {
             <div className="p-4">
               <div className="flex items-start gap-3">
                 <Icon
-                  icon={user.phone ? "lucide:circle-check" : "lucide:circle-alert"}
+                  icon={phoneVerified ? "lucide:circle-check" : "lucide:circle-alert"}
                   width={19}
                   height={19}
-                  className={`mt-0.5 shrink-0 ${user.phone ? "text-[var(--seller-success)]" : "text-[var(--seller-danger)]"}`}
+                  className={`mt-0.5 shrink-0 ${phoneVerified ? "text-[var(--seller-success)]" : "text-[var(--seller-danger)]"}`}
                   aria-hidden="true"
                 />
                 <div>
                   <p className="text-[13px] font-semibold text-[var(--seller-ink)]">
-                    {user.phone ? "WhatsApp siap digunakan" : "WhatsApp belum tersedia"}
+                    {phoneVerified ? "WhatsApp siap digunakan" : "WhatsApp belum tersedia"}
                   </p>
                   <p className="mt-1 text-[11px] leading-relaxed text-[var(--seller-muted)]">
-                    {user.phone
+                    {phoneVerified
                       ? `${contactableListingCount} listing aktif dapat menampilkan tombol WhatsApp.`
                       : "Listing tetap dapat tayang, tetapi calon peminat tidak mendapat tombol kontak langsung."}
                   </p>

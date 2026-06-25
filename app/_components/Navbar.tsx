@@ -27,16 +27,16 @@ export default async function Navbar() {
   const userId = cookieStore.get("session_user_id")?.value ?? null;
 
   let userFullName: string | null = null;
-  let userDisplayName: string | null = null;
+  let userShopName: string | null = null;
   let userAvatarUrl: string | null = null;
   let userRole: string | null = null;
   if (userId) {
     const user = await db.query.users.findFirst({
       where: eq(users.id, userId),
-      columns: { name: true, displayName: true, avatarUrl: true, role: true },
+      columns: { fullName: true, shopName: true, avatarUrl: true, role: true },
     });
-    userFullName = user?.name ?? null;
-    userDisplayName = user?.displayName ?? user?.name ?? null;
+    userFullName = user?.fullName ?? null;
+    userShopName = user?.shopName ?? user?.fullName ?? null;
     userAvatarUrl = user?.avatarUrl ?? null;
     userRole = user?.role ?? null;
   }
@@ -112,7 +112,7 @@ export default async function Navbar() {
 
               <NavbarAuthButtons
                 userAvatarUrl={userAvatarUrl}
-                userDisplayName={userDisplayName}
+                userShopName={userShopName}
                 userFullName={userFullName}
                 userRole={userRole}
               />

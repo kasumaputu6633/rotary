@@ -17,12 +17,12 @@ function getInitials(name: string): string {
 
 export default function NavbarAuthButtons({
   userAvatarUrl,
-  userDisplayName,
+  userShopName,
   userFullName,
   userRole,
 }: {
   userAvatarUrl: string | null;
-  userDisplayName: string | null;
+  userShopName: string | null;
   userFullName: string | null;
   userRole: string | null;
 }) {
@@ -78,9 +78,9 @@ export default function NavbarAuthButtons({
     window.dispatchEvent(event);
   }, [showDropdown]);
 
-  const resolvedDisplayName = userDisplayName?.trim() || userFullName?.trim() || "";
+  const resolvedShopName = userShopName?.trim() || userFullName?.trim() || "";
 
-  if (resolvedDisplayName) {
+  if (resolvedShopName) {
     const isUser = userRole === "user";
     const profileHref = isUser ? "/dashboard/profile" : "/admin/dashboard";
 
@@ -116,7 +116,7 @@ export default function NavbarAuthButtons({
               type="button"
               onClick={() => setShowDropdown(!showDropdown)}
               className="flex min-h-11 items-center gap-2 rounded-lg px-1 transition-colors hover:bg-[#fff7e8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#17458f] focus-visible:ring-offset-2"
-              aria-label={`Buka menu akun ${resolvedDisplayName}`}
+              aria-label={`Buka menu akun ${resolvedShopName}`}
               aria-expanded={showDropdown}
               aria-haspopup="menu"
             >
@@ -126,12 +126,12 @@ export default function NavbarAuthButtons({
                   <img src={userAvatarUrl} alt="" className="h-full w-full object-cover" />
                 ) : (
                   <span className="font-poppins text-[11px] font-bold leading-none text-white">
-                    {getInitials(resolvedDisplayName)}
+                    {getInitials(resolvedShopName)}
                   </span>
                 )}
               </div>
               <span className="hidden max-w-24 truncate whitespace-nowrap font-poppins text-[13px] font-semibold text-[#555] xl:inline">
-                {resolvedDisplayName}
+                {resolvedShopName}
               </span>
               <Icon
                 icon="lucide:chevron-down"
@@ -168,15 +168,15 @@ export default function NavbarAuthButtons({
                         <img src={userAvatarUrl} alt="" className="h-full w-full object-cover" />
                       ) : (
                         <span className="font-poppins text-[13px] font-bold leading-none text-white">
-                          {getInitials(resolvedDisplayName)}
+                          {getInitials(resolvedShopName)}
                         </span>
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-poppins font-semibold text-[14px] text-black truncate">
-                        {resolvedDisplayName}
+                        {resolvedShopName}
                       </p>
-                      {userFullName && userFullName !== resolvedDisplayName ? (
+                      {userFullName && userFullName !== resolvedShopName ? (
                         <p className="mt-0.5 truncate font-poppins text-[11px] text-[#6b7280]">{userFullName}</p>
                       ) : null}
                     </div>

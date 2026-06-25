@@ -1,15 +1,18 @@
 export type SellerProfileData = {
   avatarUrl?: string | null;
   bio?: string | null;
-  displayName?: string | null;
-  name?: string | null;
+  email?: string | null;
+  emailVerifiedAt?: Date | null;
+  fullName?: string | null;
+  shopName?: string | null;
   phone?: string | null;
+  phoneVerifiedAt?: Date | null;
 };
 
 export type ProfileChecklistItem = {
   complete: boolean;
   description: string;
-  key: "name" | "displayName" | "avatar" | "phone" | "bio";
+  key: "fullName" | "shopName" | "avatar" | "email" | "phone" | "bio";
   label: string;
   publicNow: boolean;
 };
@@ -17,17 +20,17 @@ export type ProfileChecklistItem = {
 export function getProfileChecklist(profile: SellerProfileData): ProfileChecklistItem[] {
   return [
     {
-      key: "name",
+      key: "fullName",
       label: "Nama lengkap",
       description: "Identitas akun privat untuk kebutuhan administrasi.",
-      complete: Boolean(profile.name?.trim()),
+      complete: Boolean(profile.fullName?.trim()),
       publicNow: false,
     },
     {
-      key: "displayName",
-      label: "Nama tampilan",
+      key: "shopName",
+      label: "Nama lapak",
       description: "Tampil di navbar dan informasi pemilik barang.",
-      complete: Boolean(profile.displayName?.trim() || profile.name?.trim()),
+      complete: Boolean(profile.shopName?.trim() || profile.fullName?.trim()),
       publicNow: true,
     },
     {
@@ -38,10 +41,17 @@ export function getProfileChecklist(profile: SellerProfileData): ProfileChecklis
       publicNow: true,
     },
     {
+      key: "email",
+      label: "Email terverifikasi",
+      description: "Diperlukan untuk keamanan akun dan akses berjualan.",
+      complete: Boolean(profile.email?.trim() && profile.emailVerifiedAt),
+      publicNow: false,
+    },
+    {
       key: "phone",
       label: "Nomor HP terverifikasi",
       description: "Mengaktifkan tombol WhatsApp pada listing dan keamanan akun.",
-      complete: Boolean(profile.phone?.trim()),
+      complete: Boolean(profile.phone?.trim() && profile.phoneVerifiedAt),
       publicNow: true,
     },
     {
@@ -66,10 +76,10 @@ export function getProfileCompletion(profile: SellerProfileData) {
   };
 }
 
-export function resolveDisplayName(profile: Pick<SellerProfileData, "displayName" | "name">) {
-  return profile.displayName?.trim() || profile.name?.trim() || "Pengguna Rotary";
+export function resolveShopName(profile: Pick<SellerProfileData, "shopName" | "fullName">) {
+  return profile.shopName?.trim() || profile.fullName?.trim() || "Pengguna Rotary";
 }
 
-export function createDefaultDisplayName(fullName: string) {
+export function createDefaultShopName(fullName: string) {
   return fullName.trim().split(/\s+/)[0]?.slice(0, 80) || "Pengguna";
 }

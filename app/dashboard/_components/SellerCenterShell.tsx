@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState, useTransition, type ReactNode } from "react";
 import { logoutAction } from "@/app/actions";
 import { ConfirmDialog } from "@/app/_components/ConfirmDialog";
+import { SellerVerificationGate } from "./SellerVerificationGate";
 import { SellerToaster } from "./SellerToaster";
 
 type NavigationItem = {
@@ -62,6 +63,7 @@ export default function SellerCenterShell({
   completedCount,
   draftCount,
   inactiveCount,
+  isEmailVerified = false,
   isPhoneVerified = false,
   profileMissingCount,
   reservedCount,
@@ -73,6 +75,7 @@ export default function SellerCenterShell({
   completedCount?: number;
   draftCount?: number;
   inactiveCount?: number;
+  isEmailVerified?: boolean;
   isPhoneVerified?: boolean;
   profileMissingCount?: number;
   reservedCount?: number;
@@ -84,10 +87,39 @@ export default function SellerCenterShell({
   const [isLogoutConfirmOpen, setIsLogoutConfirmOpen] = useState(false);
   const [isLogoutPending, startLogoutTransition] = useTransition();
   const [profileMenuOpenPath, setProfileMenuOpenPath] = useState<string | null>(null);
-  const [isPhoneBannerDismissed, setPhoneBannerDismissed] = useState(false);
+  const [isVerificationBannerDismissed, setVerificationBannerDismissed] = useState(false);
   const profileMenuRef = useRef<HTMLDivElement>(null);
   const isProfileMenuOpen = profileMenuOpenPath === pathname;
-  const showPhoneBanner = !isPhoneVerified && !isPhoneBannerDismissed && pathname !== "/dashboard/profile";
+  const needsEmailVerification = !isEmailVerified;
+  const needsPhoneVerification = !isPhoneVerified;
+  const isSellerReady = isEmailVerified && isPhoneVerified;
+  const isRestrictedSellerPage =
+    pathname.startsWith("/dashboard/listings")
+    || pathname.startsWith("/dashboard/deals")
+    || pathname.startsWith("/dashboard/chat");
+  const shouldBlockSellerPage = isRestrictedSellerPage && !isSellerReady;
+  const showVerificationBanner =
+    (needsEmailVerification || needsPhoneVerification)
+    && !isVerificationBannerDismissed
+    && pathname !== "/dashboard/profile";
+
+  const verificationBanner = needsEmailVerification && needsPhoneVerification
+    ? {
+        icon: "lucide:shield-check",
+        title: "Lengkapi verifikasi untuk mulai berjualan.",
+        description: "Verifikasi email dan nomor HP agar kamu siap menerbitkan listing barang.",
+      }
+    : needsEmailVerification
+      ? {
+          icon: "lucide:mail-check",
+          title: "Verifikasi email untuk mulai berjualan.",
+          description: "Amankan akunmu sebelum menerbitkan listing barang di Rotary.",
+        }
+      : {
+          icon: "lucide:phone",
+          title: "Verifikasi nomor HP untuk mulai berjualan.",
+          description: "Aktifkan kontak WhatsApp agar calon peminat mudah menghubungi kamu.",
+        };
 
   function handleLogout() {
     startLogoutTransition(() => logoutAction());
@@ -384,30 +416,30 @@ export default function SellerCenterShell({
             </nav>
           </header>
 
-          {showPhoneBanner ? (
+          {showVerificationBanner ? (
             <div
               role="status"
               className="flex items-center gap-2.5 border-b border-[var(--seller-rule)] bg-[var(--seller-accent-soft)] px-4 py-2 md:gap-3 md:px-6"
             >
               <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[var(--seller-accent)] text-white">
-                <Icon icon="lucide:phone" width={14} height={14} aria-hidden="true" />
+                <Icon icon={verificationBanner.icon} width={14} height={14} aria-hidden="true" />
               </span>
               <p className="flex-1 text-[12px] leading-snug text-[var(--seller-ink)]">
-                <strong className="font-semibold">Verifikasi nomor HP kamu.</strong>{" "}
+                <strong className="font-semibold">{verificationBanner.title}</strong>{" "}
                 <span className="text-[var(--seller-muted)]">
-                  Aktifkan tombol WhatsApp di listing & perkuat keamanan akun.
+                  {verificationBanner.description}
                 </span>
               </p>
               <Link
                 href="/dashboard/profile"
                 className="hidden shrink-0 items-center gap-1 rounded-[6px] bg-[var(--seller-brand)] px-2.5 py-1 text-[11px] font-semibold text-white transition hover:brightness-110 sm:inline-flex"
               >
-                Verifikasi
+                Verifikasi sekarang
                 <Icon icon="lucide:arrow-right" width={12} height={12} aria-hidden="true" />
               </Link>
               <button
                 type="button"
-                onClick={() => setPhoneBannerDismissed(true)}
+                onClick={() => setVerificationBannerDismissed(true)}
                 aria-label="Tutup pemberitahuan"
                 className="shrink-0 rounded-md p-1 text-[var(--seller-muted)] transition-colors hover:bg-white/60 hover:text-[var(--seller-ink)]"
               >
@@ -416,7 +448,18 @@ export default function SellerCenterShell({
             </div>
           ) : null}
 
-          <main className="min-w-0 px-4 py-5 md:px-6 lg:min-h-0 lg:flex-1 lg:overflow-y-auto">{children}</main>
+          <main className={`min-w-0 px-4 py-5 md:px-6 lg:min-h-0 lg:flex-1 ${
+            shouldBlockSellerPage ? "overflow-hidden" : "lg:overflow-y-auto"
+          }`}>
+            {shouldBlockSellerPage ? (
+              <SellerVerificationGate
+                emailVerified={isEmailVerified}
+                phoneVerified={isPhoneVerified}
+              >
+                {children}
+              </SellerVerificationGate>
+            ) : children}
+          </main>
         </div>
       </div>
       <ConfirmDialog

@@ -5,14 +5,18 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, useTransition } from "react";
 import { toast } from "sonner";
 import { updateProfileAction } from "../../actions";
+import { EmailVerificationCard } from "./EmailVerificationCard";
 import { PhoneVerificationCard } from "./PhoneVerificationCard";
 
 type DefaultValues = {
   avatarUrl?: string | null;
   bio?: string | null;
-  displayName?: string | null;
-  name?: string | null;
+  email?: string | null;
+  emailVerified?: boolean;
+  fullName?: string | null;
+  shopName?: string | null;
   phone?: string | null;
+  phoneVerified?: boolean;
 };
 
 const fieldClass =
@@ -48,14 +52,14 @@ export function ProfileForm({ defaultValues }: { defaultValues: DefaultValues })
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const [avatarPreviewUrl, setAvatarPreviewUrl] = useState<string | null>(defaultValues.avatarUrl ?? null);
   const [bio, setBio] = useState(defaultValues.bio ?? "");
-  const [displayName, setDisplayName] = useState(defaultValues.displayName ?? defaultValues.name ?? "");
-  const [name, setName] = useState(defaultValues.name ?? "");
+  const [shopName, setShopName] = useState(defaultValues.shopName ?? defaultValues.fullName ?? "");
+  const [fullName, setFullName] = useState(defaultValues.fullName ?? "");
   const [removeAvatar, setRemoveAvatar] = useState(false);
   const avatarChanged = removeAvatar || Boolean(avatarPreviewUrl?.startsWith("blob:"));
   const hasChanges =
     avatarChanged
-    || name !== (defaultValues.name ?? "")
-    || displayName !== (defaultValues.displayName ?? defaultValues.name ?? "")
+    || fullName !== (defaultValues.fullName ?? "")
+    || shopName !== (defaultValues.shopName ?? defaultValues.fullName ?? "")
     || bio !== (defaultValues.bio ?? "");
 
   useEffect(() => {
@@ -183,10 +187,10 @@ export function ProfileForm({ defaultValues }: { defaultValues: DefaultValues })
           <label className="grid gap-1.5">
             <FieldHeader visibility="private">Nama lengkap</FieldHeader>
             <input
-              name="name"
+              name="fullName"
               type="text"
-              value={name}
-              onChange={(event) => setName(event.target.value)}
+              value={fullName}
+              onChange={(event) => setFullName(event.target.value)}
               placeholder="Nama lengkap sesuai identitas"
               minLength={2}
               maxLength={120}
@@ -198,24 +202,32 @@ export function ProfileForm({ defaultValues }: { defaultValues: DefaultValues })
           </label>
 
           <label className="grid gap-1.5">
-            <FieldHeader visibility="public">Nama tampilan</FieldHeader>
+            <FieldHeader visibility="public">Nama lapak</FieldHeader>
             <input
-              name="displayName"
+              name="shopName"
               type="text"
-              value={displayName}
-              onChange={(event) => setDisplayName(event.target.value)}
-              placeholder="Contoh: Putu atau Lapak Putu"
+              value={shopName}
+              onChange={(event) => setShopName(event.target.value)}
+              placeholder="Contoh: Lapak Putu"
               minLength={2}
               maxLength={80}
               required
               className={fieldClass}
             />
-            <span className="text-[11px] text-[var(--seller-muted)]">Dipakai di navbar dan sebagai nama pemilik listing.</span>
+            <span className="text-[11px] text-[var(--seller-muted)]">Dipakai di navbar dan sebagai nama lapak pada listing.</span>
           </label>
         </div>
       </section>
 
-      <PhoneVerificationCard phone={defaultValues.phone ?? null} />
+      <EmailVerificationCard
+        email={defaultValues.email ?? null}
+        verified={defaultValues.emailVerified ?? false}
+      />
+
+      <PhoneVerificationCard
+        phone={defaultValues.phone ?? null}
+        verified={defaultValues.phoneVerified ?? false}
+      />
 
       <section className="grid gap-4 p-4 sm:p-5">
         <div>

@@ -11,6 +11,7 @@ import {
   type DealStage,
 } from "@/lib/deal-format";
 import type { ListingMode } from "@/lib/listing-format";
+import { SellerSelect } from "@/app/dashboard/_components/SellerSelect";
 
 type DealProgressFormProps = {
   deal: {
@@ -79,17 +80,20 @@ export function DealProgressForm({
             </p>
           </div>
 
-          <label>
+          <div>
             <FieldLabel>Tahap saat ini</FieldLabel>
-            <select name="stage" defaultValue={deal.stage} className={fieldClass}>
-              {dealStageOptions.map((option) => (
-                <option key={option.value} value={option.value}>{option.label}</option>
-              ))}
-            </select>
+            <SellerSelect
+              ariaLabel="Tahap saat ini"
+              name="stage"
+              defaultValue={deal.stage}
+              disabled={readOnly || isPending}
+              className={fieldClass}
+              options={dealStageOptions}
+            />
             <span className="mt-1.5 block text-[11px] leading-relaxed text-[var(--seller-muted)]">
               Pilih “Serah terima dijadwalkan” setelah waktu dan caranya sudah pasti.
             </span>
-          </label>
+          </div>
         </section>
 
         <section className="grid gap-4 border-b border-[var(--seller-rule)] p-4 sm:grid-cols-2 sm:p-5">
@@ -147,14 +151,17 @@ export function DealProgressForm({
             </p>
           </div>
 
-          <label>
+          <div>
             <FieldLabel optional>Cara penyerahan</FieldLabel>
-            <select name="handoverMethod" defaultValue={deal.handoverMethod ?? ""} className={fieldClass}>
-              {handoverMethodOptions.map((option) => (
-                <option key={option.value} value={option.value}>{option.label}</option>
-              ))}
-            </select>
-          </label>
+            <SellerSelect
+              ariaLabel="Cara penyerahan"
+              name="handoverMethod"
+              defaultValue={deal.handoverMethod ?? ""}
+              disabled={readOnly || isPending}
+              className={fieldClass}
+              options={handoverMethodOptions}
+            />
+          </div>
 
           <label>
             <FieldLabel optional>Jadwal</FieldLabel>

@@ -13,7 +13,13 @@ import {
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 
-export const otpTypeEnum = pgEnum("otp_type", ["register", "forgot_password", "login_verify", "phone_verify"]);
+export const otpTypeEnum = pgEnum("otp_type", [
+  "register",
+  "forgot_password",
+  "login_verify",
+  "phone_verify",
+  "email_verify",
+]);
 export const roleEnum = pgEnum("role", ["user", "admin"]);
 export const listingModeEnum = pgEnum("listing_mode", ["sale", "donation"]);
 export const listingStatusEnum = pgEnum("listing_status", [
@@ -38,8 +44,8 @@ export const users = pgTable(
   "users",
   {
     id: uuid("id").primaryKey().defaultRandom(),
-    name: varchar("name", { length: 255 }),
-    displayName: varchar("display_name", { length: 80 }),
+    fullName: varchar("full_name", { length: 255 }),
+    shopName: varchar("shop_name", { length: 80 }),
     email: varchar("email", { length: 255 }).unique(),
     phone: varchar("phone", { length: 20 }).unique(),
     passwordHash: text("password_hash"),
@@ -48,15 +54,11 @@ export const users = pgTable(
     avatarObjectKey: text("avatar_object_key"),
     role: roleEnum("role").notNull().default("user"),
     isVerified: boolean("is_verified").notNull().default(false),
+    emailVerifiedAt: timestamp("email_verified_at"),
+    phoneVerifiedAt: timestamp("phone_verified_at"),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },
-  (table) => [
-    // Case-insensitive unique buat display_name biar gak ada user kembar (mis. "Putu" vs "putu")
-    uniqueIndex("users_display_name_lower_unique")
-      .on(sql`LOWER(${table.displayName})`)
-      .where(sql`${table.displayName} IS NOT NULL`),
-  ],
 );
 
 export const otpCodes = pgTable("otp_codes", {

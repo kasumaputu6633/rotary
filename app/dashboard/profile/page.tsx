@@ -3,19 +3,19 @@ import { db } from "@/db";
 import { users } from "@/db/schema";
 import { requireRole } from "@/lib/auth";
 import { getSellerListings } from "@/lib/listings";
-import { getProfileCompletion, resolveDisplayName } from "@/lib/profile";
+import { getProfileCompletion, resolveShopName } from "@/lib/profile";
 import { eq } from "drizzle-orm";
 import { Badge, PageHeader, Panel } from "../_components/SellerCenterUi";
 import { ProfileForm } from "./_components/ProfileForm";
 
 function SellerIdentityPreview({
   avatarUrl,
-  displayName,
+  shopName,
   publicListingCount,
   phone,
 }: {
   avatarUrl?: string | null;
-  displayName: string;
+  shopName: string;
   publicListingCount: number;
   phone?: string | null;
 }) {
@@ -37,7 +37,7 @@ function SellerIdentityPreview({
           <div className="min-w-0">
             <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--seller-muted)]">Informasi Pemilik</p>
             <p className="mt-1 truncate text-[14px] font-semibold text-[var(--seller-ink)]">
-              {displayName}
+              {shopName}
             </p>
             <p className="mt-1 text-[11px] text-[var(--seller-muted)]">
               {publicListingCount} listing tampil di marketplace
@@ -70,11 +70,13 @@ export default async function ProfilePage() {
   const [[profile], sellerListings] = await Promise.all([
     db
       .select({
-        name: users.name,
+        fullName: users.fullName,
         email: users.email,
+        emailVerifiedAt: users.emailVerifiedAt,
         phone: users.phone,
+        phoneVerifiedAt: users.phoneVerifiedAt,
         bio: users.bio,
-        displayName: users.displayName,
+        shopName: users.shopName,
         avatarUrl: users.avatarUrl,
         updatedAt: users.updatedAt,
       })
@@ -85,7 +87,9 @@ export default async function ProfilePage() {
   ]);
 
   const completion = getProfileCompletion(profile ?? {});
-  const resolvedDisplayName = resolveDisplayName(profile ?? {});
+  const resolvedShopName = resolveShopName(profile ?? {});
+  const emailVerified = Boolean(profile?.email && profile.emailVerifiedAt);
+  const phoneVerified = Boolean(profile?.phone && profile.phoneVerifiedAt);
   const publicListingCount = sellerListings.filter((listing) =>
     listing.status === "active" || listing.status === "reserved",
   ).length;
@@ -96,14 +100,17 @@ export default async function ProfilePage() {
         icon="lucide:user-round-cog"
         kicker="Lapak Saya"
         title="Profil Lapak"
-        description="Atur nama lengkap akun, nama tampilan publik, dan kontak yang menyertai listing kamu."
+        description="Atur nama lengkap akun, nama lapak publik, dan kontak yang menyertai listing kamu."
         meta={
           <>
             <Badge tone={completion.percentage === 100 ? "success" : "accent"}>
               {completion.percentage}% lengkap
             </Badge>
-            <Badge tone={profile?.phone ? "success" : "neutral"}>
-              WhatsApp {profile?.phone ? "aktif" : "belum aktif"}
+            <Badge tone={emailVerified ? "success" : "neutral"}>
+              Email {emailVerified ? "terverifikasi" : "belum terverifikasi"}
+            </Badge>
+            <Badge tone={phoneVerified ? "success" : "neutral"}>
+              WhatsApp {phoneVerified ? "aktif" : "belum aktif"}
             </Badge>
           </>
         }
@@ -114,11 +121,14 @@ export default async function ProfilePage() {
           <ProfileForm
             key={profile?.updatedAt?.getTime() ?? "profile"}
             defaultValues={{
-              name: profile?.name,
-              displayName: profile?.displayName,
+              fullName: profile?.fullName,
+              shopName: profile?.shopName,
               bio: profile?.bio,
               avatarUrl: profile?.avatarUrl,
+              email: profile?.email,
+              emailVerified,
               phone: profile?.phone,
+              phoneVerified,
             }}
           />
         </Panel>
@@ -170,16 +180,23 @@ export default async function ProfilePage() {
 
           <SellerIdentityPreview
             avatarUrl={profile?.avatarUrl}
-            displayName={resolvedDisplayName}
+            shopName={resolvedShopName}
             publicListingCount={publicListingCount}
-            phone={profile?.phone}
+            phone={phoneVerified ? profile?.phone : null}
           />
 
           <Panel title="Privasi akun">
             <dl className="divide-y divide-[var(--seller-rule)] px-4 text-[12px]">
               <div className="grid grid-cols-[92px_minmax(0,1fr)] gap-3 py-3">
                 <dt className="text-[var(--seller-muted)]">Email</dt>
-                <dd className="break-all text-right font-semibold text-[var(--seller-ink)]">{profile?.email ?? "-"}</dd>
+                <dd className="text-right">
+                  <span className="block break-all font-semibold text-[var(--seller-ink)]">{profile?.email ?? "-"}</span>
+                  <span className={`mt-1 block text-[10px] font-semibold ${
+                    profile?.emailVerifiedAt ? "text-[var(--seller-success)]" : "text-[var(--seller-muted)]"
+                  }`}>
+                    {profile?.emailVerifiedAt ? "Terverifikasi" : "Belum terverifikasi"}
+                  </span>
+                </dd>
               </div>
             </dl>
             <p className="border-t border-[var(--seller-rule)] px-4 py-3 text-[11px] leading-relaxed text-[var(--seller-muted)]">

@@ -18,14 +18,26 @@ import {
 } from "./shared";
 import { canBypassOtp } from "./otp-bypass";
 import { userWhereClause, isEmail } from "./helpers";
-import { createDefaultDisplayName } from "@/lib/profile";
-import { isDisplayNameTaken } from "@/lib/users";
+import { createDefaultShopName } from "@/lib/profile";
+import { isContactVerified } from "@/lib/account-verification";
+
+function verifiedContactUpdate(contact: string, verifiedAt: Date) {
+  return {
+    isVerified: true,
+    updatedAt: verifiedAt,
+    ...(isEmail(contact)
+      ? { emailVerifiedAt: verifiedAt }
+      : { phoneVerifiedAt: verifiedAt }),
+  };
+}
 
 export async function registerAction(contact: string): Promise<ActionResult> {
   try {
     const existing = await db.query.users.findFirst({ where: userWhereClause(contact) });
 
-    if (existing?.isVerified) return { error: "Akun dengan kontak ini sudah terdaftar." };
+    if (existing && isContactVerified(existing, contact)) {
+      return { error: "Akun dengan kontak ini sudah terdaftar." };
+    }
 
     if (!existing) {
       await db.insert(users).values({
@@ -36,7 +48,8 @@ export async function registerAction(contact: string): Promise<ActionResult> {
 
     await setPendingContact(contact);
     if (canBypassOtp(contact)) {
-      await db.update(users).set({ isVerified: true, updatedAt: new Date() }).where(userWhereClause(contact));
+      const verifiedAt = new Date();
+      await db.update(users).set(verifiedContactUpdate(contact, verifiedAt)).where(userWhereClause(contact));
       return { redirectTo: "/register/profile" };
     }
 
@@ -54,7 +67,8 @@ export async function verifyRegisterOtpAction(code: string): Promise<ActionResul
   try {
     const valid = canBypassOtp(contact) || await verifyOtp(contact, code, "register");
     if (!valid) return { error: "Kode salah atau sudah kedaluarsa." };
-    await db.update(users).set({ isVerified: true }).where(userWhereClause(contact));
+    const verifiedAt = new Date();
+    await db.update(users).set(verifiedContactUpdate(contact, verifiedAt)).where(userWhereClause(contact));
     return { redirectTo: "/register/profile" };
   } catch {
     return { error: DB_ERROR };
@@ -73,28 +87,24 @@ export async function resendRegisterOtpAction(): Promise<ActionResult> {
 }
 
 export async function updateProfileAction(
-  name: string,
-  displayName: string,
+  fullName: string,
+  shopName: string,
   password: string,
 ): Promise<ActionResult> {
   const contact = await getPendingContact();
   if (!contact) return { error: "Sesi habis, silakan mulai ulang." };
-  if (name.trim().length < 2) return { error: "Nama lengkap minimal 2 karakter." };
+  if (fullName.trim().length < 2) return { error: "Nama lengkap minimal 2 karakter." };
 
-  const trimmedDisplayName = displayName.trim().slice(0, 80);
-  if (trimmedDisplayName.length < 2) return { error: "Nama tampilan minimal 2 karakter." };
+  const trimmedShopName = shopName.trim().slice(0, 80);
+  if (trimmedShopName.length < 2) return { error: "Nama lapak minimal 2 karakter." };
 
   try {
-    if (await isDisplayNameTaken(trimmedDisplayName)) {
-      return { error: "Nama tampilan sudah dipakai. Coba yang lain." };
-    }
-
     const passwordHash = await bcrypt.hash(password, 12);
     const [user] = await db
       .update(users)
       .set({
-        name,
-        displayName: trimmedDisplayName || createDefaultDisplayName(name),
+        fullName,
+        shopName: trimmedShopName || createDefaultShopName(fullName),
         passwordHash,
         updatedAt: new Date(),
       })

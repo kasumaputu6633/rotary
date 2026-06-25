@@ -64,7 +64,7 @@ const listingSelection = {
   publishedAt: listings.publishedAt,
   reservedAt: listings.reservedAt,
   completedAt: listings.completedAt,
-  sellerName: sql<string | null>`coalesce(${users.displayName}, ${users.name})`,
+  sellerName: sql<string | null>`coalesce(${users.shopName}, ${users.fullName})`,
   sellerAvatarUrl: users.avatarUrl,
   imageUrl: listingImages.imageUrl,
 };
@@ -179,7 +179,12 @@ export async function getPublicListingBySlug(slug: string, userId?: string | nul
       ...listingSelection,
       sellerId: listings.sellerId,
       handoverOptions: listings.handoverOptions,
-      sellerWhatsapp: users.phone,
+      sellerWhatsapp: sql<string | null>`
+        case
+          when ${users.phoneVerifiedAt} is not null then ${users.phone}
+          else null
+        end
+      `,
       isFavorite: userId ? favoriteExistsSubquery(userId) : sql<boolean>`false`,
     })
     .from(listings)

@@ -11,6 +11,7 @@ import { PhoneVerificationModal } from "./PhoneVerificationModal";
 
 type PhoneVerificationCardProps = {
   phone: string | null;
+  verified: boolean;
 };
 
 // Format +6281234567890 → +62 812-3456-7890
@@ -21,13 +22,13 @@ function formatPhone(phone: string) {
   return `+62 ${digits.slice(0, 3)}-${digits.slice(3, 7)}-${digits.slice(7)}`;
 }
 
-export function PhoneVerificationCard({ phone }: PhoneVerificationCardProps) {
+export function PhoneVerificationCard({ phone, verified }: PhoneVerificationCardProps) {
   const router = useRouter();
   const [isModalOpen, setModalOpen] = useState(false);
   const [isConfirmOpen, setConfirmOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
 
-  const isVerified = Boolean(phone);
+  const isVerified = Boolean(phone && verified);
 
   function handleRemove() {
     startTransition(async () => {
@@ -81,9 +82,13 @@ export function PhoneVerificationCard({ phone }: PhoneVerificationCardProps) {
                   <Icon icon="lucide:smartphone-nfc" width={19} height={19} aria-hidden="true" />
                 </span>
                 <div className="min-w-0 flex-1">
-                  <p className="text-[13px] font-semibold text-[var(--seller-ink)]">Belum terhubung</p>
+                  <p className="text-[13px] font-semibold text-[var(--seller-ink)]">
+                    {phone ? "Belum terverifikasi" : "Belum terhubung"}
+                  </p>
                   <p className="mt-0.5 text-[11px] leading-relaxed text-[var(--seller-muted)]">
-                    Tambah nomor HP untuk lapis pengamanan akun lewat OTP WhatsApp.
+                    {phone
+                      ? "Verifikasi ulang nomor HP untuk mengaktifkan keamanan dan kontak WhatsApp."
+                      : "Tambah nomor HP untuk lapis pengamanan akun lewat OTP WhatsApp."}
                   </p>
                 </div>
               </div>
@@ -101,9 +106,9 @@ export function PhoneVerificationCard({ phone }: PhoneVerificationCardProps) {
                   height={13}
                   aria-hidden="true"
                 />
-                {isVerified ? "Ubah nomor" : "Tambah & verifikasi"}
+                {isVerified ? "Ubah nomor" : phone ? "Verifikasi nomor" : "Tambah & verifikasi"}
               </button>
-              {isVerified ? (
+              {phone ? (
                 <button
                   type="button"
                   onClick={() => setConfirmOpen(true)}

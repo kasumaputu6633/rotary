@@ -20,7 +20,7 @@ async function getBaseUrl(): Promise<string> {
 export async function forgotPasswordAction(contact: string): Promise<ActionResult> {
   try {
     const user = await db.query.users.findFirst({ where: userWhereClause(contact) });
-    if (!user || !user.isVerified) return { error: "Akun tidak ditemukan." };
+    if (!user || !user.emailVerifiedAt) return { error: "Akun tidak ditemukan." };
     if (!user.email) return { error: "Akun ini tidak memiliki email terdaftar." };
 
     await db.delete(passwordResetTokens).where(eq(passwordResetTokens.userId, user.id));
@@ -30,7 +30,7 @@ export async function forgotPasswordAction(contact: string): Promise<ActionResul
     await db.insert(passwordResetTokens).values({ userId: user.id, token, expiresAt });
 
     const resetUrl = `${await getBaseUrl()}/forgot-password/reset?token=${token}`;
-    await sendPasswordResetEmail(user.email, resetUrl, user.name);
+    await sendPasswordResetEmail(user.email, resetUrl, user.fullName);
   } catch {
     return { error: DB_ERROR };
   }

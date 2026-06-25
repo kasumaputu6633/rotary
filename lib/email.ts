@@ -4,11 +4,12 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 const FROM = "Rotary <noreply@rotary.kasuma.my.id>";
 
-export type OtpEmailType = "register" | "login_verify";
+export type OtpEmailType = "register" | "login_verify" | "email_verify";
 
 const EMAIL_SUBJECTS: Record<OtpEmailType, string> = {
   register:     "Kode Verifikasi Pendaftaran — Rotary",
   login_verify: "Verifikasi Perangkat Baru — Rotary",
+  email_verify: "Verifikasi Email Akun — Rotary",
 };
 
 const EMAIL_MESSAGES: Record<OtpEmailType, string> = {
@@ -16,6 +17,8 @@ const EMAIL_MESSAGES: Record<OtpEmailType, string> = {
     "Terima kasih telah mendaftar di Rotary. Gunakan kode berikut untuk memverifikasi akun Anda.",
   login_verify:
     "Kami mendeteksi percobaan masuk dari perangkat yang belum dikenal. Untuk menjaga keamanan akun Anda, masukkan kode verifikasi berikut.",
+  email_verify:
+    "Gunakan kode berikut untuk memverifikasi email akun dan membuka akses berjualan di Rotary.",
 };
 
 function buildOtpHtml(name: string | null, code: string, type: OtpEmailType): string {
