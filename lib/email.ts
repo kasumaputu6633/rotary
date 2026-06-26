@@ -2,7 +2,7 @@ import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-const FROM = "Rotary <noreply@rotary.kasuma.my.id>";
+const FROM = "Rotary <alerts@heyputu.lol>";
 
 export type OtpEmailType =
   | "register"
@@ -12,7 +12,7 @@ export type OtpEmailType =
   | "two_factor";
 
 const EMAIL_SUBJECTS: Record<OtpEmailType, string> = {
-  register:     "Kode Verifikasi Pendaftaran — Rotary",
+  register: "Kode Verifikasi Pendaftaran — Rotary",
   forgot_password: "Kode Reset Kata Sandi — Rotary",
   login_verify: "Verifikasi Perangkat Baru — Rotary",
   email_verify: "Verifikasi Email Akun — Rotary",

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { ListingMode } from "@/lib/listing-format";
 import { SellerSelect } from "@/app/dashboard/_components/SellerSelect";
+import { CurrencyInput } from "@/app/dashboard/_components/CurrencyInput";
 
 type ListingModePriceFieldsProps = {
   defaultMode?: ListingMode;
@@ -41,26 +42,18 @@ export function ListingModePriceFields({
       </div>
       <label className={labelClass}>
         <span className={labelTextClass}>Harga jika dijual</span>
-        <input
+        <CurrencyInput
           name="price"
-          inputMode="numeric"
-          pattern="[0-9]*"
-          defaultValue={defaultPrice ?? ""}
+          defaultValue={defaultPrice}
           disabled={isDonation}
           required={!isDonation}
-          onInvalid={(event) => {
-            (event.target as HTMLInputElement).setCustomValidity("Harga wajib diisi untuk listing yang dijual.");
-          }}
-          onInput={(event) => {
-            (event.target as HTMLInputElement).setCustomValidity("");
-          }}
-          className={`${fieldClass} disabled:cursor-not-allowed disabled:bg-[var(--seller-surface-2)] disabled:text-[var(--seller-muted)]`}
-          placeholder={isDonation ? "Tidak perlu harga" : "180000"}
+          placeholder={isDonation ? "Tidak perlu harga" : "180.000"}
         />
         <span className="text-[11px] leading-relaxed text-[var(--seller-muted)]">
-          {isDonation ? "Listing donasi akan tampil sebagai Gratis." : "Isi harga dalam rupiah, tanpa titik atau koma."}
+          {isDonation ? "Listing donasi akan tampil sebagai Gratis." : "Harga ditampilkan otomatis dalam format Rupiah."}
         </span>
       </label>
     </>
   );
 }
+

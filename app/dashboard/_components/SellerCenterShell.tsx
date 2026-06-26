@@ -197,6 +197,45 @@ export default function SellerCenterShell({
     };
   }, [isProfileMenuOpen]);
 
+  // Lock html and body scroll on desktop to prevent browser auto-scroll bugs
+  useEffect(() => {
+    const html = document.documentElement;
+    const body = document.body;
+
+    const originalHtmlOverflow = html.style.overflow;
+    const originalBodyOverflow = body.style.overflow;
+
+    const mediaQuery = window.matchMedia("(min-width: 1024px)");
+    function handleMediaChange(e: MediaQueryListEvent | MediaQueryList) {
+      if (e.matches) {
+        html.style.overflow = "hidden";
+        body.style.overflow = "hidden";
+        window.scrollTo(0, 0);
+      } else {
+        html.style.overflow = originalHtmlOverflow;
+        body.style.overflow = originalBodyOverflow;
+      }
+    }
+
+    handleMediaChange(mediaQuery);
+    mediaQuery.addEventListener("change", handleMediaChange);
+
+    return () => {
+      mediaQuery.removeEventListener("change", handleMediaChange);
+      html.style.overflow = originalHtmlOverflow;
+      body.style.overflow = originalBodyOverflow;
+    };
+  }, []);
+
+  // Reset scroll on navigation
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    const mainEl = document.querySelector(".seller-center main");
+    if (mainEl) {
+      mainEl.scrollTo(0, 0);
+    }
+  }, [pathname]);
+
   return (
     <div className="seller-center min-h-screen bg-[var(--seller-paper)] font-poppins text-[var(--seller-ink)] lg:h-screen lg:overflow-hidden">
       <div className="grid min-h-screen lg:h-screen lg:min-h-0 lg:grid-cols-[268px_minmax(0,1fr)]">

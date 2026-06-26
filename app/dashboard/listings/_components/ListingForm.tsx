@@ -1,5 +1,8 @@
 "use client";
 
+import { useRef, useTransition } from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import type { ListingMode, ListingStatus } from "@/lib/listing-format";
 import { ListingCategoryPicker } from "../new/_components/ListingCategoryPicker";
 import { ListingDescriptionField } from "../new/_components/ListingDescriptionField";
@@ -79,9 +82,79 @@ export function ListingForm({
   values = {},
 }: ListingFormProps) {
   const submitLabels = getSubmitLabels(values.status);
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+  const intentRef = useRef<string>("publish");
+
+  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+
+    // 1. Validasi Judul
+    const title = formData.get("title")?.toString().trim();
+    if (!title) {
+      toast.error("Judul listing wajib diisi.");
+      return;
+    }
+
+    // 2. Validasi Lokasi
+    const location = formData.get("location")?.toString().trim();
+    if (!location) {
+      toast.error("Lokasi barang wajib diisi.");
+      return;
+    }
+
+    // 3. Validasi Harga jika mode = sale
+    const mode = formData.get("mode")?.toString();
+    if (mode === "sale") {
+      const priceRaw = formData.get("price")?.toString();
+      const priceStr = priceRaw ? priceRaw.replace(/\D/g, "") : "";
+      const price = priceStr ? parseInt(priceStr, 10) : 0;
+      if (!price || price <= 0) {
+        toast.error("Harga wajib diisi untuk listing yang dijual.");
+        return;
+      }
+    }
+
+    // 4. Validasi Opsi Serah Terima
+    const handoverOptions = formData.getAll("handoverOptions").filter((val) => typeof val === "string" && val.trim() !== "");
+    if (handoverOptions.length === 0) {
+      toast.error("Pilih minimal 1 opsi serah terima.");
+      return;
+    }
+
+    // 5. Validasi Foto Barang
+    const newFiles = formData.getAll("images").filter((f) => f instanceof File && f.size > 0);
+    const deleteImageIds = formData.getAll("deleteImageIds") as string[];
+    const remainingExisting = (images ?? []).filter((img) => !deleteImageIds.includes(img.id));
+    if (remainingExisting.length + newFiles.length < 1) {
+      if (images && images.length > 0) {
+        toast.error("Listing harus memiliki minimal 1 foto.");
+      } else {
+        toast.error("Tambahkan minimal 1 foto barang.");
+      }
+      return;
+    }
+
+    // Append intent dari button yang di-click
+    formData.set("intent", intentRef.current);
+
+    startTransition(async () => {
+      try {
+        await action(formData);
+        // Server action melakukan redirect sendiri jika berhasil,
+        // tapi jika tidak, refresh halaman.
+        router.refresh();
+      } catch (error) {
+        toast.error(
+          error instanceof Error ? error.message : "Gagal menyimpan listing. Coba lagi.",
+        );
+      }
+    });
+  }
 
   return (
-    <form action={action} className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_332px]">
+    <form onSubmit={handleSubmit} noValidate className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_332px]">
       <div className="grid gap-4">
         <Panel title="Kategori Barang" description="Kategori induk menentukan pilihan subkategori yang tersedia.">
           <ListingCategoryPicker
@@ -166,9 +239,14 @@ export function ListingForm({
         <section className="rounded-[8px] border border-[var(--seller-rule)] bg-[var(--seller-accent-soft)] p-4">
           <h2 className="text-[15px] font-semibold text-[var(--seller-brand)]">{submitTitle}</h2>
           <p className="mt-1 text-[12px] leading-relaxed text-[var(--seller-muted)]">{submitDescription}</p>
-          <ListingSubmitButtons {...submitLabels} />
+          <ListingSubmitButtons
+            {...submitLabels}
+            isPending={isPending}
+            onIntentChange={(intent) => { intentRef.current = intent; }}
+          />
         </section>
       </aside>
     </form>
   );
 }
+

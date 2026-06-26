@@ -12,6 +12,7 @@ import {
 } from "@/lib/deal-format";
 import type { ListingMode } from "@/lib/listing-format";
 import { SellerSelect } from "@/app/dashboard/_components/SellerSelect";
+import { CurrencyInput } from "@/app/dashboard/_components/CurrencyInput";
 
 type DealProgressFormProps = {
   deal: {
@@ -129,16 +130,12 @@ export function DealProgressForm({
           {listingMode === "sale" ? (
             <label className="sm:col-span-2 sm:max-w-[320px]">
               <FieldLabel optional>Harga yang disepakati</FieldLabel>
-              <div className="flex min-h-11 overflow-hidden rounded-[8px] border border-[var(--seller-rule-strong)] bg-[var(--seller-surface)] focus-within:border-[var(--seller-brand)] focus-within:ring-2 focus-within:ring-[var(--seller-accent-soft)]">
-                <span className="flex items-center border-r border-[var(--seller-rule)] bg-[var(--seller-surface-2)] px-3 text-[12px] font-semibold text-[var(--seller-muted)]">Rp</span>
-                <input
-                  name="agreedPrice"
-                  defaultValue={deal.agreedPrice ?? ""}
-                  inputMode="numeric"
-                  className="min-w-0 flex-1 bg-transparent px-3 text-[13px] text-[var(--seller-ink)] outline-none disabled:cursor-not-allowed disabled:bg-[var(--seller-paper-2)]"
-                  placeholder="0"
-                />
-              </div>
+              <CurrencyInput
+                name="agreedPrice"
+                defaultValue={deal.agreedPrice}
+                disabled={readOnly || isPending}
+                placeholder="0"
+              />
             </label>
           ) : null}
         </section>
