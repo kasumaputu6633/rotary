@@ -93,9 +93,9 @@ export default function ProductActionCard({
         <form action={toggleFavoriteListingAction.bind(null, product.id, product.slug)}>
           <button
             type="submit"
-            className="flex h-9 w-full items-center justify-center gap-2 rounded-lg border border-[#d8deea] text-[12px] font-semibold text-[#17458f] transition-colors hover:bg-[#fff7e8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f7a81b] focus-visible:ring-offset-2"
+            className={`flex h-9 w-full items-center justify-center gap-2 rounded-lg border border-[#d8deea] text-[12px] font-semibold transition-colors hover:bg-[#fff7e8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f7a81b] focus-visible:ring-offset-2 ${product.isFavorite ? "text-[#ef476f]" : "text-[#17458f]"}`}
           >
-            <Icon icon="lucide:heart" width={15} height={15} className={product.isFavorite ? "fill-current text-[#ef476f]" : ""} aria-hidden="true" />
+            <Icon icon="lucide:heart" width={15} height={15} className={product.isFavorite ? "[&_path]:fill-current" : ""} aria-hidden="true" />
             {product.isFavorite ? "Tersimpan" : "Favorit"}
           </button>
         </form>

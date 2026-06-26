@@ -41,10 +41,13 @@ export default function MapContainer({ locations, onMarkerClick, activeLocationI
     if (activeLocationId && mapRef.current) {
       const location = locations.find(loc => loc.id === activeLocationId);
       if (location && location.latitude && location.longitude) {
+        const currentZoom = mapRef.current.getZoom();
+        const targetZoom = Math.max(currentZoom, 15); // Pastikan selalu di atas maxZoom supercluster (14)
+        
         mapRef.current.flyTo({
           center: [location.longitude, location.latitude],
-          zoom: 13, // Zoom level yang lebih dekat (10 -> 13)
-          duration: 1200, // Durasi animasi terbang (1.2 detik)
+          zoom: targetZoom, 
+          duration: 1200, 
           essential: true
         });
       }

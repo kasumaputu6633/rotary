@@ -7,8 +7,13 @@ import {
   timestamp,
   pgEnum,
   doublePrecision,
-  integer
+  integer,
+  jsonb,
+  index,
+  uniqueIndex
 } from "drizzle-orm/pg-core";
+
+import { users } from "./auth";
 
 export const wasteLocationTypeEnum = pgEnum("waste_location_type", ["tps", "vendor"]);
 
@@ -24,11 +29,46 @@ export const wasteLocations = pgTable("waste_locations", {
   latitude: doublePrecision("latitude"),
   longitude: doublePrecision("longitude"),
   jenisSampahDiterima: text("jenis_sampah_diterima").array(),
-  operatingHours: varchar("operating_hours", { length: 255 }),
-  rating: doublePrecision("rating"),
-  reviewCount: integer("review_count").notNull().default(0),
+  operatingHours: jsonb("operating_hours"),
   imageUrl: text("image_url"),
   isActive: boolean("is_active").notNull().default(true),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
+
+export const savedWasteLocations = pgTable(
+  "saved_waste_locations",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    locationId: uuid("location_id")
+      .notNull()
+      .references(() => wasteLocations.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (table) => [
+    index("saved_waste_locations_user_id_idx").on(table.userId),
+    index("saved_waste_locations_location_id_idx").on(table.locationId),
+    uniqueIndex("saved_waste_locations_user_location_unique").on(table.userId, table.locationId),
+  ]
+);
+
+export const recentWasteLocations = pgTable(
+  "recent_waste_locations",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    locationId: uuid("location_id")
+      .notNull()
+      .references(() => wasteLocations.id, { onDelete: "cascade" }),
+    viewedAt: timestamp("viewed_at").notNull().defaultNow(),
+  },
+  (table) => [
+    index("recent_waste_locations_user_id_idx").on(table.userId),
+    uniqueIndex("recent_waste_locations_user_location_unique").on(table.userId, table.locationId),
+  ]
+);

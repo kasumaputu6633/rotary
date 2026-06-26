@@ -211,6 +211,20 @@
       "when": 1782489808547,
       "tag": "0029_large_sir_ram",
       "breakpoints": true
+    },
+    {
+      "idx": 30,
+      "version": "7",
+      "when": 1782498985638,
+      "tag": "0030_loose_zarek",
+      "breakpoints": true
+    },
+    {
+      "idx": 31,
+      "version": "7",
+      "when": 1782500178863,
+      "tag": "0031_curved_blonde_phantom",
+      "breakpoints": true
     }
   ]
 }

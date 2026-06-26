@@ -46,7 +46,7 @@ export default function ProductCard({ product }: { product: ListingCardData }) {
               icon="lucide:heart"
               width={15}
               height={15}
-              className={product.isFavorite ? "fill-current" : ""}
+              className={product.isFavorite ? "[&_path]:fill-current" : ""}
               aria-hidden="true"
             />
           </button>
