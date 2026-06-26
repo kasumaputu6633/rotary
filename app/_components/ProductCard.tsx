@@ -1,12 +1,15 @@
 import { Icon } from "@iconify/react";
 import Link from "next/link";
 import { toggleFavoriteListingAction } from "@/app/account/actions";
-import { formatListingMode, formatPrice, formatPublicLocation, type ListingCardData } from "@/lib/listing-format";
+import { formatPrice, formatPublicLocation, type ListingCardData } from "@/lib/listing-format";
 
 export default function ProductCard({ product }: { product: ListingCardData }) {
   const isSale = product.mode === "sale";
   const isReserved = product.status === "reserved";
   const publicLocation = formatPublicLocation(product.location);
+  const typeLabel = isReserved ? "Dipesan" : isSale ? "Dijual" : "Donasi gratis";
+  const typeIcon = isReserved ? "lucide:handshake" : isSale ? "lucide:tag" : "lucide:hand-heart";
+  const typeColor = isReserved ? "text-[#17458f]" : isSale ? "text-[#f47b20]" : "text-[#2f7d49]";
 
   return (
     <article className="group min-w-0 font-poppins">
@@ -24,13 +27,6 @@ export default function ProductCard({ product }: { product: ListingCardData }) {
                 <Icon icon="lucide:image" aria-hidden="true" />
               </span>
             )}
-            <span
-              className={`absolute left-2 top-2 rounded-[5px] px-2 py-1 text-[10px] font-semibold leading-none text-white ${
-                isReserved ? "bg-[var(--color-reserved)]" : isSale ? "bg-[#17458f]" : "bg-[#2f7d49]"
-              }`}
-            >
-              {isReserved ? "Dipesan" : formatListingMode(product.mode)}
-            </span>
           </div>
         </Link>
 
@@ -59,9 +55,9 @@ export default function ProductCard({ product }: { product: ListingCardData }) {
         </h3>
         <p className="mt-1 text-[18px] font-bold leading-tight text-black">{formatPrice(product.price, product.mode)}</p>
 
-        <div className={`mt-1 flex min-w-0 items-center gap-1.5 text-[11px] font-semibold ${isSale ? "text-[#f47b20]" : "text-[#2f7d49]"}`}>
-          <Icon icon={isSale ? "lucide:tag" : "lucide:hand-heart"} width={13} height={13} className="shrink-0" aria-hidden="true" />
-          <span className="truncate">{isSale ? "Dijual" : "Donasi gratis"}</span>
+        <div className={`mt-1 flex min-w-0 items-center gap-1.5 text-[11px] font-semibold ${typeColor}`}>
+          <Icon icon={typeIcon} width={13} height={13} className="shrink-0" aria-hidden="true" />
+          <span className="truncate">{typeLabel}</span>
         </div>
 
         <div className="mt-1 flex min-w-0 items-center gap-1.5 text-[12px] text-[#6b7280]">

@@ -22,11 +22,16 @@ export default function FloatingChat({ currentUserId }: { currentUserId: string 
   const [convLoading, setConvLoading] = useState(false);
   const launcherTimerRef = useRef<number | null>(null);
   const panelTimerRef = useRef<number | null>(null);
+  const activeConversationIdRef = useRef<string | null>(null);
 
   const shouldHide = hiddenPathPrefixes.some((prefix) => pathname.startsWith(prefix));
 
   // Hitung total unread dari daftar conversations (lebih akurat dari polling terpisah)
   const totalUnread = conversations.reduce((sum, c) => sum + c.unreadCount, 0);
+
+  useEffect(() => {
+    activeConversationIdRef.current = activeConversationId;
+  }, [activeConversationId]);
 
   const clearTimers = useCallback(() => {
     if (launcherTimerRef.current) window.clearTimeout(launcherTimerRef.current);
@@ -37,15 +42,26 @@ export default function FloatingChat({ currentUserId }: { currentUserId: string 
   const fetchConversations = useCallback(async () => {
     if (!currentUserId) return;
     try {
-      const res = await fetch("/api/chat/conversations");
+      const res = await fetch("/api/chat/conversations", { cache: "no-store" });
       if (res.ok) {
-        const data = await res.json();
-        setConversations(data);
+        const data = (await res.json()) as ConversationSummary[];
+        const activeId = activeConversationIdRef.current;
+        setConversations(
+          activeId
+            ? data.map((conv) => conv.id === activeId ? { ...conv, unreadCount: 0 } : conv)
+            : data,
+        );
       }
     } catch {
       // Ignore
     }
   }, [currentUserId]);
+
+  const markConversationRead = useCallback((conversationId: string) => {
+    setConversations((prev) =>
+      prev.map((conv) => conv.id === conversationId ? { ...conv, unreadCount: 0 } : conv),
+    );
+  }, []);
 
   const openChat = useCallback(
     (conversationId?: string) => {
@@ -96,12 +112,13 @@ export default function FloatingChat({ currentUserId }: { currentUserId: string 
     };
   }, [clearTimers, openChat]);
 
-  // Refresh conversations list saat panel terbuka (setiap 30 detik)
+  // Refresh daftar: lebih sering saat panel terbuka, ringan saat launcher tertutup.
   useEffect(() => {
-    if (!isOpen || !currentUserId) return;
-    const interval = setInterval(fetchConversations, 30_000);
+    if (!currentUserId || shouldHide) return;
+    void fetchConversations();
+    const interval = setInterval(fetchConversations, isOpen ? 5_000 : 30_000);
     return () => clearInterval(interval);
-  }, [isOpen, currentUserId, fetchConversations]);
+  }, [isOpen, currentUserId, fetchConversations, shouldHide]);
 
   // Tidak tampilkan untuk user yang tidak login di page yang bukan hidden
   if (shouldHide) return null;
@@ -110,6 +127,7 @@ export default function FloatingChat({ currentUserId }: { currentUserId: string 
   function handleSelectConversation(id: string) {
     setActiveConversationId(id);
     setMobileView("thread");
+    markConversationRead(id);
   }
 
   return (
@@ -172,6 +190,8 @@ export default function FloatingChat({ currentUserId }: { currentUserId: string 
                   currentUserId={currentUserId}
                   pendingAttachment={pendingAttachment}
                   onAttachmentSent={() => setPendingAttachment(null)}
+                  onConversationRead={markConversationRead}
+                  onConversationChanged={fetchConversations}
                   onBack={() => setMobileView("list")}
                   onClose={closeChat}
                 />

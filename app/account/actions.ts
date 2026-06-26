@@ -25,6 +25,10 @@ export async function updateAccountProfileAction(formData: FormData) {
     throw new Error("Nama lengkap minimal 2 karakter.");
   }
 
+  if (avatarFile && avatarFile.size > 2 * 1024 * 1024) {
+    throw new Error("Ukuran foto profil harus kurang dari 2 MB.");
+  }
+
   const uploadedAvatar = avatarFile ? await uploadUserAvatar(avatarFile, user.id) : null;
   const shouldClearAvatar = removeAvatar && !uploadedAvatar;
 

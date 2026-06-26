@@ -6,8 +6,10 @@ export type ConversationSummary = {
   listingImageUrl: string | null;
   buyerId: string;
   buyerName: string | null;
+  buyerAvatarUrl: string | null;
   sellerId: string;
   sellerName: string | null;
+  sellerAvatarUrl: string | null;
   lastMessageAt: string;
   lastMessageContent: string | null;
   unreadCount: number;

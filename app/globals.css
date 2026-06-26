@@ -355,8 +355,7 @@ body {
 
 /* Marketplace Header Varian 1 (Modern Split Layout) */
 .v1-header-container {
-  background: radial-gradient(circle at top right, rgba(247, 168, 27, 0.03), rgba(23, 69, 143, 0.01)), var(--color-surface-muted);
-  padding: 32px 0;
+  padding: 24px 0 12px 0;
   width: 100%;
 }
 .v1-inner {
@@ -410,8 +409,6 @@ body {
   max-width: 720px;
   position: relative;
   /* Baked-in parameter: accent-line: true */
-  border-left: 3px solid var(--color-brand);
-  padding-left: 16px;
 }
 
 .v1-eyebrow {

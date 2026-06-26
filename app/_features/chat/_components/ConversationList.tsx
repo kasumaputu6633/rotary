@@ -56,6 +56,7 @@ export function ConversationList({
           <div className="space-y-1 p-2">
             {conversations.map((conv) => {
               const otherName = currentUserId === conv.buyerId ? conv.sellerName : conv.buyerName;
+              const otherAvatarUrl = currentUserId === conv.buyerId ? conv.sellerAvatarUrl : conv.buyerAvatarUrl;
               const badge = currentUserId === conv.buyerId ? "Penjual" : "Pembeli";
               const hasUnread = conv.unreadCount > 0;
               return (
@@ -65,8 +66,13 @@ export function ConversationList({
                   onClick={() => onSelect(conv.id)}
                   className="grid w-full grid-cols-[38px_minmax(0,1fr)] items-center gap-2 rounded-xl p-2 text-left transition-colors hover:bg-[#f8fafc] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#17458f]"
                 >
-                  <span className="relative flex h-[38px] w-[38px] items-center justify-center rounded-full border border-[#d8dee8] bg-white text-[#17458f]">
-                    <Icon icon="lucide:user-round" width={18} height={18} aria-hidden="true" />
+                  <span className="relative flex h-[38px] w-[38px] items-center justify-center overflow-hidden rounded-full border border-[#d8dee8] bg-white text-[#17458f]">
+                    {otherAvatarUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={otherAvatarUrl} alt="" className="h-full w-full object-cover" />
+                    ) : (
+                      <Icon icon="lucide:user-round" width={18} height={18} aria-hidden="true" />
+                    )}
                     <OnlineDot lastSeenAt={conv.otherUserLastSeenAt} />
                   </span>
                   <span className="min-w-0">

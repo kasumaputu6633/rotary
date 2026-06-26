@@ -20,6 +20,8 @@ export function ThreadView({
   currentUserId,
   pendingAttachment,
   onAttachmentSent,
+  onConversationRead,
+  onConversationChanged,
   onBack,
   onClose,
 }: {
@@ -27,10 +29,16 @@ export function ThreadView({
   currentUserId: string;
   pendingAttachment?: MessageAttachment | null;
   onAttachmentSent?: () => void;
+  onConversationRead?: (conversationId: string) => void;
+  onConversationChanged?: (conversationId: string) => void;
   onBack: () => void;
   onClose: () => void;
 }) {
-  const { messages, otherUser, loading, error, sending, sendMessage } = useConversation(conversationId, currentUserId);
+  const { messages, otherUser, loading, error, sending, sendMessage } = useConversation(
+    conversationId,
+    currentUserId,
+    { onConversationRead, onConversationChanged },
+  );
   const [inputValue, setInputValue] = useState("");
   const [dismissedAttachment, setDismissedAttachment] = useState(false);
   const [replyingTo, setReplyingTo] = useState<ChatMessage | null>(null);

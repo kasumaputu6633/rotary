@@ -28,8 +28,10 @@ export default async function SellerChatPage() {
       )`,
       buyerId: conversations.buyerId,
       buyerName: sql<string | null>`coalesce(${buyerUsers.shopName}, ${buyerUsers.fullName})`,
+      buyerAvatarUrl: buyerUsers.avatarUrl,
       sellerId: conversations.sellerId,
       sellerName: sql<string | null>`${user.shopName ?? user.fullName}`, // since user is the seller
+      sellerAvatarUrl: sql<string | null>`${user.avatarUrl}`,
       lastMessageAt: sql<string>`${conversations.lastMessageAt}::text`,
       lastMessageContent: sql<string | null>`(
         select content from messages

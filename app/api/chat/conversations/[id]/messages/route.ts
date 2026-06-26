@@ -1,10 +1,15 @@
 import { db } from "@/db";
 import { conversations, messages, listings, listingImages, users } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth";
-import { and, asc, eq, gt, inArray, ne, sql } from "drizzle-orm";
+import { and, asc, desc, eq, gt, inArray, ne, sql } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 
 type RouteContext = { params: Promise<{ id: string }> };
+const noStoreHeaders = {
+  "Cache-Control": "no-store, no-cache, must-revalidate",
+};
+
+export const dynamic = "force-dynamic";
 
 // Helper: pastikan user adalah anggota conversation (buyer atau seller)
 async function getConversationForUser(convId: string, userId: string) {
@@ -39,7 +44,7 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
 
   // Mark messages dari lawan bicara sebagai sudah dibaca
   const otherUserId = conv.buyerId === user.id ? conv.sellerId : conv.buyerId;
-  await db
+  const readMessages = await db
     .update(messages)
     .set({ isRead: true })
     .where(
@@ -48,7 +53,8 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
         eq(messages.senderId, otherUserId),
         eq(messages.isRead, false),
       ),
-    );
+    )
+    .returning({ id: messages.id });
 
   // Ambil messages (incremental jika ?after= ada)
   const afterParam = req.nextUrl.searchParams.get("after");
@@ -84,6 +90,19 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
         : eq(messages.conversationId, id),
     )
     .orderBy(asc(messages.createdAt))
+    .limit(100);
+
+  const readReceiptRows = await db
+    .select({ id: messages.id })
+    .from(messages)
+    .where(
+      and(
+        eq(messages.conversationId, id),
+        eq(messages.senderId, user.id),
+        eq(messages.isRead, true),
+      ),
+    )
+    .orderBy(desc(messages.createdAt))
     .limit(100);
 
   // Batch-fetch reply messages first so we know if they have attachments
@@ -167,6 +186,8 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
 
   return NextResponse.json({
     messages: messagesWithAttachments,
+    readMessagesCount: readMessages.length,
+    readMessageIds: readReceiptRows.map((row) => row.id),
     conversation: {
       id: conv.id,
       listingId: conv.listingId,
@@ -182,7 +203,7 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
           lastSeenAt: otherUser.lastSeenAt,
         }
       : null,
-  });
+  }, { headers: noStoreHeaders });
 }
 
 // POST /api/chat/conversations/[id]/messages — kirim pesan
@@ -275,5 +296,4 @@ export async function POST(req: NextRequest, { params }: RouteContext) {
     replyToMessage: replyToMessageId ? { id: replyToMessageId } : null,
   }, { status: 201 });
 }
-
 

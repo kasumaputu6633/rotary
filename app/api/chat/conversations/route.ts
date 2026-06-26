@@ -7,6 +7,11 @@ import { NextRequest, NextResponse } from "next/server";
 
 const buyers = alias(users, "buyers");
 const sellers = alias(users, "sellers");
+const noStoreHeaders = {
+  "Cache-Control": "no-store, no-cache, must-revalidate",
+};
+
+export const dynamic = "force-dynamic";
 
 // GET /api/chat/conversations — list semua conversations untuk user yg login
 export async function GET() {
@@ -27,8 +32,10 @@ export async function GET() {
       )`,
       buyerId: conversations.buyerId,
       buyerName: sql<string | null>`coalesce(${buyers.shopName}, ${buyers.fullName})`,
+      buyerAvatarUrl: buyers.avatarUrl,
       sellerId: conversations.sellerId,
       sellerName: sql<string | null>`coalesce(${sellers.shopName}, ${sellers.fullName})`,
+      sellerAvatarUrl: sellers.avatarUrl,
       lastMessageAt: conversations.lastMessageAt,
       createdAt: conversations.createdAt,
       // last message preview
@@ -63,9 +70,7 @@ export async function GET() {
     .orderBy(desc(conversations.lastMessageAt));
 
   return NextResponse.json(rows, {
-    headers: {
-      "Cache-Control": "private, max-age=15, stale-while-revalidate=30",
-    },
+    headers: noStoreHeaders,
   });
 }
 

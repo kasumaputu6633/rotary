@@ -110,7 +110,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
     <>
       <Navbar />
       <main className="bg-white">
-        <section className="border-b border-[#e5e7eb] bg-white">
+        <section className="bg-white">
           <div className="v1-header-container">
             <div className="v1-inner">
               <nav className="v1-breadcrumb" aria-label="Breadcrumb">

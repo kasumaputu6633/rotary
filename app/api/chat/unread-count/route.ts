@@ -4,8 +4,14 @@ import { getCurrentUser } from "@/lib/auth";
 import { and, eq, sql } from "drizzle-orm";
 import { NextResponse } from "next/server";
 
+const noStoreHeaders = {
+  "Cache-Control": "no-store, no-cache, must-revalidate",
+};
+
+export const dynamic = "force-dynamic";
+
 // GET /api/chat/unread-count — jumlah total pesan belum dibaca untuk user
-// Ringan, di-poll setiap 30 detik untuk badge navbar
+// Ringan, di-poll untuk badge navbar
 export async function GET() {
   const user = await getCurrentUser();
   if (!user) return NextResponse.json({ count: 0 });
@@ -27,9 +33,7 @@ export async function GET() {
   return NextResponse.json(
     { count: result?.count ?? 0 },
     {
-      headers: {
-        "Cache-Control": "private, max-age=15, stale-while-revalidate=30",
-      },
+      headers: noStoreHeaders,
     }
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { dispatchChatConversationChanged, dispatchChatUnreadChanged } from "../events";
 
 const POLL_INTERVAL_MS = 3_000;
 
@@ -43,6 +44,19 @@ export type ConversationInfo = {
   lastMessageAt: string;
 };
 
+type UseConversationOptions = {
+  onConversationRead?: (conversationId: string) => void;
+  onConversationChanged?: (conversationId: string) => void;
+};
+
+type MessagesResponse = {
+  messages: ChatMessage[];
+  conversation: ConversationInfo;
+  otherUser: OtherUser | null;
+  readMessagesCount?: number;
+  readMessageIds?: string[];
+};
+
 /** Hitung status online berdasarkan lastSeenAt */
 export function getOnlineStatus(lastSeenAt: string | null): "online" | "recent" | "offline" | "unknown" {
   if (!lastSeenAt) return "unknown";
@@ -53,7 +67,11 @@ export function getOnlineStatus(lastSeenAt: string | null): "online" | "recent" 
   return "offline";
 }
 
-export function useConversation(conversationId: string | null, currentUserId: string) {
+export function useConversation(
+  conversationId: string | null,
+  currentUserId: string,
+  options: UseConversationOptions = {},
+) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [otherUser, setOtherUser] = useState<OtherUser | null>(null);
   const [conversation, setConversation] = useState<ConversationInfo | null>(null);
@@ -64,6 +82,11 @@ export function useConversation(conversationId: string | null, currentUserId: st
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastMessageIdRef = useRef<string | null>(null);
   const isFirstLoad = useRef(true);
+  const callbacksRef = useRef(options);
+
+  useEffect(() => {
+    callbacksRef.current = options;
+  }, [options]);
 
   const stopPolling = useCallback(() => {
     if (timerRef.current) clearTimeout(timerRef.current);
@@ -81,18 +104,28 @@ export function useConversation(conversationId: string | null, currentUserId: st
         : `/api/chat/conversations/${conversationId}/messages`;
 
       try {
-        const res = await fetch(url);
+        const res = await fetch(url, { cache: "no-store" });
         if (!res.ok) {
           if (res.status === 404) setError("Conversation tidak ditemukan");
           else if (res.status === 401) setError("Silakan login untuk membuka chat");
           return;
         }
 
-        const data = await res.json();
+        const data = (await res.json()) as MessagesResponse;
+        const readMessageIds = new Set(data.readMessageIds ?? []);
 
         setConversation(data.conversation);
         setOtherUser(data.otherUser);
         setError(null);
+
+        const applyReadReceipts = (items: ChatMessage[]) => {
+          if (readMessageIds.size === 0) return items;
+          return items.map((msg) =>
+            msg.senderId === currentUserId && readMessageIds.has(msg.id)
+              ? { ...msg, isRead: true }
+              : msg,
+          );
+        };
 
         if (data.messages.length > 0) {
           if (isIncremental) {
@@ -100,18 +133,25 @@ export function useConversation(conversationId: string | null, currentUserId: st
               const newMsgs = data.messages.filter(
                 (m: ChatMessage) => !prev.some((p) => p.id === m.id)
               );
-              return [...prev, ...newMsgs];
+              return applyReadReceipts([...prev, ...newMsgs]);
             });
           } else {
-            setMessages(data.messages);
+            setMessages(applyReadReceipts(data.messages));
           }
           lastMessageIdRef.current = data.messages.at(-1)?.id ?? lastMessageIdRef.current;
+        } else if (readMessageIds.size > 0) {
+          setMessages((prev) => applyReadReceipts(prev));
+        }
+
+        if (!isIncremental || (data.readMessagesCount ?? 0) > 0) {
+          callbacksRef.current.onConversationRead?.(conversationId);
+          dispatchChatUnreadChanged({ conversationId });
         }
       } catch {
         // Ignore saat polling
       }
     },
-    [conversationId],
+    [conversationId, currentUserId],
   );
 
   // Load awal + mulai polling
@@ -206,14 +246,17 @@ export function useConversation(conversationId: string | null, currentUserId: st
         const newMsg: ChatMessage = await res.json();
         setMessages((prev) => prev.map((m) => (m.id === tempId ? { ...newMsg, replyToMessage: m.replyToMessage } : m)));
         lastMessageIdRef.current = newMsg.id;
+        callbacksRef.current.onConversationChanged?.(conversationId);
+        dispatchChatConversationChanged({ conversationId });
         return true;
       } catch {
+        setMessages((prev) => prev.filter((m) => m.id !== tempId));
         return false;
       } finally {
         setSending(false);
       }
     },
-    [conversationId],
+    [conversationId, currentUserId],
   );
 
   return {

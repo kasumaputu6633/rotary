@@ -1,7 +1,7 @@
 "use client";
 
 import { Icon } from "@iconify/react";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import type { ConversationSummary } from "@/app/_features/chat/types";
 import { ConversationList } from "@/app/_features/chat/_components/ConversationList";
 import { ThreadView } from "@/app/_features/chat/_components/ThreadView";
@@ -15,14 +15,22 @@ export default function DashboardChatClient({
 }) {
   const [conversations, setConversations] = useState<ConversationSummary[]>(initialConversations);
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
+  const activeConversationIdRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    activeConversationIdRef.current = activeConversationId;
+  }, [activeConversationId]);
 
   const fetchConversations = useCallback(async () => {
     try {
-      const res = await fetch("/api/chat/conversations");
+      const res = await fetch("/api/chat/conversations", { cache: "no-store" });
       if (res.ok) {
-        const data = await res.json();
+        const data = (await res.json()) as ConversationSummary[];
+        const activeId = activeConversationIdRef.current;
         // Since this is the seller dashboard, filter only those where current user is seller
-        const sellerConversations = data.filter((c: ConversationSummary) => c.sellerId === currentUserId);
+        const sellerConversations = data
+          .filter((c: ConversationSummary) => c.sellerId === currentUserId)
+          .map((c) => c.id === activeId ? { ...c, unreadCount: 0 } : c);
         setConversations(sellerConversations);
       }
     } catch {
@@ -30,10 +38,24 @@ export default function DashboardChatClient({
     }
   }, [currentUserId]);
 
+  const markConversationRead = useCallback((conversationId: string) => {
+    setConversations((prev) =>
+      prev.map((conv) => conv.id === conversationId ? { ...conv, unreadCount: 0 } : conv),
+    );
+  }, []);
+
+  const selectConversation = useCallback(
+    (conversationId: string) => {
+      setActiveConversationId(conversationId);
+      markConversationRead(conversationId);
+    },
+    [markConversationRead],
+  );
+
   useEffect(() => {
-    const interval = setInterval(fetchConversations, 30_000);
+    const interval = setInterval(fetchConversations, activeConversationId ? 5_000 : 30_000);
     return () => clearInterval(interval);
-  }, [fetchConversations]);
+  }, [activeConversationId, fetchConversations]);
 
   return (
     <section className="grid h-[calc(100vh-210px)] min-h-[600px] w-full overflow-hidden rounded-[8px] border border-[var(--seller-rule)] bg-[var(--seller-surface)] shadow-[var(--seller-shadow)] md:grid-cols-[280px_minmax(0,1fr)] lg:grid-cols-[340px_minmax(0,1fr)]">
@@ -43,7 +65,7 @@ export default function DashboardChatClient({
           conversations={conversations}
           loading={false}
           currentUserId={currentUserId}
-          onSelect={setActiveConversationId}
+          onSelect={selectConversation}
           onClose={() => {}} // Disabled in dashboard view
         />
       </div>
@@ -54,6 +76,8 @@ export default function DashboardChatClient({
           <ThreadView
             conversationId={activeConversationId}
             currentUserId={currentUserId}
+            onConversationRead={markConversationRead}
+            onConversationChanged={fetchConversations}
             onBack={() => setActiveConversationId(null)}
             onClose={() => setActiveConversationId(null)} // Hidden via css on desktop, serves as back on mobile
           />
