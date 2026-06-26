@@ -17,8 +17,8 @@ export default function LocationDetailSheet({ locationId, onClose, isCollapsed, 
 
   // Dummy data
   const isVendor = locationId === "2";
-  const title = isVendor ? "Vendor Tabanan" : "Wangaya Regional General Hospital";
-  const category = isVendor ? "Vendor" : "Medical Center";
+  const title = isVendor ? "Vendor Tabanan" : "Mank Adi Bali Recycle Centre";
+  const category = isVendor ? "Vendor" : "Recycling Center";
 
   return (
     <div className={`relative h-full w-full sm:w-[400px] bg-white shadow-2xl flex flex-col pointer-events-auto transition-transform duration-300 ${isCollapsed ? '-translate-x-full' : 'translate-x-0'}`}>
@@ -75,8 +75,8 @@ export default function LocationDetailSheet({ locationId, onClose, isCollapsed, 
             <button
               onClick={() => setActiveTab("overview")}
               className={`flex-1 py-3 text-sm font-bold font-poppins text-center transition-colors ${activeTab === "overview"
-                  ? "text-[#17458f] border-b-2 border-[#17458f]"
-                  : "text-gray-500 hover:text-gray-700"
+                ? "text-[#17458f] border-b-2 border-[#17458f]"
+                : "text-gray-500 hover:text-gray-700"
                 }`}
             >
               Overview
@@ -84,8 +84,8 @@ export default function LocationDetailSheet({ locationId, onClose, isCollapsed, 
             <button
               onClick={() => setActiveTab("about")}
               className={`flex-1 py-3 text-sm font-bold font-poppins text-center transition-colors ${activeTab === "about"
-                  ? "text-[#17458f] border-b-2 border-[#17458f]"
-                  : "text-gray-500 hover:text-gray-700"
+                ? "text-[#17458f] border-b-2 border-[#17458f]"
+                : "text-gray-500 hover:text-gray-700"
                 }`}
             >
               About
@@ -120,7 +120,7 @@ export default function LocationDetailSheet({ locationId, onClose, isCollapsed, 
                 <div className="flex flex-col gap-5 text-sm text-gray-700">
                   <div className="flex items-start gap-4">
                     <Icon icon="mdi:map-marker-outline" className="w-6 h-6 text-[#17458f] shrink-0" />
-                    <p>Jl. Kartini No.133, Dauh Puri Kaja, Kec. Denpasar Utara, Kota Denpasar, Bali 80231</p>
+                    <p>Jl. Ir Sutami, Batuan, Kec. Sukawati, Kabupaten Gianyar, Bali 80582</p>
                   </div>
                   <div className="flex items-center gap-4">
                     <Icon icon="mdi:clock-outline" className="w-6 h-6 text-[#17458f] shrink-0" />

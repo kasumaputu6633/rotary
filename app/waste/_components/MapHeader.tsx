@@ -1,21 +1,21 @@
 "use client";
 
-import { Icon } from "@iconify/react";
 import { useState } from "react";
+import { Icon } from "@iconify/react";
 
 interface MapHeaderProps {
   selectedLocationName: string | null;
   onClearSelection: () => void;
+  activeFilter: 'tps' | 'vendor' | null;
+  onFilterChange: (filter: 'tps' | 'vendor' | null) => void;
 }
 
-export default function MapHeader({ selectedLocationName, onClearSelection }: MapHeaderProps) {
-  const [activeFilter, setActiveFilter] = useState<string | null>(null);
-  
+export default function MapHeader({ selectedLocationName, onClearSelection, activeFilter, onFilterChange }: MapHeaderProps) {
   // State pencarian lokal (hanya dummy untuk UI)
   const [searchValue, setSearchValue] = useState("");
 
-  const toggleFilter = (filter: string) => {
-    setActiveFilter(activeFilter === filter ? null : filter);
+  const toggleFilter = (filter: 'tps' | 'vendor') => {
+    onFilterChange(activeFilter === filter ? null : filter);
   };
 
   // Nilai input bergantung pada apakah ada lokasi yang dipilih atau tidak
