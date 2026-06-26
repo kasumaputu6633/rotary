@@ -2,6 +2,7 @@ import { requireRole } from "@/lib/auth";
 import { getAdminUsers } from "./actions";
 import UsersTable from "./UsersTable";
 import UsersStatsRow from "./UsersStatsRow";
+import { Icon } from "@iconify/react";
 
 export const metadata = {
     title: "Users Overview — Rotary Admin",
@@ -41,7 +42,7 @@ export default async function AdminUsersPage({ searchParams }: PageProps) {
             {/* Breadcrumb */}
             <nav className="flex items-center gap-1.5 font-poppins text-[12px] text-gray-400">
                 <span>Dashboard</span>
-                <span className="text-gray-300">/</span>
+                <Icon icon="lucide:chevron-right" width={12} height={12} className="text-gray-300" />
                 <span className="font-semibold text-[#17458f]">Users</span>
             </nav>
 
