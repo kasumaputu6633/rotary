@@ -52,6 +52,7 @@ export default async function AccountSettingsPage({
   const emailVerified = isEmailVerified(user);
   const phoneVerified = isPhoneVerified(user);
   const sellerReady = emailVerified && phoneVerified;
+  const contactComplete = sellerReady;
   const securityData = activeTab === "security" ? await getAccountSecurityData() : null;
 
   return (
@@ -78,7 +79,7 @@ export default async function AccountSettingsPage({
       />
 
       <AccountPanel>
-        <AccountSettingsTabs activeTab={activeTab} contactComplete={sellerReady} />
+        <AccountSettingsTabs activeTab={activeTab} contactComplete={contactComplete} />
 
         {activeTab === "profile" ? (
           <div>
@@ -99,7 +100,7 @@ export default async function AccountSettingsPage({
               <div className="border-b border-[var(--seller-rule)] px-4 py-4 sm:px-5">
                 <h2 className="text-[16px] font-semibold text-[var(--seller-ink)]">Kontak dan verifikasi</h2>
                 <p className="mt-1 text-[12px] leading-relaxed text-[var(--seller-muted)]">
-                  Email tetap privat. Nomor HP dipakai untuk keamanan akun dan tombol WhatsApp pada listing.
+                  Email tetap privat. Nomor HP dipakai untuk keamanan dan dapat dipilih sebagai kontak WhatsApp listing.
                 </p>
               </div>
               <EmailVerificationCard email={user.email} verified={emailVerified} />
@@ -111,7 +112,7 @@ export default async function AccountSettingsPage({
                 <div className="border-b border-[var(--seller-rule)] p-4">
                   <h2 className="text-[14px] font-semibold text-[var(--seller-ink)]">Akses berjualan</h2>
                   <p className="mt-1 text-[11px] leading-relaxed text-[var(--seller-muted)]">
-                    Selesaikan kedua verifikasi sebelum mengelola listing.
+                    Email dan nomor HP wajib diverifikasi. Tombol WhatsApp tetap dapat dinonaktifkan dari Profil Lapak.
                   </p>
                 </div>
                 <div className="divide-y divide-[var(--seller-rule)] px-4">

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const HANDOVER_OPTIONS = ["Ambil di tempat", "Titik temu", "Bisa dikirim manual"];
 
@@ -13,6 +13,17 @@ export function ListingHandoverOptions({ defaultValue }: ListingHandoverOptionsP
     defaultValue && defaultValue.length > 0 ? defaultValue : ["Ambil di tempat"],
   );
   const [selected, setSelected] = useState<Set<string>>(initialSelected);
+  const sentinelRef = useRef<HTMLInputElement>(null);
+
+  const isInvalid = selected.size === 0;
+
+  // Sync customValidity tiap state berubah biar ngga stale gara-gara onInput
+  // ngga ke-fire saat value di-set programmatically lewat React.
+  useEffect(() => {
+    sentinelRef.current?.setCustomValidity(
+      isInvalid ? "Pilih minimal 1 opsi serah terima." : "",
+    );
+  }, [isInvalid]);
 
   function toggle(option: string, checked: boolean) {
     setSelected((prev) => {
@@ -22,8 +33,6 @@ export function ListingHandoverOptions({ defaultValue }: ListingHandoverOptionsP
       return next;
     });
   }
-
-  const isInvalid = selected.size === 0;
 
   return (
     <div className="mt-3 grid gap-2">
@@ -44,24 +53,15 @@ export function ListingHandoverOptions({ defaultValue }: ListingHandoverOptionsP
         </label>
       ))}
 
-      {/* Hidden input untuk trigger HTML required validation kalo belum ada yang dicentang */}
+      {/* Sentinel input buat trigger native required validation. */}
       <input
+        ref={sentinelRef}
         type="text"
         tabIndex={-1}
         aria-hidden="true"
-        required
         value={isInvalid ? "" : "ok"}
         onChange={() => {}}
         className="sr-only"
-        // biar focus dari validation native nggak nyasar ke field tersembunyi
-        onInvalid={(event) => {
-          (event.target as HTMLInputElement).setCustomValidity(
-            "Pilih minimal 1 opsi serah terima.",
-          );
-        }}
-        onInput={(event) => {
-          (event.target as HTMLInputElement).setCustomValidity("");
-        }}
       />
 
       {isInvalid ? (

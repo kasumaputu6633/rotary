@@ -73,7 +73,7 @@ export function SellerVerificationGate({
               Verifikasi akun untuk mulai berjualan
             </h1>
             <p id="seller-verification-description" className="mt-2 text-[12px] leading-relaxed text-[var(--seller-muted)] sm:text-[13px]">
-              Selesaikan verifikasi email dan nomor HP sebelum menerbitkan atau mengelola listing barang di Rotary.
+              Selesaikan verifikasi email dan nomor HP sebelum menerbitkan atau mengelola listing. Penggunaan tombol WhatsApp tetap opsional.
             </p>
           </div>
 
@@ -86,7 +86,7 @@ export function SellerVerificationGate({
             />
             <VerificationStep
               complete={phoneVerified}
-              description="Mengaktifkan kontak WhatsApp agar peminat dapat menghubungi lapakmu."
+              description="Dipakai untuk OTP keamanan akun. Nomor tidak otomatis ditampilkan pada listing."
               icon="lucide:smartphone"
               label="Verifikasi nomor HP"
             />

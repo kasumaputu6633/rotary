@@ -116,23 +116,6 @@ export function useConversation(conversationId: string | null, currentUserId: st
 
   // Load awal + mulai polling
   useEffect(() => {
-    /* eslint-disable react-hooks/set-state-in-effect */
-    if (!conversationId) {
-      setMessages([]);
-      setOtherUser(null);
-      setConversation(null);
-      setError(null);
-      stopPolling();
-      return;
-    }
-
-    isFirstLoad.current = true;
-    lastMessageIdRef.current = null;
-    setLoading(true);
-    setMessages([]);
-    setError(null);
-    /* eslint-enable react-hooks/set-state-in-effect */
-
     let stopped = false;
 
     async function poll() {
@@ -151,10 +134,30 @@ export function useConversation(conversationId: string | null, currentUserId: st
       }
     }
 
-    poll();
+    const startTimer = window.setTimeout(() => {
+      if (stopped) return;
+
+      if (!conversationId) {
+        setMessages([]);
+        setOtherUser(null);
+        setConversation(null);
+        setError(null);
+        setLoading(false);
+        stopPolling();
+        return;
+      }
+
+      isFirstLoad.current = true;
+      lastMessageIdRef.current = null;
+      setLoading(true);
+      setMessages([]);
+      setError(null);
+      void poll();
+    }, 0);
 
     return () => {
       stopped = true;
+      window.clearTimeout(startTimer);
       stopPolling();
     };
   }, [conversationId, fetchMessages, stopPolling]);
@@ -223,5 +226,3 @@ export function useConversation(conversationId: string | null, currentUserId: st
     sendMessage,
   };
 }
-
-

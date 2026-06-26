@@ -1,5 +1,6 @@
 import { db } from "@/db";
 import { favoriteListings, listingImages, listings, users } from "@/db/schema";
+import { createHmac } from "node:crypto";
 import type { ListingCardData, ListingMode, ListingStatus } from "@/lib/listing-format";
 import { and, asc, desc, eq, gte, ilike, inArray, lte, ne, or, sql, type SQL } from "drizzle-orm";
 
@@ -182,7 +183,9 @@ export async function getPublicListingBySlug(slug: string, userId?: string | nul
       handoverOptions: listings.handoverOptions,
       sellerWhatsapp: sql<string | null>`
         case
-          when ${users.phoneVerifiedAt} is not null then ${users.phone}
+          when ${users.phoneVerifiedAt} is not null
+            and ${users.whatsappContactEnabled} = true
+          then ${users.phone}
           else null
         end
       `,
@@ -341,4 +344,13 @@ export async function getSellerListingStats(sellerId: string): Promise<Record<st
       },
     ]),
   );
+}
+
+export function generateRenewToken(listingId: string): string {
+  const secret = process.env.OTP_HASH_SECRET || "fallback-secret-key-1234567890";
+  return createHmac("sha256", secret).update(listingId).digest("hex").slice(0, 16);
+}
+
+export function verifyRenewToken(listingId: string, token: string): boolean {
+  return generateRenewToken(listingId) === token;
 }

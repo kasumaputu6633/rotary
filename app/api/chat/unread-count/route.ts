@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { conversations, messages, users } from "@/db/schema";
+import { conversations, messages } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth";
 import { and, eq, sql } from "drizzle-orm";
 import { NextResponse } from "next/server";

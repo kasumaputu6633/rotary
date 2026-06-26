@@ -1,4 +1,7 @@
+"use client";
+
 import { Icon } from "@iconify/react";
+import { useState } from "react";
 
 type ActivityItem = {
   createdAt: Date;
@@ -30,7 +33,16 @@ function formatDate(value: Date) {
   }).format(new Date(value));
 }
 
+const ITEMS_PER_PAGE = 5;
+
 export function LoginActivityList({ activities }: { activities: ActivityItem[] }) {
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const totalPages = Math.max(Math.ceil(activities.length / ITEMS_PER_PAGE), 1);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const visibleActivities = activities.slice(startIndex, endIndex);
+
   return (
     <div className="p-4 sm:p-5">
       <div className="mb-4">
@@ -48,33 +60,61 @@ export function LoginActivityList({ activities }: { activities: ActivityItem[] }
               <p className="mt-2 text-[11px] text-[var(--seller-muted)]">Belum ada aktivitas login yang tercatat.</p>
             </div>
           </div>
-        ) : activities.map((activity) => {
-          const copy = eventCopy[activity.event] ?? {
-            icon: "lucide:shield",
-            label: "Aktivitas keamanan",
-          };
-          const failed = activity.status === "failed";
-          return (
-            <div key={activity.id} className="grid gap-3 p-4 sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:items-center">
-              <span className={`flex h-9 w-9 items-center justify-center rounded-[8px] ${
-                failed
-                  ? "bg-[var(--seller-danger-soft)] text-[var(--seller-danger)]"
-                  : "bg-[var(--seller-surface-2)] text-[var(--seller-brand)]"
-              }`}>
-                <Icon icon={copy.icon} width={16} height={16} aria-hidden="true" />
-              </span>
-              <div className="min-w-0">
-                <p className="text-[12px] font-semibold text-[var(--seller-ink)]">{copy.label}</p>
-                <p className="mt-1 truncate text-[10px] text-[var(--seller-muted)]">
-                  {activity.deviceName ?? "Perangkat tidak dikenal"}
-                  {activity.ipAddress ? ` · IP ${activity.ipAddress}` : ""}
-                </p>
+        ) : (
+          visibleActivities.map((activity) => {
+            const copy = eventCopy[activity.event] ?? {
+              icon: "lucide:shield",
+              label: "Aktivitas keamanan",
+            };
+            const failed = activity.status === "failed";
+            return (
+              <div key={activity.id} className="grid gap-3 p-4 sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:items-center">
+                <span className={`flex h-9 w-9 items-center justify-center rounded-[8px] ${
+                  failed
+                    ? "bg-[var(--seller-danger-soft)] text-[var(--seller-danger)]"
+                    : "bg-[var(--seller-surface-2)] text-[var(--seller-brand)]"
+                }`}>
+                  <Icon icon={copy.icon} width={16} height={16} aria-hidden="true" />
+                </span>
+                <div className="min-w-0">
+                  <p className="text-[12px] font-semibold text-[var(--seller-ink)]">{copy.label}</p>
+                  <p className="mt-1 truncate text-[10px] text-[var(--seller-muted)]">
+                    {activity.deviceName ?? "Perangkat tidak dikenal"}
+                    {activity.ipAddress ? ` · IP ${activity.ipAddress}` : ""}
+                  </p>
+                </div>
+                <time className="text-[10px] text-[var(--seller-muted)]">{formatDate(activity.createdAt)}</time>
               </div>
-              <time className="text-[10px] text-[var(--seller-muted)]">{formatDate(activity.createdAt)}</time>
-            </div>
-          );
-        })}
+            );
+          })
+        )}
       </div>
+
+      {totalPages > 1 && (
+        <div className="mt-4 flex items-center justify-between gap-3 font-poppins text-[11px]">
+          <button
+            type="button"
+            disabled={currentPage === 1}
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            className="inline-flex min-h-8 items-center gap-1.5 rounded-[6px] border border-[var(--seller-rule)] px-3 font-semibold text-[var(--seller-ink)] transition hover:bg-[var(--seller-surface-2)] disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            <Icon icon="lucide:chevron-left" width={13} height={13} aria-hidden="true" />
+            Sebelumnya
+          </button>
+          <span className="font-medium text-[var(--seller-muted)]">
+            Halaman {currentPage} dari {totalPages}
+          </span>
+          <button
+            type="button"
+            disabled={currentPage === totalPages}
+            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+            className="inline-flex min-h-8 items-center gap-1.5 rounded-[6px] border border-[var(--seller-rule)] px-3 font-semibold text-[var(--seller-ink)] transition hover:bg-[var(--seller-surface-2)] disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            Berikutnya
+            <Icon icon="lucide:chevron-right" width={13} height={13} aria-hidden="true" />
+          </button>
+        </div>
+      )}
     </div>
   );
 }

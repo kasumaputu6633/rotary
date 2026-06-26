@@ -26,6 +26,7 @@ const listingTips = [
 ];
 
 const STALE_LISTING_DAYS = 14;
+const CONFIRMATION_DAYS = 25;
 const DAY_IN_MS = 24 * 60 * 60 * 1000;
 
 function getCurrentTimestamp() {
@@ -34,6 +35,7 @@ function getCurrentTimestamp() {
 
 export default async function LapakSayaPage() {
   const user = await requireRole("user");
+
   const emailVerified = isEmailVerified(user);
   const phoneVerified = isPhoneVerified(user);
   const [sellerListings, listingStats] = await Promise.all([
@@ -53,6 +55,7 @@ export default async function LapakSayaPage() {
   const activeWithoutHandover = activeListings.filter((listing) => !listing.handoverOptions || listing.handoverOptions.length === 0);
   const currentTimestamp = getCurrentTimestamp();
   const staleActiveListings = activeListings.filter((listing) => currentTimestamp - listing.updatedAt.getTime() > STALE_LISTING_DAYS * DAY_IN_MS);
+  const needsConfirmationListings = activeListings.filter((listing) => currentTimestamp - listing.updatedAt.getTime() >= CONFIRMATION_DAYS * DAY_IN_MS);
   const totals = Object.values(listingStats).reduce(
     (acc, stats) => ({
       viewCount: acc.viewCount + stats.viewCount,
@@ -74,7 +77,7 @@ export default async function LapakSayaPage() {
     ...(!phoneVerified
       ? [{
           title: "Verifikasi nomor HP untuk mulai berjualan",
-          description: "Aktifkan kontak WhatsApp agar calon peminat mudah menghubungi kamu dari halaman listing.",
+          description: "Lengkapi OTP keamanan akun. Tombol WhatsApp tetap dapat kamu nonaktifkan.",
           icon: "lucide:phone",
           href: "/account/settings?tab=contact",
           action: "Verifikasi",
@@ -132,6 +135,17 @@ export default async function LapakSayaPage() {
           icon: "lucide:handshake",
           href: "/dashboard/listings?status=active&issue=missing-handover",
           action: "Lengkapi",
+        }]
+      : []),
+    ...(needsConfirmationListings.length > 0
+      ? [{
+          title: "Konfirmasi barang masih ada",
+          description: needsConfirmationListings.length === 1
+            ? `"${needsConfirmationListings[0].title}" perlu konfirmasi agar tidak dinonaktifkan otomatis.`
+            : `${needsConfirmationListings.length} listing aktif perlu konfirmasi agar tidak dinonaktifkan otomatis.`,
+          icon: "lucide:alert-triangle",
+          href: "/dashboard/listings?status=active&sort=updated-asc",
+          action: "Konfirmasi",
         }]
       : []),
     ...(staleActiveListings.length > 0

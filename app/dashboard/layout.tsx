@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { requireRole } from "@/lib/auth";
 import { getSellerListings } from "@/lib/listings";
+import { runDeactivateListingsCron } from "@/lib/listings-cron";
 import { getProfileCompletion, resolveShopName } from "@/lib/profile";
 import { isEmailVerified, isPhoneVerified } from "@/lib/account-verification";
 import SellerCenterShell from "./_components/SellerCenterShell";
@@ -23,6 +24,16 @@ export default async function LapakSayaLayout({
   children: React.ReactNode;
 }>) {
   const user = await requireRole("user");
+
+  // Jalankan lazy cron di background secara non-blocking jika disetel di env
+  // Default ke "lazycron" pada lingkungan development jika tidak disetel
+  const cronType = process.env.CRON_TYPE || (process.env.NODE_ENV === "development" ? "lazycron" : "external");
+  if (cronType === "lazycron") {
+    runDeactivateListingsCron().catch((err) => {
+      console.error("LazyCron Error:", err);
+    });
+  }
+
   const sellerListings = await getSellerListings(user.id);
   const draftCount = sellerListings.filter((l) => l.status === "draft").length;
   const reservedCount = sellerListings.filter((l) => l.status === "reserved").length;
@@ -51,9 +62,9 @@ export default async function LapakSayaLayout({
       draftCount={draftCount}
       inactiveCount={inactiveCount}
       isEmailVerified={isEmailVerified(user)}
+      isPhoneVerified={isPhoneVerified(user)}
       profileMissingCount={profileCompletion.missingCount}
       reservedCount={reservedCount}
-      isPhoneVerified={isPhoneVerified(user)}
     >
       {children}
     </SellerCenterShell>

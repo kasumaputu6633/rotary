@@ -4,10 +4,16 @@ import { Icon } from "@iconify/react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useRef, useState, useTransition, type ReactNode } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+  useTransition,
+  type ReactNode,
+} from "react";
 import { logoutAction } from "@/app/actions";
 import { ConfirmDialog } from "@/app/_components/ConfirmDialog";
-import { SellerVerificationGate } from "./SellerVerificationGate";
 import { SellerToaster } from "./SellerToaster";
 
 type NavigationItem = {
@@ -57,6 +63,10 @@ function PartnerLogoLockup({ compact = false }: { compact?: boolean }) {
   );
 }
 
+function subscribeToHydration() {
+  return () => {};
+}
+
 export default function SellerCenterShell({
   attentionCount = 0,
   children,
@@ -83,6 +93,11 @@ export default function SellerCenterShell({
   userName: string;
 }) {
   const pathname = usePathname();
+  const isHydrated = useSyncExternalStore(
+    subscribeToHydration,
+    () => true,
+    () => false,
+  );
   const initials = getInitials(userName) || "R";
   const [isLogoutConfirmOpen, setIsLogoutConfirmOpen] = useState(false);
   const [isLogoutPending, startLogoutTransition] = useTransition();
@@ -92,14 +107,9 @@ export default function SellerCenterShell({
   const isProfileMenuOpen = profileMenuOpenPath === pathname;
   const needsEmailVerification = !isEmailVerified;
   const needsPhoneVerification = !isPhoneVerified;
-  const isSellerReady = isEmailVerified && isPhoneVerified;
-  const isRestrictedSellerPage =
-    pathname.startsWith("/dashboard/listings")
-    || pathname.startsWith("/dashboard/deals")
-    || pathname.startsWith("/dashboard/chat");
-  const shouldBlockSellerPage = isRestrictedSellerPage && !isSellerReady;
   const showVerificationBanner =
-    (needsEmailVerification || needsPhoneVerification)
+    isHydrated
+    && (needsEmailVerification || needsPhoneVerification)
     && !isVerificationBannerDismissed
     && pathname !== "/dashboard/profile";
 
@@ -107,18 +117,18 @@ export default function SellerCenterShell({
     ? {
         icon: "lucide:shield-check",
         title: "Lengkapi verifikasi untuk mulai berjualan.",
-        description: "Verifikasi email dan nomor HP agar kamu siap menerbitkan listing barang.",
+        description: "Verifikasi email dan nomor HP untuk mengamankan akun seller.",
       }
     : needsEmailVerification
       ? {
           icon: "lucide:mail-check",
           title: "Verifikasi email untuk mulai berjualan.",
-          description: "Amankan akunmu sebelum menerbitkan listing barang di Rotary.",
+          description: "Amankan akses akun sebelum menerbitkan listing barang.",
         }
       : {
           icon: "lucide:phone",
           title: "Verifikasi nomor HP untuk mulai berjualan.",
-          description: "Aktifkan kontak WhatsApp agar calon peminat mudah menghubungi kamu.",
+          description: "Nomor digunakan untuk keamanan akun. Tombol WhatsApp tetap opsional.",
         };
 
   function handleLogout() {
@@ -456,17 +466,8 @@ export default function SellerCenterShell({
             </div>
           ) : null}
 
-          <main className={`min-w-0 px-4 py-5 md:px-6 lg:min-h-0 lg:flex-1 ${
-            shouldBlockSellerPage ? "overflow-hidden" : "lg:overflow-y-auto"
-          }`}>
-            {shouldBlockSellerPage ? (
-              <SellerVerificationGate
-                emailVerified={isEmailVerified}
-                phoneVerified={isPhoneVerified}
-              >
-                {children}
-              </SellerVerificationGate>
-            ) : children}
+          <main className="min-w-0 px-4 py-5 md:px-6 lg:min-h-0 lg:flex-1 lg:overflow-y-auto">
+            {children}
           </main>
         </div>
       </div>

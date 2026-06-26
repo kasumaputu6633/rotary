@@ -1,8 +1,11 @@
 import { createListingAction } from "../../actions";
 import { Badge, PageHeader } from "../../_components/SellerCenterUi";
 import { ListingForm } from "../_components/ListingForm";
+import { requireRole } from "@/lib/auth";
 
-export default function NewListingPage() {
+export default async function NewListingPage() {
+  await requireRole("user");
+
   return (
     <div className="grid gap-5">
       <PageHeader

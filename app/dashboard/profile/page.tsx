@@ -13,13 +13,17 @@ function SellerIdentityPreview({
   avatarUrl,
   shopName,
   publicListingCount,
-  phone,
+  phoneVerified,
+  whatsappContactEnabled,
 }: {
   avatarUrl?: string | null;
   shopName: string;
   publicListingCount: number;
-  phone?: string | null;
+  phoneVerified: boolean;
+  whatsappContactEnabled: boolean;
 }) {
+  const whatsappActive = phoneVerified && whatsappContactEnabled;
+
   return (
     <Panel
       title="Preview informasi pemilik"
@@ -48,16 +52,18 @@ function SellerIdentityPreview({
 
         <div className="flex items-start gap-2 pt-4 text-[11px] leading-relaxed">
           <Icon
-            icon={phone ? "lucide:message-circle-check" : "lucide:message-circle-off"}
+            icon={whatsappActive ? "lucide:message-circle-check" : "lucide:message-circle-off"}
             width={15}
             height={15}
-            className={`mt-0.5 shrink-0 ${phone ? "text-[var(--seller-success)]" : "text-[var(--seller-muted)]"}`}
+            className={`mt-0.5 shrink-0 ${whatsappActive ? "text-[var(--seller-success)]" : "text-[var(--seller-muted)]"}`}
             aria-hidden="true"
           />
           <p className="text-[var(--seller-muted)]">
-            {phone
-              ? "Tombol WhatsApp aktif pada listing yang tersedia."
-              : "Tombol WhatsApp belum aktif. Verifikasi nomor HP untuk mengaktifkannya."}
+            {whatsappActive
+              ? "Tombol WhatsApp tampil pada semua listing aktif milikmu."
+              : phoneVerified
+                ? "Tombol WhatsApp dinonaktifkan. Peminat tetap dapat memakai chat Rotary."
+                : "WhatsApp bersifat opsional. Verifikasi nomor HP hanya jika ingin mengaktifkannya."}
           </p>
         </div>
       </div>
@@ -74,6 +80,7 @@ export default async function ProfilePage() {
         fullName: users.fullName,
         phone: users.phone,
         phoneVerifiedAt: users.phoneVerifiedAt,
+        whatsappContactEnabled: users.whatsappContactEnabled,
         bio: users.bio,
         shopName: users.shopName,
         avatarUrl: users.avatarUrl,
@@ -88,6 +95,7 @@ export default async function ProfilePage() {
   const completion = getProfileCompletion(profile ?? {});
   const resolvedShopName = resolveShopName(profile ?? {});
   const phoneVerified = Boolean(profile?.phone && profile.phoneVerifiedAt);
+  const whatsappContactEnabled = phoneVerified && Boolean(profile?.whatsappContactEnabled);
   const publicListingCount = sellerListings.filter((listing) =>
     listing.status === "active" || listing.status === "reserved",
   ).length;
@@ -104,8 +112,8 @@ export default async function ProfilePage() {
             <Badge tone={completion.percentage === 100 ? "success" : "accent"}>
               {completion.percentage}% lengkap
             </Badge>
-            <Badge tone={phoneVerified ? "success" : "neutral"}>
-              WhatsApp {phoneVerified ? "aktif" : "belum aktif"}
+            <Badge tone={whatsappContactEnabled ? "success" : "neutral"}>
+              WhatsApp {whatsappContactEnabled ? "aktif" : "opsional"}
             </Badge>
           </>
         }
@@ -118,6 +126,8 @@ export default async function ProfilePage() {
             defaultValues={{
               shopName: resolvedShopName,
               bio: profile?.bio,
+              phoneVerified,
+              whatsappContactEnabled,
             }}
           />
         </Panel>
@@ -171,7 +181,8 @@ export default async function ProfilePage() {
             avatarUrl={profile?.avatarUrl}
             shopName={resolvedShopName}
             publicListingCount={publicListingCount}
-            phone={phoneVerified ? profile?.phone : null}
+            phoneVerified={phoneVerified}
+            whatsappContactEnabled={whatsappContactEnabled}
           />
 
           <Panel

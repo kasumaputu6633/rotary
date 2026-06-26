@@ -3,6 +3,7 @@
 import { Icon } from "@iconify/react";
 import Link from "next/link";
 import { useState } from "react";
+import { toast } from "sonner";
 import type { ContactPreference, ListingCardData } from "@/lib/listing-format";
 
 export default function ProductContactActions({
@@ -31,11 +32,15 @@ export default function ProductContactActions({
 
   async function handleOpenChat() {
     setCreating(true);
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), 10_000);
+
     try {
       const res = await fetch("/api/chat/conversations", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ listingId: product.id }),
+        signal: controller.signal,
       });
 
       if (res.status === 401) {
@@ -57,10 +62,21 @@ export default function ProductContactActions({
             new CustomEvent("rotaryOpenChat", { detail: eventDetail }),
           );
         }
+        return;
       }
-    } catch {
+
+      const data = await res.json().catch(() => null);
+      toast.error(data?.error ?? "Chat belum dapat dibuka. Coba lagi.");
+      window.dispatchEvent(new CustomEvent("rotaryOpenChat"));
+    } catch (error) {
+      toast.error(
+        error instanceof DOMException && error.name === "AbortError"
+          ? "Koneksi chat terlalu lama. Coba lagi."
+          : "Chat belum dapat dibuka. Periksa koneksi lalu coba lagi.",
+      );
       window.dispatchEvent(new CustomEvent("rotaryOpenChat"));
     } finally {
+      window.clearTimeout(timeout);
       setCreating(false);
     }
   }
@@ -130,9 +146,16 @@ export default function ProductContactActions({
             type="button"
             className="flex h-10 items-center justify-center gap-2 rounded-lg border border-[#f7a81b] font-poppins text-[13px] font-semibold text-[#17458f] transition-all hover:-translate-y-0.5 hover:bg-[#fff7e8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f7a81b] focus-visible:ring-offset-2"
             onClick={handleOpenChat}
+            disabled={creating}
           >
-            <Icon icon={isSale ? "lucide:handshake" : "lucide:hand-heart"} width={16} height={16} aria-hidden="true" />
-            {isSale ? "Saya Tertarik" : "Ajukan Ambil"}
+            <Icon
+              icon={creating ? "lucide:loader-circle" : isSale ? "lucide:handshake" : "lucide:hand-heart"}
+              width={16}
+              height={16}
+              className={creating ? "animate-spin" : ""}
+              aria-hidden="true"
+            />
+            {creating ? "Membuka chat..." : isSale ? "Saya Tertarik" : "Ajukan Ambil"}
           </button>
         </div>
       )}

@@ -44,11 +44,11 @@ export function PhoneVerificationCard({ phone, verified }: PhoneVerificationCard
             <h2 className="text-[15px] font-semibold text-[var(--seller-ink)]">Nomor HP akun</h2>
             <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-[var(--seller-muted)]">
               <Icon icon="lucide:message-circle-more" width={12} height={12} aria-hidden="true" />
-              Kontak listing
+              Opsi kontak listing
             </span>
           </div>
           <p className="mt-1 text-[11px] leading-relaxed text-[var(--seller-muted)]">
-            Dipakai untuk OTP keamanan dan tombol WhatsApp pada listing publik.
+            Dipakai untuk OTP keamanan dan dapat diaktifkan sebagai tombol WhatsApp dari Profil Lapak.
           </p>
         </div>
 

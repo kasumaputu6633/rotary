@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Icon } from "@iconify/react";
 import { requireRole } from "@/lib/auth";
 import { formatListingMode, formatListingStatus, formatPrice, type ListingMode, type ListingStatus } from "@/lib/listing-format";
 import { getSellerListings, getSellerListingStats } from "@/lib/listings";
@@ -15,6 +16,7 @@ import {
 } from "../_components/SellerCenterUi";
 import { SellerSelect } from "../_components/SellerSelect";
 import { ListingLifecycleActions } from "./_components/ListingLifecycleActions";
+import { RenewListingButton } from "./_components/RenewListingButton";
 
 type SellerListingsPageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -114,8 +116,13 @@ function matchesIssue(
   return true;
 }
 
+function getNowTimestamp() {
+  return Date.now();
+}
+
 export default async function SellerListingsPage({ searchParams }: SellerListingsPageProps) {
   const params = await searchParams;
+  const nowTime = getNowTimestamp();
   const user = await requireRole("user");
   const [sellerListings, listingStats] = await Promise.all([
     getSellerListings(user.id),
@@ -278,53 +285,73 @@ export default async function SellerListingsPage({ searchParams }: SellerListing
           />
         ) : (
           <div className="divide-y divide-[var(--seller-rule)]">
-            {filteredListings.map((listing) => (
-              <article
-                key={listing.id}
-                className="grid gap-3 px-4 py-4 transition-colors hover:bg-[var(--seller-surface-2)] lg:grid-cols-[56px_minmax(0,1.4fr)_190px_auto] lg:items-center"
-              >
-                <ListingThumb imageUrl={listing.imageUrl} muted={listing.status === "inactive" || listing.status === "completed"} />
+            {filteredListings.map((listing) => {
+              const daysSinceUpdate = Math.floor((nowTime - listing.updatedAt.getTime()) / (1000 * 60 * 60 * 24));
+              const showRenewWarning = listing.status === "active" && daysSinceUpdate >= 25;
+              const remainingDays = Math.max(30 - daysSinceUpdate, 0);
 
-                <div className="min-w-0">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <h2 className="truncate text-[14px] font-semibold text-[var(--seller-ink)]">{listing.title}</h2>
-                    <StatusBadge status={listing.status} mode={listing.mode} />
-                    <ModeBadge mode={listing.mode} />
+              return (
+                <article
+                  key={listing.id}
+                  className="grid gap-3 px-4 py-4 transition-colors hover:bg-[var(--seller-surface-2)] lg:grid-cols-[56px_minmax(0,1.4fr)_190px_auto] lg:items-center"
+                >
+                  <ListingThumb imageUrl={listing.imageUrl} muted={listing.status === "inactive" || listing.status === "completed"} />
+
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h2 className="truncate text-[14px] font-semibold text-[var(--seller-ink)]">{listing.title}</h2>
+                      <StatusBadge status={listing.status} mode={listing.mode} />
+                      <ModeBadge mode={listing.mode} />
+                    </div>
+                    <p className="mt-1 text-[12px] text-[var(--seller-muted)]">{listing.category} - {listing.condition}</p>
+                    <p className="mt-1 text-[12px] text-[var(--seller-muted)]">{listing.location} - Diperbarui {listing.updatedAt.toLocaleDateString("id-ID")}</p>
+                    <ListingStatsPills
+                      className="mt-2 max-w-[230px]"
+                      viewCount={listingStats[listing.id]?.viewCount ?? 0}
+                      favoriteCount={listingStats[listing.id]?.favoriteCount ?? 0}
+                    />
                   </div>
-                  <p className="mt-1 text-[12px] text-[var(--seller-muted)]">{listing.category} - {listing.condition}</p>
-                  <p className="mt-1 text-[12px] text-[var(--seller-muted)]">{listing.location} - Diperbarui {listing.updatedAt.toLocaleDateString("id-ID")}</p>
-                  <ListingStatsPills
-                    className="mt-2 max-w-[230px]"
-                    viewCount={listingStats[listing.id]?.viewCount ?? 0}
-                    favoriteCount={listingStats[listing.id]?.favoriteCount ?? 0}
-                  />
-                </div>
 
-                <div className="rounded-[8px] border border-[var(--seller-rule)] bg-[var(--seller-surface-2)] px-3 py-2">
-                  <p className="text-[12px] font-semibold text-[var(--seller-ink)]">{formatPrice(listing.price, listing.mode)}</p>
-                  <p className="mt-1 text-[11px] text-[var(--seller-muted)]">
-                    {listing.status === "active"
-                      ? "Tampil publik dan dapat dihubungi"
-                      : listing.status === "reserved"
-                        ? "Tampil publik, kontak dijeda"
-                        : listing.status === "draft"
-                          ? "Belum tampil publik"
-                          : listing.status === "completed"
-                            ? "Selesai dan tidak tampil publik"
-                            : "Disembunyikan"}
-                  </p>
-                </div>
+                  <div className="rounded-[8px] border border-[var(--seller-rule)] bg-[var(--seller-surface-2)] px-3 py-2">
+                    <p className="text-[12px] font-semibold text-[var(--seller-ink)]">{formatPrice(listing.price, listing.mode)}</p>
+                    <p className="mt-1 text-[11px] text-[var(--seller-muted)]">
+                      {listing.status === "active"
+                        ? "Tampil publik dan dapat dihubungi"
+                        : listing.status === "reserved"
+                          ? "Tampil publik, kontak dijeda"
+                          : listing.status === "draft"
+                            ? "Belum tampil publik"
+                            : listing.status === "completed"
+                              ? "Selesai dan tidak tampil publik"
+                              : "Disembunyikan"}
+                    </p>
+                  </div>
 
-                <div className="lg:flex lg:justify-end">
-                  <ListingLifecycleActions
-                    listingId={listing.id}
-                    mode={listing.mode}
-                    status={listing.status}
-                    title={listing.title}
-                  />
-                </div>
-              </article>
-            ))}
+                  <div className="lg:flex lg:justify-end">
+                    <ListingLifecycleActions
+                      listingId={listing.id}
+                      mode={listing.mode}
+                      status={listing.status}
+                      title={listing.title}
+                    />
+                  </div>
+
+                  {showRenewWarning && (
+                    <div className="col-span-full mt-3 flex flex-col gap-3 rounded-[8px] border border-[var(--seller-rule)] bg-[var(--seller-accent-soft)] p-3.5 sm:flex-row sm:items-center sm:justify-between text-[12px] text-[var(--seller-brand)]">
+                      <div className="flex items-center gap-2.5">
+                        <Icon icon="lucide:alert-triangle" width={16} height={16} className="shrink-0 text-[var(--seller-brand)]" aria-hidden="true" />
+                        <span className="font-semibold">
+                          Listing ini akan dinonaktifkan otomatis dalam {remainingDays} hari karena telah aktif 30 hari. Silakan konfirmasi jika barang masih ada.
+                        </span>
+                      </div>
+                      <div className="shrink-0">
+                        <RenewListingButton listingId={listing.id} />
+                      </div>
+                    </div>
+                  )}
+                </article>
+              );
+            })}
           </div>
         )}
       </Panel>

@@ -60,6 +60,7 @@ export const users = pgTable(
     isVerified: boolean("is_verified").notNull().default(false),
     emailVerifiedAt: timestamp("email_verified_at"),
     phoneVerifiedAt: timestamp("phone_verified_at"),
+    whatsappContactEnabled: boolean("whatsapp_contact_enabled").notNull().default(false),
     twoFactorEnabled: boolean("two_factor_enabled").notNull().default(false),
     twoFactorMethod: twoFactorMethodEnum("two_factor_method").notNull().default("email"),
     lastSeenAt: timestamp("last_seen_at"),
@@ -229,6 +230,7 @@ export const listings = pgTable(
     publishedAt: timestamp("published_at"),
     reservedAt: timestamp("reserved_at"),
     completedAt: timestamp("completed_at"),
+    verificationSentAt: timestamp("verification_sent_at"),
   },
   (table) => [
     index("listings_seller_id_idx").on(table.sellerId),

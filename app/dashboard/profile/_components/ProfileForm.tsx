@@ -1,6 +1,7 @@
 "use client";
 
 import { Icon } from "@iconify/react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
@@ -8,7 +9,9 @@ import { updateProfileAction } from "../../actions";
 
 type DefaultValues = {
   bio?: string | null;
+  phoneVerified: boolean;
   shopName?: string | null;
+  whatsappContactEnabled: boolean;
 };
 
 const fieldClass =
@@ -43,9 +46,13 @@ export function ProfileForm({ defaultValues }: { defaultValues: DefaultValues })
   const [isPending, startTransition] = useTransition();
   const [bio, setBio] = useState(defaultValues.bio ?? "");
   const [shopName, setShopName] = useState(defaultValues.shopName ?? "");
+  const [whatsappContactEnabled, setWhatsappContactEnabled] = useState(
+    defaultValues.whatsappContactEnabled,
+  );
   const hasChanges =
     shopName !== (defaultValues.shopName ?? "")
-    || bio !== (defaultValues.bio ?? "");
+    || bio !== (defaultValues.bio ?? "")
+    || whatsappContactEnabled !== defaultValues.whatsappContactEnabled;
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -88,6 +95,83 @@ export function ProfileForm({ defaultValues }: { defaultValues: DefaultValues })
             />
             <span className="text-[11px] text-[var(--seller-muted)]">Dipakai di navbar dan sebagai nama lapak pada listing.</span>
           </label>
+        </div>
+      </section>
+
+      <section className="grid gap-4 border-b border-[var(--seller-rule)] p-4 sm:p-5">
+        <div>
+          <h2 className="text-[15px] font-semibold text-[var(--seller-ink)]">Cara dihubungi</h2>
+          <p className="mt-1 text-[11px] leading-relaxed text-[var(--seller-muted)]">
+            Pilih apakah calon peminat boleh menghubungimu langsung melalui WhatsApp.
+          </p>
+        </div>
+
+        <div className={`rounded-[9px] border p-4 ${
+          whatsappContactEnabled
+            ? "border-[var(--seller-success)]/35 bg-[var(--seller-success-soft)]"
+            : "border-[var(--seller-rule)] bg-[var(--seller-surface-2)]"
+        }`}>
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex min-w-0 items-start gap-3">
+              <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-[8px] ${
+                whatsappContactEnabled
+                  ? "bg-white text-[var(--seller-success)]"
+                  : "bg-white text-[var(--seller-muted)]"
+              }`}>
+                <Icon icon="ic:baseline-whatsapp" width={20} height={20} aria-hidden="true" />
+              </span>
+              <div className="min-w-0">
+                <p className="text-[13px] font-semibold text-[var(--seller-ink)]">
+                  Tampilkan tombol WhatsApp
+                </p>
+                <p className="mt-1 text-[11px] leading-relaxed text-[var(--seller-muted)]">
+                  {defaultValues.phoneVerified
+                    ? whatsappContactEnabled
+                      ? "Tombol WhatsApp tampil pada semua listing aktif milikmu."
+                      : "Peminat akan diarahkan menggunakan chat Rotary tanpa tombol WhatsApp."
+                    : "Verifikasi nomor HP dahulu jika ingin menyediakan WhatsApp sebagai pilihan tambahan."}
+                </p>
+              </div>
+            </div>
+
+            <input
+              type="hidden"
+              name="whatsappContactEnabled"
+              value={whatsappContactEnabled ? "on" : "off"}
+            />
+            <button
+              type="button"
+              role="switch"
+              aria-checked={whatsappContactEnabled}
+              aria-label="Tampilkan tombol WhatsApp pada listing"
+              disabled={!defaultValues.phoneVerified}
+              onClick={() => setWhatsappContactEnabled((enabled) => !enabled)}
+              className={`relative mt-1 inline-flex h-6 w-11 shrink-0 rounded-full border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--seller-focus)] ${
+                whatsappContactEnabled
+                  ? "border-[var(--seller-success)] bg-[var(--seller-success)]"
+                  : "border-[var(--seller-rule-strong)] bg-[var(--seller-paper-2)]"
+              } ${
+              defaultValues.phoneVerified ? "cursor-pointer" : "cursor-not-allowed opacity-50"
+            }`}>
+              <span
+                aria-hidden="true"
+                className="pointer-events-none absolute left-1 top-1 h-4 w-4 rounded-full bg-white shadow-sm transition-transform duration-200"
+                style={{
+                  transform: whatsappContactEnabled ? "translateX(20px)" : "translateX(0)",
+                }}
+              />
+            </button>
+          </div>
+
+          {!defaultValues.phoneVerified ? (
+            <Link
+              href="/account/settings?tab=contact"
+              className="mt-3 inline-flex min-h-9 items-center gap-1.5 rounded-[7px] border border-[var(--seller-rule-strong)] bg-white px-3 text-[11px] font-semibold text-[var(--seller-brand)] transition-colors hover:bg-[var(--seller-brand-soft)]"
+            >
+              Verifikasi nomor HP
+              <Icon icon="lucide:arrow-right" width={12} height={12} aria-hidden="true" />
+            </Link>
+          ) : null}
         </div>
       </section>
 

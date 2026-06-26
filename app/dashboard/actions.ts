@@ -153,7 +153,10 @@ function dashboardListingPath(status: ListingStatus) {
 
 export async function createListingAction(formData: FormData) {
   const user = await requireSellerReady();
-  const values = await getListingFormValues(formData);
+  const values = {
+    ...await getListingFormValues(formData),
+    contactPreference: user.whatsappContactEnabled ? "whatsapp" as const : "in_app" as const,
+  };
   const intent = getString(formData, "intent");
   const status = intent === "publish" ? "active" : "draft";
 
@@ -191,7 +194,10 @@ export async function updateListingAction(listingId: string, formData: FormData)
   });
   if (!existing) throw new Error("Listing tidak ditemukan.");
 
-  const values = await getListingFormValues(formData);
+  const values = {
+    ...await getListingFormValues(formData),
+    contactPreference: user.whatsappContactEnabled ? "whatsapp" as const : "in_app" as const,
+  };
   const intent = getString(formData, "intent");
   const deleteImageIds = getList(formData, "deleteImageIds");
   const newImages = getImages(formData);
@@ -422,19 +428,33 @@ export async function updateProfileAction(formData: FormData) {
   const user = await requireRole("user");
   const shopName = getString(formData, "shopName").slice(0, 80);
   const bio = getString(formData, "bio").slice(0, 280);
+  const whatsappContactEnabled = formData.get("whatsappContactEnabled") === "on";
 
   if (shopName.length < 2) {
     throw new Error("Nama lapak minimal 2 karakter.");
   }
+  if (whatsappContactEnabled && (!user.phone || !user.phoneVerifiedAt)) {
+    throw new Error("Verifikasi nomor HP terlebih dahulu untuk mengaktifkan kontak WhatsApp.");
+  }
 
-  await db
-    .update(users)
-    .set({
-      shopName: shopName || null,
-      bio: bio || null,
-      updatedAt: new Date(),
-    })
-    .where(eq(users.id, user.id));
+  await db.transaction(async (tx) => {
+    await tx
+      .update(users)
+      .set({
+        shopName: shopName || null,
+        bio: bio || null,
+        whatsappContactEnabled,
+        updatedAt: new Date(),
+      })
+      .where(eq(users.id, user.id));
+
+    await tx
+      .update(listings)
+      .set({
+        contactPreference: whatsappContactEnabled ? "whatsapp" : "in_app",
+      })
+      .where(eq(listings.sellerId, user.id));
+  });
 
   const sellerListings = await db
     .select({ slug: listings.slug })
@@ -448,4 +468,27 @@ export async function updateProfileAction(formData: FormData) {
   revalidatePath("/");
   revalidatePath("/products");
   sellerListings.forEach((listing) => revalidatePath(`/products/${listing.slug}`));
+}
+
+export async function renewListingAction(listingId: string) {
+  const user = await requireSellerReady();
+  const existing = await db.query.listings.findFirst({
+    where: and(eq(listings.id, listingId), eq(listings.sellerId, user.id)),
+    columns: { id: true, slug: true },
+  });
+  if (!existing) throw new Error("Listing tidak ditemukan.");
+
+  const now = new Date();
+  await db
+    .update(listings)
+    .set({
+      updatedAt: now,
+      verificationSentAt: null,
+    })
+    .where(and(eq(listings.id, listingId), eq(listings.sellerId, user.id)));
+
+  revalidatePath("/dashboard");
+  revalidatePath("/dashboard/listings");
+  revalidatePath(`/products/${existing.slug}`);
+  return { success: true, message: "Listing berhasil diperpanjang." };
 }

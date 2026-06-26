@@ -8,7 +8,7 @@ import type { MessageAttachment } from "../_hooks/useConversation";
 import { ConversationList } from "./ConversationList";
 import { ThreadView } from "./ThreadView";
 
-const hiddenPathPrefixes = ["/login", "/register", "/forgot-password", "/unauthorized", "/account", "/dashboard/chat"];
+const hiddenPathPrefixes = ["/login", "/register", "/forgot-password", "/unauthorized", "/account", "/admin", "/dashboard"];
 
 export default function FloatingChat({ currentUserId }: { currentUserId: string | null }) {
   const pathname = usePathname();
@@ -117,7 +117,6 @@ export default function FloatingChat({ currentUserId }: { currentUserId: string 
       {/* Overlay: klik di luar panel → tutup chat. Harus SIBLING dari container,
           bukan di dalamnya, agar z-index bekerja benar. */}
       {isOpen && (
-        // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
         <div
           className="fixed inset-0 z-[9799]"
           aria-hidden="true"
@@ -131,9 +130,8 @@ export default function FloatingChat({ currentUserId }: { currentUserId: string 
           <button
             type="button"
             onClick={() => openChat()}
-            className={`floating-chat-launcher group relative inline-flex h-12 items-center gap-2.5 rounded-full border border-[#d9e0ea] bg-white pl-3.5 pr-4 text-[#17458f] shadow-[0_10px_26px_rgba(15,23,42,0.18),0_4px_12px_rgba(23,69,143,0.12)] transition-all hover:-translate-y-0.5 hover:border-[#f7a81b] hover:shadow-[0_14px_32px_rgba(15,23,42,0.22),0_6px_14px_rgba(247,168,27,0.18)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#17458f] focus-visible:ring-offset-4 ${
-              isLauncherLeaving ? "floating-chat-launcher-out" : ""
-            }`}
+            className={`floating-chat-launcher group relative inline-flex h-12 items-center gap-2.5 rounded-full border border-[#d9e0ea] bg-white pl-3.5 pr-4 text-[#17458f] shadow-[0_10px_26px_rgba(15,23,42,0.18),0_4px_12px_rgba(23,69,143,0.12)] transition-all hover:-translate-y-0.5 hover:border-[#f7a81b] hover:shadow-[0_14px_32px_rgba(15,23,42,0.22),0_6px_14px_rgba(247,168,27,0.18)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#17458f] focus-visible:ring-offset-4 ${isLauncherLeaving ? "floating-chat-launcher-out" : ""
+              }`}
             aria-label="Buka chat"
           >
             <span className="relative flex h-8 w-8 items-center justify-center rounded-full bg-[#f7a81b] text-white shadow-[0_5px_12px_rgba(247,168,27,0.28)] transition-all group-hover:scale-105 group-hover:bg-[#e89a14] group-hover:shadow-[0_7px_16px_rgba(247,168,27,0.34)]">
@@ -150,9 +148,8 @@ export default function FloatingChat({ currentUserId }: { currentUserId: string 
 
         {isOpen && (
           <section
-            className={`floating-chat-panel fixed inset-x-4 bottom-4 grid h-[min(560px,calc(100dvh-32px))] w-auto overflow-hidden rounded-2xl border border-[#d9e0ea] bg-white shadow-[0_20px_52px_rgba(15,23,42,0.22),0_10px_22px_rgba(23,69,143,0.16)] md:static md:h-[min(540px,calc(100vh-90px))] md:w-[min(650px,calc(100vw-32px))] ${
-              isPanelClosing ? "floating-chat-panel-out" : ""
-            } md:grid-cols-[230px_minmax(0,1fr)]`}
+            className={`floating-chat-panel fixed inset-x-4 bottom-4 grid h-[min(560px,calc(100dvh-32px))] w-auto overflow-hidden rounded-2xl border border-[#d9e0ea] bg-white shadow-[0_20px_52px_rgba(15,23,42,0.22),0_10px_22px_rgba(23,69,143,0.16)] md:static md:h-[min(540px,calc(100vh-90px))] md:w-[min(650px,calc(100vw-32px))] ${isPanelClosing ? "floating-chat-panel-out" : ""
+              } md:grid-cols-[230px_minmax(0,1fr)]`}
             aria-label="Panel chat"
             onClick={(e) => e.stopPropagation()}
           >

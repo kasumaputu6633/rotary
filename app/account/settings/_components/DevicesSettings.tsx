@@ -2,7 +2,7 @@
 
 import { Icon } from "@iconify/react";
 import { useRouter } from "next/navigation";
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import { toast } from "sonner";
 import {
   revokeOtherSessionsAction,
@@ -75,6 +75,19 @@ export function DevicesSettings({
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
+  const [devicesPage, setDevicesPage] = useState(1);
+  const [sessionsPage, setSessionsPage] = useState(1);
+
+  const ITEMS_PER_PAGE = 5;
+
+  const totalDevicesPages = Math.max(Math.ceil(devices.length / ITEMS_PER_PAGE), 1);
+  const activeDevicesPage = Math.min(devicesPage, totalDevicesPages);
+  const visibleDevices = devices.slice((activeDevicesPage - 1) * ITEMS_PER_PAGE, activeDevicesPage * ITEMS_PER_PAGE);
+
+  const totalSessionsPages = Math.max(Math.ceil(sessions.length / ITEMS_PER_PAGE), 1);
+  const activeSessionsPage = Math.min(sessionsPage, totalSessionsPages);
+  const visibleSessions = sessions.slice((activeSessionsPage - 1) * ITEMS_PER_PAGE, activeSessionsPage * ITEMS_PER_PAGE);
+
   function runAction(action: () => Promise<{ error?: string; message?: string }>) {
     startTransition(async () => {
       const result = await action();
@@ -111,7 +124,7 @@ export function DevicesSettings({
         <div className="mt-4 divide-y divide-[var(--seller-rule)] overflow-hidden rounded-[8px] border border-[var(--seller-rule)]">
           {devices.length === 0 ? (
             <p className="p-4 text-[11px] text-[var(--seller-muted)]">Belum ada perangkat terpercaya.</p>
-          ) : devices.map((device) => {
+          ) : visibleDevices.map((device) => {
             const isCurrent = sessions.some((session) =>
               session.id === currentSessionId && session.deviceId === device.id);
             return (
@@ -147,6 +160,32 @@ export function DevicesSettings({
             );
           })}
         </div>
+
+        {totalDevicesPages > 1 && (
+          <div className="mt-4 flex items-center justify-between gap-3 font-poppins text-[11px]">
+            <button
+              type="button"
+              disabled={activeDevicesPage === 1}
+              onClick={() => setDevicesPage((prev) => Math.max(prev - 1, 1))}
+              className="inline-flex min-h-8 items-center gap-1.5 rounded-[6px] border border-[var(--seller-rule)] px-3 font-semibold text-[var(--seller-ink)] transition hover:bg-[var(--seller-surface-2)] disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              <Icon icon="lucide:chevron-left" width={13} height={13} aria-hidden="true" />
+              Sebelumnya
+            </button>
+            <span className="font-medium text-[var(--seller-muted)]">
+              Halaman {activeDevicesPage} dari {totalDevicesPages}
+            </span>
+            <button
+              type="button"
+              disabled={activeDevicesPage === totalDevicesPages}
+              onClick={() => setDevicesPage((prev) => Math.min(prev + 1, totalDevicesPages))}
+              className="inline-flex min-h-8 items-center gap-1.5 rounded-[6px] border border-[var(--seller-rule)] px-3 font-semibold text-[var(--seller-ink)] transition hover:bg-[var(--seller-surface-2)] disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              Berikutnya
+              <Icon icon="lucide:chevron-right" width={13} height={13} aria-hidden="true" />
+            </button>
+          </div>
+        )}
       </section>
 
       <section className="border-t border-[var(--seller-rule)] pt-5">
@@ -155,7 +194,7 @@ export function DevicesSettings({
           Sesi login berlaku maksimal 7 hari dan dapat dihentikan kapan saja.
         </p>
         <div className="mt-4 divide-y divide-[var(--seller-rule)] overflow-hidden rounded-[8px] border border-[var(--seller-rule)]">
-          {sessions.map((session) => {
+          {visibleSessions.map((session) => {
             const isCurrent = session.id === currentSessionId;
             return (
               <div key={session.id} className="grid gap-3 p-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
@@ -187,6 +226,32 @@ export function DevicesSettings({
             );
           })}
         </div>
+
+        {totalSessionsPages > 1 && (
+          <div className="mt-4 flex items-center justify-between gap-3 font-poppins text-[11px]">
+            <button
+              type="button"
+              disabled={activeSessionsPage === 1}
+              onClick={() => setSessionsPage((prev) => Math.max(prev - 1, 1))}
+              className="inline-flex min-h-8 items-center gap-1.5 rounded-[6px] border border-[var(--seller-rule)] px-3 font-semibold text-[var(--seller-ink)] transition hover:bg-[var(--seller-surface-2)] disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              <Icon icon="lucide:chevron-left" width={13} height={13} aria-hidden="true" />
+              Sebelumnya
+            </button>
+            <span className="font-medium text-[var(--seller-muted)]">
+              Halaman {activeSessionsPage} dari {totalSessionsPages}
+            </span>
+            <button
+              type="button"
+              disabled={activeSessionsPage === totalSessionsPages}
+              onClick={() => setSessionsPage((prev) => Math.min(prev + 1, totalSessionsPages))}
+              className="inline-flex min-h-8 items-center gap-1.5 rounded-[6px] border border-[var(--seller-rule)] px-3 font-semibold text-[var(--seller-ink)] transition hover:bg-[var(--seller-surface-2)] disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              Berikutnya
+              <Icon icon="lucide:chevron-right" width={13} height={13} aria-hidden="true" />
+            </button>
+          </div>
+        )}
       </section>
     </div>
   );

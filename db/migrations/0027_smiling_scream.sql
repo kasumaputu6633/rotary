@@ -1,0 +1,2 @@
+ALTER TABLE "listings" ADD COLUMN IF NOT EXISTS "verification_sent_at" timestamp;--> statement-breakpoint
+ALTER TABLE "users" ADD COLUMN IF NOT EXISTS "whatsapp_contact_enabled" boolean DEFAULT false NOT NULL;

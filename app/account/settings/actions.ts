@@ -255,7 +255,12 @@ export async function removeAccountPhoneAction(): Promise<ActionResult> {
     }
     await db
       .update(users)
-      .set({ phone: null, phoneVerifiedAt: null, updatedAt: new Date() })
+      .set({
+        phone: null,
+        phoneVerifiedAt: null,
+        whatsappContactEnabled: false,
+        updatedAt: new Date(),
+      })
       .where(eq(users.id, user.id));
     revalidatePath("/account/settings");
     revalidatePath("/account", "layout");
