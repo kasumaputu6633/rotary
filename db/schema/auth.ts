@@ -188,18 +188,6 @@ export const userRecoveryCodes = pgTable(
   ],
 );
 
-export const wasteLocations = pgTable("waste_locations", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  namaUsaha: varchar("nama_usaha", { length: 255 }).notNull(),
-  namaPic: varchar("nama_pic", { length: 255 }),
-  emailKontak: varchar("email_kontak", { length: 255 }),
-  teleponKontak: varchar("telepon_kontak", { length: 20 }),
-  alamat: text("alamat"),
-  jenisSampahDiterima: text("jenis_sampah_diterima").array(),
-  isActive: boolean("is_active").notNull().default(true),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at").notNull().defaultNow(),
-});
 
 export const listings = pgTable(
   "listings",

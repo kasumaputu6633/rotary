@@ -1,24 +1,31 @@
 "use client";
 
 import { Icon } from "@iconify/react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import type { WasteLocation } from "../actions";
 
 interface LocationDetailSheetProps {
-  locationId: string | null;
+  location: WasteLocation | null;
   onClose: () => void;
   isCollapsed: boolean;
   onToggleCollapse: () => void;
 }
 
-export default function LocationDetailSheet({ locationId, onClose, isCollapsed, onToggleCollapse }: LocationDetailSheetProps) {
+export default function LocationDetailSheet({ location, onClose, isCollapsed, onToggleCollapse }: LocationDetailSheetProps) {
   const [activeTab, setActiveTab] = useState<"overview" | "about">("overview");
 
-  if (!locationId) return null;
+  if (!location) return null;
 
-  // Dummy data
-  const isVendor = locationId === "2";
-  const title = isVendor ? "Vendor Tabanan" : "Mank Adi Bali Recycle Centre";
-  const category = isVendor ? "Vendor" : "Recycling Center";
+  const isVendor = location.type === "vendor";
+  const title = location.namaUsaha;
+  const category = isVendor ? "Vendor" : "TPS";
+  
+  // Format rating: jika ada rating tampilkan 1 desimal, jika tidak kosongkan
+  const ratingDisplay = location.rating ? location.rating.toFixed(1) : null;
+  const reviewCount = location.reviewCount || 0;
+  
+  // Ambil gambar dari DB atau pakai default image
+  const coverImage = location.imageUrl || "https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?q=80&w=2070&auto=format&fit=crop";
 
   return (
     <div className={`relative h-full w-full sm:w-[400px] bg-white shadow-2xl flex flex-col pointer-events-auto transition-transform duration-300 ${isCollapsed ? '-translate-x-full' : 'translate-x-0'}`}>
@@ -45,7 +52,7 @@ export default function LocationDetailSheet({ locationId, onClose, isCollapsed, 
         {/* Hero Image */}
         <div className="w-full h-48 bg-gray-200 shrink-0">
           <img
-            src="https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?q=80&w=2070&auto=format&fit=crop"
+            src={coverImage}
             alt="Cover"
             className="w-full h-full object-cover"
           />
@@ -54,20 +61,25 @@ export default function LocationDetailSheet({ locationId, onClose, isCollapsed, 
         {/* Content */}
         <div className="p-5 flex flex-col">
           <h2 className="font-roboto-serif text-2xl font-bold text-gray-900">{title}</h2>
-          <div className="flex items-center gap-2 mt-2 text-sm text-gray-600 font-poppins">
-            <span className="text-amber-500 font-bold">4.2</span>
-            <div className="flex text-amber-500">
-              <Icon icon="mdi:star" className="w-4 h-4" />
-              <Icon icon="mdi:star" className="w-4 h-4" />
-              <Icon icon="mdi:star" className="w-4 h-4" />
-              <Icon icon="mdi:star" className="w-4 h-4" />
-              <Icon icon="mdi:star-outline" className="w-4 h-4" />
+          
+          {/* Rating Section */}
+          {(ratingDisplay || reviewCount > 0) && (
+            <div className="flex items-center gap-2 mt-2 text-sm text-gray-600 font-poppins">
+              {ratingDisplay && <span className="text-amber-500 font-bold">{ratingDisplay}</span>}
+              <div className="flex text-amber-500">
+                <Icon icon="mdi:star" className="w-4 h-4" />
+                <Icon icon="mdi:star" className="w-4 h-4" />
+                <Icon icon="mdi:star" className="w-4 h-4" />
+                <Icon icon="mdi:star" className="w-4 h-4" />
+                <Icon icon="mdi:star-outline" className="w-4 h-4" />
+              </div>
+              <span>({reviewCount.toLocaleString()})</span>
             </div>
-            <span>(1,659)</span>
-          </div>
+          )}
+
           <div className="flex items-center gap-2 mt-1 text-sm text-gray-600 font-poppins">
             <Icon icon={isVendor ? "mdi:recycle" : "mdi:hospital-marker"} className="w-5 h-5 text-[#17458f]" />
-            <span>{category}</span>
+            <span className="capitalize">{category}</span>
           </div>
 
           {/* Tabs */}
@@ -110,56 +122,68 @@ export default function LocationDetailSheet({ locationId, onClose, isCollapsed, 
                     <div className="bg-blue-50 p-3 rounded-full"><Icon icon="mdi:share-variant-outline" className="w-6 h-6" /></div>
                     <span className="text-xs font-bold">Share</span>
                   </button>
-                  <button className="flex flex-col items-center gap-2 text-[#17458f] hover:text-blue-800">
-                    <div className="bg-blue-50 p-3 rounded-full"><Icon icon="mdi:cellphone" className="w-6 h-6" /></div>
-                    <span className="text-xs font-bold">Send to phone</span>
-                  </button>
+                  {location.teleponKontak && (
+                    <button className="flex flex-col items-center gap-2 text-[#17458f] hover:text-blue-800">
+                      <div className="bg-blue-50 p-3 rounded-full"><Icon icon="mdi:phone" className="w-6 h-6" /></div>
+                      <span className="text-xs font-bold">Call</span>
+                    </button>
+                  )}
                 </div>
 
                 {/* Info Rows */}
                 <div className="flex flex-col gap-5 text-sm text-gray-700">
-                  <div className="flex items-start gap-4">
-                    <Icon icon="mdi:map-marker-outline" className="w-6 h-6 text-[#17458f] shrink-0" />
-                    <p>Jl. Ir Sutami, Batuan, Kec. Sukawati, Kabupaten Gianyar, Bali 80582</p>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <Icon icon="mdi:clock-outline" className="w-6 h-6 text-[#17458f] shrink-0" />
-                    <div className="flex-1 flex justify-between items-center">
-                      <div>
-                        <span className="text-green-600 font-bold mr-2">Open</span>
-                        <span>· Closes 12.00 am</span>
-                      </div>
-                      <Icon icon="mdi:chevron-right" className="w-5 h-5 text-gray-400" />
+                  {location.alamat && (
+                    <div className="flex items-start gap-4">
+                      <Icon icon="mdi:map-marker-outline" className="w-6 h-6 text-[#17458f] shrink-0" />
+                      <p>{location.alamat}</p>
                     </div>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <Icon icon="mdi:web" className="w-6 h-6 text-[#17458f] shrink-0" />
-                    <p className="text-blue-600 hover:underline cursor-pointer">localhost.com</p>
-                  </div>
+                  )}
+
+                  {location.operatingHours && (
+                    <div className="flex items-center gap-4">
+                      <Icon icon="mdi:clock-outline" className="w-6 h-6 text-[#17458f] shrink-0" />
+                      <div className="flex-1 flex justify-between items-center">
+                        <div>
+                          <span className="text-gray-900">{location.operatingHours}</span>
+                        </div>
+                        <Icon icon="mdi:chevron-right" className="w-5 h-5 text-gray-400" />
+                      </div>
+                    </div>
+                  )}
+
+                  {location.emailKontak && (
+                    <div className="flex items-center gap-4">
+                      <Icon icon="mdi:email-outline" className="w-6 h-6 text-[#17458f] shrink-0" />
+                      <p className="text-blue-600 hover:underline cursor-pointer">{location.emailKontak}</p>
+                    </div>
+                  )}
+                  
+                  {location.website && (
+                    <div className="flex items-center gap-4">
+                      <Icon icon="mdi:web" className="w-6 h-6 text-[#17458f] shrink-0" />
+                      <a href={location.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline cursor-pointer">
+                        {location.website.replace(/^https?:\/\//, '')}
+                      </a>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
 
             {activeTab === "about" && (
               <div>
-                <h3 className="font-bold text-gray-900 mb-4">Recycling</h3>
+                <h3 className="font-bold text-gray-900 mb-4">Menerima Sampah</h3>
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="flex items-center gap-3 text-sm text-gray-700">
-                    <Icon icon="mdi:check" className="w-5 h-5 text-black" />
-                    <span>Plastik</span>
-                  </div>
-                  <div className="flex items-center gap-3 text-sm text-gray-700">
-                    <Icon icon="mdi:check" className="w-5 h-5 text-black" />
-                    <span>Kertas</span>
-                  </div>
-                  <div className="flex items-center gap-3 text-sm text-gray-700">
-                    <Icon icon="mdi:check" className="w-5 h-5 text-black" />
-                    <span>Kaca</span>
-                  </div>
-                  <div className="flex items-center gap-3 text-sm text-gray-700">
-                    <Icon icon="mdi:check" className="w-5 h-5 text-black" />
-                    <span>Residu</span>
-                  </div>
+                  {location.jenisSampahDiterima && location.jenisSampahDiterima.length > 0 ? (
+                    location.jenisSampahDiterima.map((jenis, idx) => (
+                      <div key={idx} className="flex items-center gap-3 text-sm text-gray-700">
+                        <Icon icon="mdi:check" className="w-5 h-5 text-green-600" />
+                        <span className="capitalize">{jenis}</span>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-sm text-gray-500 col-span-2">Belum ada informasi jenis sampah yang diterima.</p>
+                  )}
                 </div>
               </div>
             )}
