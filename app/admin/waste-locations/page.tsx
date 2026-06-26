@@ -1,5 +1,6 @@
 import { requireRole } from "@/lib/auth";
 import WasteLocationsClient from "./_components/WasteLocationsClient";
+import { getWasteLocationsAdmin } from "./actions";
 
 export const metadata = {
     title: "Waste Locations — Rotary Admin",
@@ -8,11 +9,13 @@ export const metadata = {
 
 export default async function AdminWasteLocationsPage() {
     await requireRole("admin");
+    const initialLocations = await getWasteLocationsAdmin();
 
     return (
         <div className="mx-auto max-w-7xl">
-            <WasteLocationsClient />
+            <WasteLocationsClient initialLocations={initialLocations} />
         </div>
     );
 }
+
 

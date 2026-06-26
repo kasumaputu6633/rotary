@@ -3,121 +3,24 @@
 import { useState, useEffect, useMemo } from "react";
 import { Icon } from "@iconify/react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import LocationCard, { type WasteLocation } from "./LocationCard";
 import LocationModal from "./LocationModal";
 import Filters from "./Filters";
+import { deleteWasteLocationAction } from "../actions";
 
-const DISTRICTS = ["Badung", "Bangli", "Buleleng", "Denpasar", "Gianyar", "Jembrana", "Karangasem", "Klungkung", "Tabanan"];
 const WASTE_TYPES = ["Logam", "Plastik", "Kertas", "Organik", "Elektronik", "Kaca", "Tekstil"];
-
-const DEFAULT_LOCATIONS: WasteLocation[] = [
-    {
-        id: "1",
-        name: "Mang Adi Recycle",
-        district: "Gianyar",
-        address: "Kabupaten Gianyar, Bali 8058",
-        operationalHours: "Senin - Jumat : 08.00 - 16.00",
-        phone: "+62 982 876 124 12",
-        wasteTypes: ["Logam", "Plastik", "Kertas"],
-    },
-    {
-        id: "2",
-        name: "Denpasar Waste Hub",
-        district: "Denpasar",
-        address: "Jalan Teuku Umar No. 102, Denpasar Barat",
-        operationalHours: "Senin - Sabtu : 07.30 - 17.00",
-        phone: "+62 812-3456-7890",
-        wasteTypes: ["Plastik", "Kertas", "Kaca"],
-    },
-    {
-        id: "3",
-        name: "Badung Eco Depot",
-        district: "Badung",
-        address: "Jalan Sunset Road No. 88, Kuta, Badung",
-        operationalHours: "Setiap Hari : 09.00 - 18.00",
-        phone: "+62 821-9876-5432",
-        wasteTypes: ["Organik", "Plastik", "Elektronik"],
-    },
-    {
-        id: "4",
-        name: "Tabanan Green Center",
-        district: "Tabanan",
-        address: "Jalan Pahlawan No. 45, Tabanan",
-        operationalHours: "Senin - Jumat : 08.00 - 15.00",
-        phone: "+62 857-3921-1122",
-        wasteTypes: ["Organik", "Kertas"],
-    },
-    {
-        id: "5",
-        name: "Gianyar Clean Up Team",
-        district: "Gianyar",
-        address: "Jalan Bypass Dharma Giri No. 12, Gianyar",
-        operationalHours: "Senin - Sabtu : 08.00 - 16.00",
-        phone: "+62 813-5556-7788",
-        wasteTypes: ["Logam", "Elektronik", "Plastik"],
-    },
-    {
-        id: "6",
-        name: "Eco Bali Recycle",
-        district: "Badung",
-        address: "Jalan Raya Canggu No. 24, Canggu, Badung",
-        operationalHours: "Senin - Sabtu : 08.00 - 17.00",
-        phone: "+62 361-9345-678",
-        wasteTypes: ["Kertas", "Plastik", "Kaca", "Organik"],
-    },
-    {
-        id: "7",
-        name: "Jimbaran Waste Point",
-        district: "Badung",
-        address: "Jalan Uluwatu II, Jimbaran, Badung",
-        operationalHours: "Senin - Jumat : 09.00 - 17.00",
-        phone: "+62 878-1234-9988",
-        wasteTypes: ["Plastik", "Logam"],
-    },
-    {
-        id: "8",
-        name: "Sanur Recovery Center",
-        district: "Denpasar",
-        address: "Jalan Danau Tamblingan No. 56, Sanur, Denpasar",
-        operationalHours: "Setiap Hari : 08.00 - 20.00",
-        phone: "+62 811-3829-102",
-        wasteTypes: ["Kertas", "Kaca", "Organik", "Elektronik"],
-    },
-    {
-        id: "9",
-        name: "Klungkung Waste Station",
-        district: "Klungkung",
-        address: "Jalan Gajah Mada No. 89, Semarapura, Klungkung",
-        operationalHours: "Senin - Jumat : 08.00 - 15.00",
-        phone: "+62 851-0987-1234",
-        wasteTypes: ["Plastik", "Kertas"],
-    },
-    {
-        id: "10",
-        name: "Singaraja Waste Solutions",
-        district: "Buleleng",
-        address: "Jalan Ngurah Rai No. 12, Singaraja, Buleleng",
-        operationalHours: "Senin - Jumat : 09.00 - 16.00",
-        phone: "+62 819-1234-5678",
-        wasteTypes: ["Logam", "Plastik", "Kertas", "Organik", "Elektronik", "Kaca"],
-    },
-    {
-        id: "11",
-        name: "Karangasem Eco Center",
-        district: "Karangasem",
-        address: "Jalan Raya Candidasa, Karangasem",
-        operationalHours: "Senin - Sabtu : 08.00 - 16.00",
-        phone: "+62 813-7766-5544",
-        wasteTypes: ["Plastik", "Organik"],
-    }
-];
-
 const PAGE_SIZE = 10;
 
-export default function WasteLocationsClient() {
-    const [locations, setLocations] = useState<WasteLocation[]>([]);
+interface WasteLocationsClientProps {
+    initialLocations: WasteLocation[];
+}
+
+export default function WasteLocationsClient({ initialLocations }: WasteLocationsClientProps) {
+    const router = useRouter();
+    const [locations, setLocations] = useState<WasteLocation[]>(initialLocations);
     const [searchQuery, setSearchQuery] = useState("");
-    const [selectedDistrict, setSelectedDistrict] = useState("");
+    const [selectedType, setSelectedType] = useState("");
     const [selectedWasteType, setSelectedWasteType] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
 
@@ -125,44 +28,27 @@ export default function WasteLocationsClient() {
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [locationToEdit, setLocationToEdit] = useState<WasteLocation | null>(null);
 
-    // Load locations from LocalStorage on mount
+    // Sync with server data if it changes
     useEffect(() => {
-        const stored = localStorage.getItem("rotary_waste_locations");
-        if (stored) {
-            try {
-                setLocations(JSON.parse(stored));
-            } catch {
-                setLocations(DEFAULT_LOCATIONS);
-            }
-        } else {
-            setLocations(DEFAULT_LOCATIONS);
-            localStorage.setItem("rotary_waste_locations", JSON.stringify(DEFAULT_LOCATIONS));
-        }
-    }, []);
-
-    // Persist helpers
-    const saveLocations = (newLocs: WasteLocation[]) => {
-        setLocations(newLocs);
-        localStorage.setItem("rotary_waste_locations", JSON.stringify(newLocs));
-    };
+        setLocations(initialLocations);
+    }, [initialLocations]);
 
     // Reset pagination on filter change
     useEffect(() => {
         setCurrentPage(1);
-    }, [searchQuery, selectedDistrict, selectedWasteType]);
+    }, [searchQuery, selectedType, selectedWasteType]);
 
     // Filtering
     const filteredLocations = useMemo(() => {
         return locations.filter((loc) => {
             const matchesSearch =
-                loc.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                loc.address.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                loc.district.toLowerCase().includes(searchQuery.toLowerCase());
-            const matchesDistrict = selectedDistrict ? loc.district === selectedDistrict : true;
-            const matchesWasteType = selectedWasteType ? loc.wasteTypes.includes(selectedWasteType) : true;
-            return matchesSearch && matchesDistrict && matchesWasteType;
+                loc.namaUsaha.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                (loc.alamat || "").toLowerCase().includes(searchQuery.toLowerCase());
+            const matchesType = selectedType ? loc.type === selectedType : true;
+            const matchesWasteType = selectedWasteType ? (loc.jenisSampahDiterima || []).includes(selectedWasteType) : true;
+            return matchesSearch && matchesType && matchesWasteType;
         });
-    }, [locations, searchQuery, selectedDistrict, selectedWasteType]);
+    }, [locations, searchQuery, selectedType, selectedWasteType]);
 
     // Pagination slice
     const paginatedLocations = useMemo(() => {
@@ -178,22 +64,28 @@ export default function WasteLocationsClient() {
         setIsEditModalOpen(true);
     };
 
-    const handleDelete = (id: string) => {
-        const updated = locations.filter((loc) => loc.id !== id);
-        saveLocations(updated);
-        const newTotalPages = Math.ceil(updated.length / PAGE_SIZE);
-        if (currentPage > newTotalPages && newTotalPages > 0) {
-            setCurrentPage(newTotalPages);
+    const handleDelete = async (id: string) => {
+        try {
+            await deleteWasteLocationAction(id);
+            const updated = locations.filter((loc) => loc.id !== id);
+            setLocations(updated);
+            
+            const newTotalPages = Math.ceil(updated.length / PAGE_SIZE);
+            if (currentPage > newTotalPages && newTotalPages > 0) {
+                setCurrentPage(newTotalPages);
+            }
+            router.refresh();
+        } catch (err) {
+            console.error("Gagal menghapus lokasi:", err);
+            alert("Gagal menghapus lokasi dari database.");
         }
     };
 
-    const handleSaveEdit = (formData: Omit<WasteLocation, "id"> & { id?: string }) => {
-        if (formData.id) {
-            const updated = locations.map((loc) =>
-                loc.id === formData.id ? (formData as WasteLocation) : loc
-            );
-            saveLocations(updated);
-        }
+    const handleSaveEdit = (updatedLoc: WasteLocation) => {
+        setLocations((prev) =>
+            prev.map((loc) => (loc.id === updatedLoc.id ? updatedLoc : loc))
+        );
+        router.refresh();
     };
 
     const paginationButtons = useMemo(() => {
@@ -236,11 +128,10 @@ export default function WasteLocationsClient() {
                 <Filters
                     searchQuery={searchQuery}
                     setSearchQuery={setSearchQuery}
-                    selectedDistrict={selectedDistrict}
-                    setSelectedDistrict={setSelectedDistrict}
+                    selectedType={selectedType}
+                    setSelectedType={setSelectedType}
                     selectedWasteType={selectedWasteType}
                     setSelectedWasteType={setSelectedWasteType}
-                    districts={DISTRICTS}
                     wasteTypes={WASTE_TYPES}
                 />
             </div>
@@ -322,7 +213,6 @@ export default function WasteLocationsClient() {
                 onClose={() => setIsEditModalOpen(false)}
                 onSave={handleSaveEdit}
                 locationToEdit={locationToEdit}
-                districts={DISTRICTS}
                 wasteTypes={WASTE_TYPES}
             />
         </div>

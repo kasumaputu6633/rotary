@@ -1,17 +1,14 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Icon } from "@iconify/react";
 import Image from "next/image";
 import Link from "next/link";
+import { createWasteLocationAction } from "../actions";
+import { formatOperatingHours } from "../_components/LocationCard";
 
 // ─── Constants ───────────────────────────────────────────────────────────────
-
-const DISTRICTS = [
-    "Badung", "Bangli", "Buleleng", "Denpasar",
-    "Gianyar", "Jembrana", "Karangasem", "Klungkung", "Tabanan",
-];
 
 const WASTE_TYPES = [
     { key: "Plastik",    icon: "lucide:recycle",   bg: "bg-blue-50",   border: "border-blue-200",   text: "text-blue-600",   iconColor: "text-blue-400"   },
@@ -26,17 +23,32 @@ const WASTE_TYPES = [
 const inputCls =
     "w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 font-poppins text-[13px] text-gray-800 placeholder-gray-400 outline-none transition focus:border-[#f7a81b] focus:ring-2 focus:ring-[#f7a81b]/10 hover:border-gray-300";
 
+const DAY_KEYS = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
+const DAY_LABELS_ID: Record<string, string> = {
+    monday: "Senin",
+    tuesday: "Selasa",
+    wednesday: "Rabu",
+    thursday: "Kamis",
+    friday: "Jumat",
+    saturday: "Sabtu",
+    sunday: "Minggu"
+};
+
 // ─── Live Preview Card ────────────────────────────────────────────────────────
 
 function LivePreview({
-    name, district, address, operationalHours, phone, locationLink,
+    name, type, address, operatingHours, phone, email, website, latitude, longitude,
     selectedWasteTypes, previewUrl,
 }: {
-    name: string; district: string; address: string;
-    operationalHours: string; phone: string; locationLink: string;
+    name: string; type: "tps" | "vendor"; address: string;
+    operatingHours: any; phone: string; email: string; website: string; latitude: string; longitude: string;
     selectedWasteTypes: string[]; previewUrl: string | null;
 }) {
-    const isEmpty = !name && !district && !address && !operationalHours && !phone && selectedWasteTypes.length === 0 && !previewUrl;
+    const isEmpty = !name && !address && !phone && selectedWasteTypes.length === 0 && !previewUrl;
+
+    const formattedHours = useMemo(() => {
+        return formatOperatingHours(operatingHours);
+    }, [operatingHours]);
 
     return (
         <div className="sticky top-6 space-y-3">
@@ -61,7 +73,6 @@ function LivePreview({
                             <span className="font-poppins text-[11px]">Foto belum diunggah</span>
                         </div>
                     )}
-                    {/* Badge overlay if image exists */}
                     {previewUrl && (
                         <div className="absolute bottom-2 right-2 rounded-lg bg-black/40 px-2 py-1 font-poppins text-[10px] font-semibold text-white backdrop-blur-sm">
                             Foto Lokasi
@@ -80,17 +91,24 @@ function LivePreview({
                         </div>
                     ) : (
                         <>
-                            {/* Name */}
-                            <div>
-                                <h3 className="font-poppins text-[15px] font-bold text-gray-900 leading-snug">
-                                    {name || <span className="italic text-gray-300 font-normal text-[13px]">Nama lokasi...</span>}
-                                </h3>
-                                {district && (
-                                    <p className="mt-0.5 flex items-center gap-1.5 font-poppins text-[11px] font-semibold text-[#17458f]">
-                                        <Icon icon="lucide:map-pin" width={11} height={11} />
-                                        {district}, Bali
-                                    </p>
-                                )}
+                            {/* Name & Type */}
+                            <div className="flex items-start justify-between gap-2">
+                                <div className="min-w-0">
+                                    <h3 className="font-poppins text-[15px] font-bold text-gray-900 leading-snug truncate">
+                                        {name || <span className="italic text-gray-300 font-normal text-[13px]">Nama lokasi...</span>}
+                                    </h3>
+                                    {address && (
+                                        <p className="mt-0.5 flex items-center gap-1.5 font-poppins text-[11px] font-semibold text-[#17458f] truncate">
+                                            <Icon icon="lucide:map-pin" width={11} height={11} className="shrink-0" />
+                                            {address}
+                                        </p>
+                                    )}
+                                </div>
+                                <span className={`shrink-0 rounded-full px-2.5 py-0.5 font-poppins text-[9px] font-bold text-white uppercase select-none ${
+                                    type === "tps" ? "bg-[#0B2545]" : "bg-[#E53E3E]"
+                                }`}>
+                                    {type}
+                                </span>
                             </div>
 
                             {/* Divider */}
@@ -98,28 +116,36 @@ function LivePreview({
 
                             {/* Info rows */}
                             <div className="space-y-2">
-                                {operationalHours && (
+                                {formattedHours && formattedHours !== "-" && (
                                     <div className="flex items-start gap-2.5">
                                         <Icon icon="lucide:clock" width={13} height={13} className="mt-0.5 shrink-0 text-gray-400" />
-                                        <span className="font-poppins text-[12px] text-gray-600">{operationalHours}</span>
-                                    </div>
-                                )}
-                                {address && (
-                                    <div className="flex items-start gap-2.5">
-                                        <Icon icon="lucide:navigation" width={13} height={13} className="mt-0.5 shrink-0 text-gray-400" />
-                                        <span className="font-poppins text-[12px] text-gray-600 leading-relaxed">{address}</span>
+                                        <span className="font-poppins text-[11px] text-gray-600 leading-relaxed">{formattedHours}</span>
                                     </div>
                                 )}
                                 {phone && (
                                     <div className="flex items-start gap-2.5">
                                         <Icon icon="lucide:phone" width={13} height={13} className="mt-0.5 shrink-0 text-gray-400" />
-                                        <span className="font-poppins text-[12px] text-gray-600">{phone}</span>
+                                        <span className="font-poppins text-[11px] text-gray-600">{phone}</span>
                                     </div>
                                 )}
-                                {locationLink && (
+                                {email && (
                                     <div className="flex items-start gap-2.5">
-                                        <Icon icon="lucide:map" width={13} height={13} className="mt-0.5 shrink-0 text-[#17458f]" />
-                                        <span className="font-poppins text-[12px] text-[#17458f] truncate">{locationLink}</span>
+                                        <Icon icon="lucide:mail" width={13} height={13} className="mt-0.5 shrink-0 text-gray-400" />
+                                        <span className="font-poppins text-[11px] text-gray-600 truncate">{email}</span>
+                                    </div>
+                                )}
+                                {website && (
+                                    <div className="flex items-start gap-2.5">
+                                        <Icon icon="lucide:globe" width={13} height={13} className="mt-0.5 shrink-0 text-gray-400" />
+                                        <span className="font-poppins text-[11px] text-gray-600 truncate">{website}</span>
+                                    </div>
+                                )}
+                                {(latitude || longitude) && (
+                                    <div className="flex items-start gap-2.5">
+                                        <Icon icon="lucide:compass" width={13} height={13} className="mt-0.5 shrink-0 text-gray-400" />
+                                        <span className="font-poppins text-[11px] text-gray-500 truncate">
+                                            {latitude || "0"}, {longitude || "0"}
+                                        </span>
                                     </div>
                                 )}
                             </div>
@@ -129,15 +155,15 @@ function LivePreview({
                                 <>
                                     <div className="h-px bg-gray-100" />
                                     <div className="flex flex-wrap gap-1.5">
-                                        {selectedWasteTypes.map((type) => {
-                                            const meta = WASTE_TYPES.find((w) => w.key === type);
+                                        {selectedWasteTypes.map((t) => {
+                                            const meta = WASTE_TYPES.find((w) => w.key === t);
                                             return (
                                                 <span
-                                                    key={type}
-                                                    className={`inline-flex items-center gap-1 rounded-lg border px-2.5 py-1 font-poppins text-[11px] font-semibold ${meta ? `${meta.bg} ${meta.border} ${meta.text}` : "bg-gray-50 border-gray-200 text-gray-600"}`}
+                                                    key={t}
+                                                    className={`inline-flex items-center gap-1 rounded-lg border px-2 py-0.5 font-poppins text-[10px] font-semibold ${meta ? `${meta.bg} ${meta.border} ${meta.text}` : "bg-gray-50 border-gray-200 text-gray-600"}`}
                                                 >
-                                                    {meta && <Icon icon={meta.icon} width={11} height={11} className={meta.iconColor} />}
-                                                    {type}
+                                                    {meta && <Icon icon={meta.icon} width={10} height={10} className={meta.iconColor} />}
+                                                    {t}
                                                 </span>
                                             );
                                         })}
@@ -149,7 +175,6 @@ function LivePreview({
                 </div>
             </div>
 
-            {/* Tip */}
             <p className="font-poppins text-[10.5px] text-gray-400 text-center leading-relaxed">
                 Preview ini menampilkan tampilan kartu lokasi<br />sebelum disimpan.
             </p>
@@ -163,13 +188,33 @@ export default function AddLocationClient() {
     const router = useRouter();
     const fileInputRef = useRef<HTMLInputElement>(null);
 
+    const [type, setType]                             = useState<"tps" | "vendor">("tps");
     const [name, setName]                             = useState("");
-    const [district, setDistrict]                     = useState("");
-    const [address, setAddress]                       = useState("");
-    const [operationalHours, setOperationalHours]     = useState("");
+    const [email, setEmail]                           = useState("");
     const [phone, setPhone]                           = useState("");
-    const [locationLink, setLocationLink]             = useState("");
+    const [address, setAddress]                       = useState("");
+    const [website, setWebsite]                       = useState("");
+    const [latitude, setLatitude]                     = useState("");
+    const [longitude, setLongitude]                   = useState("");
     const [selectedWasteTypes, setSelectedWasteTypes] = useState<string[]>([]);
+    
+    // Operating hours state
+    const [selectedDays, setSelectedDays] = useState<string[]>(["monday", "tuesday", "wednesday", "thursday", "friday"]);
+    const [openTime, setOpenTime] = useState("08:00");
+    const [closeTime, setCloseTime] = useState("17:00");
+
+    const operatingHours = useMemo(() => {
+        const hours: any = {};
+        for (const day of DAY_KEYS) {
+            hours[day] = {
+                open: openTime,
+                close: closeTime,
+                isClosed: !selectedDays.includes(day),
+            };
+        }
+        return hours;
+    }, [selectedDays, openTime, closeTime]);
+
     const [imageFile, setImageFile]                   = useState<File | null>(null);
     const [previewUrl, setPreviewUrl]                 = useState<string | null>(null);
     const [isDragging, setIsDragging]                 = useState(false);
@@ -203,34 +248,52 @@ export default function AddLocationClient() {
         setSelectedWasteTypes((p) => p.includes(key) ? p.filter((t) => t !== key) : [...p, key]);
 
     // ── Submit ─────────────────────────────────────────────────────────────
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError(null);
-        if (!name.trim())             return setError("Nama lokasi harus diisi.");
-        if (!district)                return setError("Kabupaten/Kota harus dipilih.");
-        if (!address.trim())          return setError("Alamat harus diisi.");
-        if (!operationalHours.trim()) return setError("Jam operasional harus diisi.");
-        if (!phone.trim())            return setError("Kontak / nomor telepon harus diisi.");
+
+        // Validation
+        if (!imageFile)               return setError("Gambar lokasi harus diunggah.");
+        if (!type)                    return setError("Tipe lokasi harus dipilih.");
         if (!selectedWasteTypes.length) return setError("Pilih minimal satu jenis sampah.");
+        if (!name.trim())             return setError("Nama lokasi harus diisi.");
+        if (!phone.trim())            return setError("Kontak harus diisi.");
+        if (!address.trim())          return setError("Alamat harus diisi.");
+        if (!latitude.trim())         return setError("Latitude harus diisi.");
+        if (!longitude.trim())        return setError("Longitude harus diisi.");
+
+        // Coordinate checks
+        if (isNaN(parseFloat(latitude))) return setError("Latitude harus berupa angka.");
+        if (isNaN(parseFloat(longitude))) return setError("Longitude harus berupa angka.");
 
         setIsSubmitting(true);
-        setTimeout(() => {
-            const newLoc = {
-                id: Date.now().toString(),
-                name: name.trim(), district,
-                address: address.trim(),
-                operationalHours: operationalHours.trim(),
-                phone: phone.trim(),
-                locationLink: locationLink.trim() || undefined,
-                wasteTypes: selectedWasteTypes,
-                imageUrl: previewUrl ?? undefined,
-            };
-            const existing = JSON.parse(localStorage.getItem("rotary_waste_locations") ?? "[]");
-            localStorage.setItem("rotary_waste_locations", JSON.stringify([newLoc, ...existing]));
-            setIsSubmitting(false);
+        try {
+            const formData = new FormData();
+            formData.append("type", type);
+            formData.append("namaUsaha", name.trim());
+            formData.append("emailKontak", email.trim());
+            formData.append("teleponKontak", phone.trim());
+            formData.append("alamat", address.trim());
+            formData.append("website", website.trim());
+            formData.append("latitude", latitude.trim());
+            formData.append("longitude", longitude.trim());
+            formData.append("jenisSampahDiterima", JSON.stringify(selectedWasteTypes));
+            formData.append("operatingHours", JSON.stringify(operatingHours));
+            formData.append("image", imageFile);
+
+            await createWasteLocationAction(formData);
+
             setIsSuccess(true);
-            setTimeout(() => router.push("/admin/waste-locations"), 1200);
-        }, 600);
+            setTimeout(() => {
+                router.push("/admin/waste-locations");
+                router.refresh();
+            }, 1200);
+        } catch (err: any) {
+            console.error(err);
+            setError(err.message || "Gagal menyimpan data lokasi ke database.");
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     // ─── Render ───────────────────────────────────────────────────────────
@@ -249,9 +312,9 @@ export default function AddLocationClient() {
             {/* Page header */}
             <div className="flex flex-wrap items-start justify-between gap-4">
                 <div>
-                    <h1 className="font-poppins text-2xl font-bold text-gray-900">Tambah Lokasi Vendor</h1>
+                    <h1 className="font-poppins text-2xl font-bold text-gray-900">Tambah Lokasi</h1>
                     <p className="mt-0.5 font-poppins text-sm text-gray-500">
-                        Lengkapi data di bawah ini untuk menambahkan lokasi penampungan sampah baru.
+                        Lengkapi data di bawah ini untuk menambahkan lokasi penampungan sampah baru ke database.
                     </p>
                 </div>
                 <Link
@@ -272,7 +335,7 @@ export default function AddLocationClient() {
 
                         {/* Feedback banners */}
                         {error && (
-                            <div className="flex items-center gap-2 px-6 py-3 bg-red-50 font-poppins text-[12.5px] font-semibold text-red-600">
+                            <div className="flex items-center gap-2 px-6 py-3 bg-red-50 font-poppins text-[12.5px] font-semibold text-red-600 animate-fade-in">
                                 <Icon icon="lucide:alert-circle" width={15} height={15} className="shrink-0" />
                                 {error}
                             </div>
@@ -280,13 +343,13 @@ export default function AddLocationClient() {
                         {isSuccess && (
                             <div className="flex items-center gap-2 px-6 py-3 bg-green-50 font-poppins text-[12.5px] font-semibold text-green-700">
                                 <Icon icon="lucide:check-circle" width={15} height={15} className="shrink-0" />
-                                Lokasi berhasil ditambahkan! Mengalihkan ke daftar...
+                                Lokasi berhasil ditambahkan ke database! Mengalihkan...
                             </div>
                         )}
 
                         {/* ── 1. Upload File ─────────────────────────────── */}
                         <div className="px-6 py-5 space-y-3">
-                            <p className="font-poppins text-[13px] font-bold text-gray-700">Upload File</p>
+                            <p className="font-poppins text-[13px] font-bold text-gray-700">Upload Gambar Lokasi <span className="text-red-500">*</span></p>
                             <div
                                 onDragOver={handleDragOver}
                                 onDragLeave={handleDragLeave}
@@ -320,7 +383,7 @@ export default function AddLocationClient() {
                                                 className={isDragging ? "text-white" : "text-gray-400"} />
                                         </div>
                                         <p className="font-poppins text-[12.5px] text-gray-500">
-                                            {isDragging ? "Lepaskan untuk mengunggah" : "Maks 10 MB, PNG, JPEG"}
+                                            {isDragging ? "Lepaskan untuk mengunggah" : "Maks 10 MB, PNG, JPEG, WEBP"}
                                         </p>
                                         <button type="button" onClick={() => fileInputRef.current?.click()}
                                             className="rounded-xl bg-gray-900 px-5 py-2 font-poppins text-[12px] font-bold text-white hover:bg-gray-700 transition shadow-sm">
@@ -333,81 +396,152 @@ export default function AddLocationClient() {
                                 onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFileSelect(f); }} />
                         </div>
 
-                        {/* ── 2. Jenis Sampah ────────────────────────────── */}
+                        {/* ── 2. Tipe Lokasi (Radio Buttons) ─────────────── */}
                         <div className="px-6 py-5 space-y-3">
-                            <p className="font-poppins text-[13px] font-bold text-gray-700">Jenis Sampah Yang Diterima</p>
+                            <p className="font-poppins text-[13px] font-bold text-gray-700">Tipe Lokasi <span className="text-red-500">*</span></p>
+                            <div className="flex flex-col sm:flex-row gap-4">
+                                <label className={`flex-1 flex items-center justify-between p-3.5 rounded-xl border-2 cursor-pointer transition select-none ${
+                                    type === "tps" 
+                                        ? "border-[#0B2545] bg-[#0B2545]/5 text-[#0B2545] font-bold" 
+                                        : "border-gray-200 bg-white text-gray-600 hover:border-gray-300"
+                                }`}>
+                                    <div className="flex items-center gap-2.5">
+                                        <input type="radio" name="type" value="tps" checked={type === "tps"} onChange={() => setType("tps")} className="hidden" />
+                                        <div className={`h-4 w-4 rounded-full border-2 flex items-center justify-center ${type === "tps" ? "border-[#0B2545]" : "border-gray-300"}`}>
+                                            {type === "tps" && <div className="h-2 w-2 rounded-full bg-[#0B2545]" />}
+                                        </div>
+                                        <span className="font-poppins text-[13px]">TPS (Tempat Pembuangan Sementara)</span>
+                                    </div>
+                                </label>
+                                
+                                <label className={`flex-1 flex items-center justify-between p-3.5 rounded-xl border-2 cursor-pointer transition select-none ${
+                                    type === "vendor" 
+                                        ? "border-[#E53E3E] bg-[#E53E3E]/5 text-[#E53E3E] font-bold" 
+                                        : "border-gray-200 bg-white text-gray-600 hover:border-gray-300"
+                                }`}>
+                                    <div className="flex items-center gap-2.5">
+                                        <input type="radio" name="type" value="vendor" checked={type === "vendor"} onChange={() => setType("vendor")} className="hidden" />
+                                        <div className={`h-4 w-4 rounded-full border-2 flex items-center justify-center ${type === "vendor" ? "border-[#E53E3E]" : "border-gray-300"}`}>
+                                            {type === "vendor" && <div className="h-2 w-2 rounded-full bg-[#E53E3E]" />}
+                                        </div>
+                                        <span className="font-poppins text-[13px]">Vendor / Pusat Daur Ulang</span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        {/* ── 3. Jenis Sampah ────────────────────────────── */}
+                        <div className="px-6 py-5 space-y-3">
+                            <p className="font-poppins text-[13px] font-bold text-gray-700">Jenis Sampah Yang Diterima <span className="text-red-500">*</span></p>
                             <div className="flex flex-wrap gap-2">
-                                {WASTE_TYPES.map((type) => {
-                                    const sel = selectedWasteTypes.includes(type.key);
+                                {WASTE_TYPES.map((t) => {
+                                    const sel = selectedWasteTypes.includes(t.key);
                                     return (
-                                        <button key={type.key} type="button" onClick={() => toggleWasteType(type.key)}
+                                        <button key={t.key} type="button" onClick={() => toggleWasteType(t.key)}
                                             className={`inline-flex items-center gap-2 rounded-xl border px-3.5 py-2 font-poppins text-[12.5px] font-semibold transition-all select-none ${
                                                 sel ? "border-[#f7a81b] bg-[#f7a81b] text-white shadow-sm shadow-[#f7a81b]/20"
-                                                    : `${type.bg} ${type.border} ${type.text} hover:border-[#f7a81b]/50`}`}>
+                                                    : `${t.bg} ${t.border} ${t.text} hover:border-[#f7a81b]/50`}`}>
                                             <span className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border-2 transition-all ${sel ? "border-white bg-white" : "border-current"}`}>
                                                 {sel && <Icon icon="lucide:check" width={10} height={10} className="text-[#f7a81b]" />}
                                             </span>
-                                            <Icon icon={type.icon} width={13} height={13} className={sel ? "text-white" : type.iconColor} />
-                                            {type.key}
+                                            <Icon icon={t.icon} width={13} height={13} className={sel ? "text-white" : t.iconColor} />
+                                            {t.key}
                                         </button>
                                     );
                                 })}
                             </div>
-                            {selectedWasteTypes.length > 0 && (
-                                <p className="font-poppins text-[11px] text-gray-400">
-                                    {selectedWasteTypes.length} dipilih: <span className="font-semibold text-gray-600">{selectedWasteTypes.join(", ")}</span>
-                                </p>
-                            )}
                         </div>
 
-                        {/* ── 3. Informasi Vendor ────────────────────────── */}
+                        {/* ── 4. Informasi Lokasi ────────────────────────── */}
                         <div className="px-6 py-5 space-y-4">
-                            <p className="font-poppins text-[13px] font-bold text-gray-700">Informasi Vendor</p>
+                            <p className="font-poppins text-[13px] font-bold text-gray-700">Detail Informasi Lokasi</p>
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div className="space-y-1.5">
-                                    <label className="block font-poppins text-[12px] font-semibold text-gray-500">Nama Lokasi</label>
+                                    <label className="block font-poppins text-[12px] font-semibold text-gray-500">Nama Lokasi <span className="text-red-500">*</span></label>
                                     <input type="text" value={name} onChange={(e) => setName(e.target.value)}
-                                        placeholder="Misal: Mang Adi Recycle" className={inputCls} />
+                                        placeholder="Misal: Mang Adi Recycle" className={inputCls} required />
                                 </div>
                                 <div className="space-y-1.5">
-                                    <label className="block font-poppins text-[12px] font-semibold text-gray-500">Kabupaten / Kota</label>
-                                    <div className="relative">
-                                        <select value={district} onChange={(e) => setDistrict(e.target.value)}
-                                            className={`${inputCls} appearance-none pr-9 ${!district ? "text-gray-400" : ""}`}>
-                                            <option value="" disabled>Pilih Kabupaten/Kota</option>
-                                            {DISTRICTS.map((d) => <option key={d} value={d}>{d}</option>)}
-                                        </select>
-                                        <Icon icon="lucide:chevron-down" width={14} height={14}
-                                            className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                                    <label className="block font-poppins text-[12px] font-semibold text-gray-500">Email Kontak</label>
+                                    <input type="email" value={email} onChange={(e) => setEmail(e.target.value)}
+                                        placeholder="Misal: kontak@daurulang.com" className={inputCls} />
+                                </div>
+                                <div className="space-y-1.5">
+                                    <label className="block font-poppins text-[12px] font-semibold text-gray-500">Kontak / Telepon <span className="text-red-500">*</span></label>
+                                    <input type="text" value={phone} onChange={(e) => setPhone(e.target.value)}
+                                        placeholder="+62 812-3456-7890" className={inputCls} required />
+                                </div>
+                                <div className="space-y-1.5">
+                                    <label className="block font-poppins text-[12px] font-semibold text-gray-500">Website Resmi</label>
+                                    <input type="url" value={website} onChange={(e) => setWebsite(e.target.value)}
+                                        placeholder="https://www.laporansampah.com" className={inputCls} />
+                                </div>
+                                <div className="space-y-1.5">
+                                    <label className="block font-poppins text-[12px] font-semibold text-gray-500">Latitude <span className="text-red-500">*</span></label>
+                                    <input type="text" value={latitude} onChange={(e) => setLatitude(e.target.value)}
+                                        placeholder="Contoh: -8.6500" className={inputCls} required />
+                                </div>
+                                <div className="space-y-1.5">
+                                    <label className="block font-poppins text-[12px] font-semibold text-gray-500">Longitude <span className="text-red-500">*</span></label>
+                                    <input type="text" value={longitude} onChange={(e) => setLongitude(e.target.value)}
+                                        placeholder="Contoh: 115.2166" className={inputCls} required />
+                                </div>
+                            </div>
+
+                            <div className="space-y-1.5">
+                                <label className="block font-poppins text-[12px] font-semibold text-gray-500">Alamat Lengkap <span className="text-red-500">*</span></label>
+                                <input type="text" value={address} onChange={(e) => setAddress(e.target.value)}
+                                    placeholder="Jalan, nomor, desa, kecamatan, kode pos..." className={inputCls} required />
+                            </div>
+
+                            {/* Jam Operasional */}
+                            <div className="space-y-2 pt-2">
+                                <label className="block font-poppins text-[12px] font-bold text-gray-500 uppercase tracking-wider">Jam Operasional <span className="text-red-500">*</span></label>
+                                <div className="space-y-4 rounded-2xl border border-gray-100 bg-gray-50/50 p-4">
+                                    <div className="space-y-1.5">
+                                        <label className="block font-poppins text-[11px] font-semibold text-gray-500">Hari Operasional</label>
+                                        <div className="flex flex-wrap gap-1.5">
+                                            {DAY_KEYS.map((day) => {
+                                                const isSelected = selectedDays.includes(day);
+                                                return (
+                                                    <button
+                                                        key={day}
+                                                        type="button"
+                                                        onClick={() => setSelectedDays(prev =>
+                                                            prev.includes(day) ? prev.filter(d => d !== day) : [...prev, day]
+                                                        )}
+                                                        className={`rounded-lg px-2.5 py-1.5 font-poppins text-[12px] font-semibold transition select-none ${
+                                                            isSelected
+                                                                ? "bg-[#17458f] text-white shadow-sm"
+                                                                : "bg-gray-100 text-gray-400 hover:bg-gray-200 hover:text-gray-600"
+                                                        }`}
+                                                    >
+                                                        {DAY_LABELS_ID[day]}
+                                                    </button>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="space-y-1.5">
+                                            <label className="block font-poppins text-[11px] font-semibold text-gray-500">Jam Buka</label>
+                                            <input type="time" value={openTime} onChange={(e) => setOpenTime(e.target.value)}
+                                                onClick={(e) => (e.currentTarget as any).showPicker?.()}
+                                                className={inputCls} />
+                                        </div>
+                                        <div className="space-y-1.5">
+                                            <label className="block font-poppins text-[11px] font-semibold text-gray-500">Jam Tutup</label>
+                                            <input type="time" value={closeTime} onChange={(e) => setCloseTime(e.target.value)}
+                                                onClick={(e) => (e.currentTarget as any).showPicker?.()}
+                                                className={inputCls} />
+                                        </div>
                                     </div>
                                 </div>
-                                <div className="space-y-1.5">
-                                    <label className="block font-poppins text-[12px] font-semibold text-gray-500">Jam Operasional</label>
-                                    <input type="text" value={operationalHours} onChange={(e) => setOperationalHours(e.target.value)}
-                                        placeholder="Senin - Jumat, 08.00 - 17.00" className={inputCls} />
-                                </div>
-                                <div className="space-y-1.5">
-                                    <label className="block font-poppins text-[12px] font-semibold text-gray-500">Kontak</label>
-                                    <input type="text" value={phone} onChange={(e) => setPhone(e.target.value)}
-                                        placeholder="+62 812-3456-7890" className={inputCls} />
-                                </div>
-                            </div>
-
-                            <div className="space-y-1.5">
-                                <label className="block font-poppins text-[12px] font-semibold text-gray-500">Alamat Lengkap</label>
-                                <input type="text" value={address} onChange={(e) => setAddress(e.target.value)}
-                                    placeholder="Jalan, nomor, desa, kecamatan..." className={inputCls} />
-                            </div>
-
-                            <div className="space-y-1.5">
-                                <label className="block font-poppins text-[12px] font-semibold text-gray-500">Link Lokasi</label>
-                                <input type="url" value={locationLink} onChange={(e) => setLocationLink(e.target.value)}
-                                    placeholder="https://maps.google.com/..." className={inputCls} />
                             </div>
                         </div>
 
-                        {/* ── 4. Submit ──────────────────────────────────── */}
+                        {/* ── 5. Submit ──────────────────────────────────── */}
                         <div className="flex items-center justify-between gap-3 px-6 py-4 bg-gray-50/50">
                             <Link href="/admin/waste-locations"
                                 className="font-poppins text-[13px] font-semibold text-gray-500 hover:text-gray-700 transition">
@@ -429,11 +563,14 @@ export default function AddLocationClient() {
                 {/* ══ PREVIEW COLUMN ════════════════════════════════════════ */}
                 <LivePreview
                     name={name}
-                    district={district}
+                    type={type}
                     address={address}
-                    operationalHours={operationalHours}
+                    operatingHours={operatingHours}
                     phone={phone}
-                    locationLink={locationLink}
+                    email={email}
+                    website={website}
+                    latitude={latitude}
+                    longitude={longitude}
                     selectedWasteTypes={selectedWasteTypes}
                     previewUrl={previewUrl}
                 />

@@ -204,3 +204,8 @@ export async function uploadListingImage(file: File, userId: string) {
 export async function uploadUserAvatar(file: File, userId: string) {
   return uploadImage(file, `users/${userId}/avatar`);
 }
+
+export async function uploadWasteLocationImage(file: File) {
+  return uploadImage(file, "waste-locations");
+}
+
