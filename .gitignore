@@ -48,3 +48,6 @@ next-env.d.ts
 /.hallmark
 AGENTS.md
 CLAUDE.md
+/.impeccable
+PRODUCT.md
+DESIGN.md

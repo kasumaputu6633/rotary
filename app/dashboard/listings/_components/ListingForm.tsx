@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useTransition } from "react";
+import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import type { ListingMode, ListingStatus } from "@/lib/listing-format";
@@ -146,6 +147,7 @@ export function ListingForm({
         // tapi jika tidak, refresh halaman.
         router.refresh();
       } catch (error) {
+        if (isRedirectError(error)) throw error;
         toast.error(
           error instanceof Error ? error.message : "Gagal menyimpan listing. Coba lagi.",
         );

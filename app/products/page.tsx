@@ -110,30 +110,24 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
     <>
       <Navbar />
       <main className="bg-white">
-        <section className="border-b border-[#e5e7eb] bg-[#f8fafc]">
-          <div className="mx-auto grid max-w-[1728px] gap-5 px-8 py-8 lg:px-40 lg:py-10">
-            <nav className="flex items-center gap-2 font-poppins text-[12px]" aria-label="Breadcrumb">
-              <Link href="/" className="text-[#17458f] hover:underline">Home</Link>
-              <Icon icon="lucide:chevron-right" className="text-[#f7a81b]" aria-hidden="true" />
-              <span className="text-black">Marketplace</span>
-            </nav>
-            <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_auto] md:items-end">
-              <div>
-                <p className="font-poppins text-[12px] font-semibold uppercase tracking-[0.08em] text-[#17458f]">Barang bekas layak pakai</p>
-                <h1 className="mt-2 font-roboto-serif text-[30px] font-semibold leading-tight text-black md:text-[38px]">
-                  Marketplace Rotary
-                </h1>
-                <p className="mt-2 max-w-2xl font-poppins text-[14px] leading-relaxed text-[#5f6370]">
-                  Telusuri barang yang dijual atau didonasikan langsung oleh pengguna. Deal, pengiriman, dan penjemputan disepakati manual antar pengguna.
-                </p>
+        <section className="border-b border-[#e5e7eb] bg-white">
+          <div className="v1-header-container">
+            <div className="v1-inner">
+              <nav className="v1-breadcrumb" aria-label="Breadcrumb">
+                <Link href="/" className="v1-breadcrumb-link">Home</Link>
+                <Icon icon="lucide:chevron-right" className="text-[#f7a81b]" width={12} height={12} aria-hidden="true" />
+                <span>Marketplace</span>
+              </nav>
+
+              <div className="v1-main-row">
+                <div className="v1-text-block">
+                  <p className="v1-eyebrow">Barang bekas layak pakai</p>
+                  <h1 className="v1-title">Marketplace Rotary</h1>
+                  <p className="v1-desc">
+                    Telusuri barang yang dijual atau didonasikan langsung oleh pengguna. Deal, pengiriman, dan penjemputan disepakati manual antar pengguna.
+                  </p>
+                </div>
               </div>
-              <Link
-                href="/dashboard/listings/new"
-                className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-[#f7a81b] px-4 font-poppins text-[12px] font-semibold text-white shadow-[0_8px_18px_rgba(247,168,27,0.22)] transition hover:-translate-y-0.5 hover:bg-[#e89a14]"
-              >
-                <Icon icon="lucide:package-plus" width={15} height={15} aria-hidden="true" />
-                Unggah Barang
-              </Link>
             </div>
           </div>
         </section>
@@ -217,9 +211,8 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
                 <Link
                   href={buildProductsHref(current, { page: Math.max(page - 1, 1) })}
                   aria-disabled={page <= 1}
-                  className={`inline-flex h-9 items-center gap-2 rounded-lg border px-3 text-[12px] font-semibold ${
-                    page <= 1 ? "pointer-events-none border-[#e5e7eb] text-[#9ca3af]" : "border-[#cbd5e1] text-[#17458f] hover:bg-[#eef6ff]"
-                  }`}
+                  className={`inline-flex h-9 items-center gap-2 rounded-lg border px-3 text-[12px] font-semibold ${page <= 1 ? "pointer-events-none border-[#e5e7eb] text-[#9ca3af]" : "border-[#cbd5e1] text-[#17458f] hover:bg-[#eef6ff]"
+                    }`}
                 >
                   <Icon icon="lucide:chevron-left" width={14} height={14} aria-hidden="true" />
                   Sebelumnya
@@ -233,9 +226,8 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
                         {previous && item - previous > 1 && <span className="text-[12px] text-[#9ca3af]">...</span>}
                         <Link
                           href={buildProductsHref(current, { page: item })}
-                          className={`flex h-9 w-9 items-center justify-center rounded-lg text-[12px] font-semibold ${
-                            item === page ? "bg-[#17458f] text-white" : "border border-[#cbd5e1] text-[#17458f] hover:bg-[#eef6ff]"
-                          }`}
+                          className={`flex h-9 w-9 items-center justify-center rounded-lg text-[12px] font-semibold ${item === page ? "bg-[#17458f] text-white" : "border border-[#cbd5e1] text-[#17458f] hover:bg-[#eef6ff]"
+                            }`}
                         >
                           {item}
                         </Link>
@@ -245,9 +237,8 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
                 <Link
                   href={buildProductsHref(current, { page: Math.min(page + 1, totalPages) })}
                   aria-disabled={page >= totalPages}
-                  className={`inline-flex h-9 items-center gap-2 rounded-lg border px-3 text-[12px] font-semibold ${
-                    page >= totalPages ? "pointer-events-none border-[#e5e7eb] text-[#9ca3af]" : "border-[#cbd5e1] text-[#17458f] hover:bg-[#eef6ff]"
-                  }`}
+                  className={`inline-flex h-9 items-center gap-2 rounded-lg border px-3 text-[12px] font-semibold ${page >= totalPages ? "pointer-events-none border-[#e5e7eb] text-[#9ca3af]" : "border-[#cbd5e1] text-[#17458f] hover:bg-[#eef6ff]"
+                    }`}
                 >
                   Berikutnya
                   <Icon icon="lucide:chevron-right" width={14} height={14} aria-hidden="true" />

@@ -36,52 +36,67 @@ const categoryIconStyles = [
   },
 ];
 
+const categoryImages: Record<string, string> = {
+  "Rumah Tangga": "/illustrations/categories/rumah-tangga.png",
+  "Elektronik": "/illustrations/categories/elektronik.png",
+  "Buku": "/illustrations/categories/buku.png",
+  "Fashion": "/illustrations/categories/fashion.png",
+  "Olahraga": "/illustrations/categories/olahraga.png",
+  "Mainan": "/illustrations/categories/mainan-anak.png",
+};
+
 export default async function HomeCategoryGrid() {
   const categoryCounts = await getPublicListingCategoryCounts();
   const categoryCountMap = new Map(categoryCounts.map((item) => [item.category, item.count]));
 
   return (
-    <section className="bg-white py-10 md:py-12" aria-labelledby="home-categories-heading">
+    <section className="bg-white py-12 md:py-16" aria-labelledby="home-categories-heading">
       <div className="mx-auto max-w-[1728px] px-8 lg:px-40">
-        <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <h2 id="home-categories-heading" className="font-roboto-serif text-[24px] font-semibold leading-tight text-black md:text-[28px]">
-              Jelajahi Kategori
-            </h2>
-            <p className="mt-0.5 font-poppins text-[14px] leading-snug text-black md:text-[16px]">
-              Temukan barang bekas layak pakai berdasarkan kebutuhanmu
-            </p>
-          </div>
-          <Link
-            href="/products"
-            className="inline-flex h-9 items-center gap-2 rounded-lg border border-[#cbd5e1] px-3 font-poppins text-[12px] font-semibold text-[#17458f] hover:bg-[#eef6ff]"
-          >
-            Lihat semua
-            <Icon icon="lucide:arrow-right" width={14} height={14} aria-hidden="true" />
-          </Link>
-        </div>
-
-        <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
-          {listingCategoryGroups.map((category, index) => {
-            const style = categoryIconStyles[index % categoryIconStyles.length];
-            return (
+        <div className="ds-split-layout">
+          <div className="ds-split-header mb-8 lg:mb-0">
+            <div>
+              <h2 className="font-roboto-serif text-[26px] font-semibold leading-tight text-black md:text-[32px]">
+                Pilih Kategori
+              </h2>
+              <p className="mt-2 font-poppins text-[14px] leading-relaxed text-black md:text-[15px]">
+                Temukan berbagai barang reusable berkualitas untuk mendukung gaya hidup sirkular dan ramah lingkungan.
+              </p>
+            </div>
+            <div>
               <Link
-                key={category.name}
-                href={`/products?category=${encodeURIComponent(category.name)}`}
-                className="group flex min-h-[76px] items-center gap-3 rounded-lg border border-[#d6deea] bg-white px-3.5 py-3 font-poppins transition duration-300 hover:-translate-y-0.5 hover:border-[#f7a81b] hover:shadow-[0_10px_22px_rgba(15,23,42,0.09)]"
+                href="/products"
+                className="inline-flex h-9 items-center gap-2 rounded-lg border border-[#cbd5e1] px-3 font-poppins text-[12px] font-semibold text-[#17458f] hover:bg-[#eef6ff] transition-colors"
               >
-                <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-[11px] ${style.iconBg} ${style.iconText} ring-1 ${style.iconRing} transition-transform duration-300 group-hover:-rotate-3 group-hover:scale-105`}>
-                  <Icon icon={category.icon} width={19} height={19} aria-hidden="true" />
-                </span>
-                <span className="min-w-0">
-                  <span className="block truncate text-[13px] font-semibold leading-tight text-black">{category.name}</span>
-                  <span className="mt-1 block text-[11px] leading-tight text-[#6b7280]">
-                    {categoryCountMap.get(category.name) ?? 0} listing aktif
-                  </span>
-                </span>
+                Lihat semua kategori
+                <Icon icon="lucide:arrow-right" width={14} height={14} aria-hidden="true" />
               </Link>
-            );
-          })}
+            </div>
+          </div>
+
+          <div className="ds-v3-grid">
+            {listingCategoryGroups.map((category) => {
+              const imageUrl = categoryImages[category.name];
+              return (
+                <Link
+                  key={category.name}
+                  href={`/products?category=${encodeURIComponent(category.name)}`}
+                  className="ds-v3-card group ds-v3-featured-card"
+                >
+                  <div className="ds-v3-card-img-container">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={imageUrl} alt={category.name} className="ds-v3-card-img" />
+                    <div className="ds-v3-card-img-overlay" />
+                  </div>
+                  <div className="ds-v3-card-content font-poppins text-white">
+                    <div>
+                      <h3 className="ds-v3-title-text">{category.name}</h3>
+                      <span className="ds-v3-count-text">{categoryCountMap.get(category.name) ?? 0} listing</span>
+                    </div>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
         </div>
       </div>
     </section>

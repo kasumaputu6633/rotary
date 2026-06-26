@@ -151,12 +151,14 @@ export function ConfirmDialog({
         className="modal-panel-enter w-full max-w-[420px] overflow-hidden rounded-[10px] border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[0_18px_48px_rgb(15_23_42_/_0.22)]"
       >
         <div className="px-5 pb-5 pt-5 sm:px-6 sm:pt-6">
+
           <div className="flex min-w-0 items-center gap-2.5">
             <Icon icon={icon ?? styles.iconName} width={18} height={18} className={`shrink-0 ${styles.icon}`} aria-hidden="true" />
             <h2 id={titleId} className="min-w-0 text-[16px] font-semibold leading-snug text-[var(--color-text)] [overflow-wrap:anywhere]">
               {title}
             </h2>
           </div>
+
 
           <p
             id={descriptionId}
