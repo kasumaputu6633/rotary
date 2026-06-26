@@ -182,7 +182,7 @@ export function ThreadView({
       </div>
 
       {/* Footer / Input Area */}
-      <footer className="relative shrink-0 border-t border-[#edf0f5] bg-white px-4 py-3 md:px-5">
+      <footer className="relative z-20 shrink-0 border-t border-[#edf0f5] bg-white px-4 py-3 md:px-5">
         {/* Reply Preview Box */}
         {replyingTo && (
           <div className="absolute bottom-full left-0 right-0 border-t border-[#edf0f5] bg-white px-4 py-2.5 shadow-[0_-4px_10px_rgba(0,0,0,0.04)] md:px-5">
