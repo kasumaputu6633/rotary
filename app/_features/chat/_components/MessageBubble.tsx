@@ -1,3 +1,4 @@
+import { useState, useRef, useEffect } from "react";
 import type { ChatMessage } from "../_hooks/useConversation";
 import { formatTime } from "../utils";
 import Image from "next/image";
@@ -9,16 +10,76 @@ export function MessageBubble({ msg, isOwn, onReply }: { msg: ChatMessage; isOwn
   // Trim whitespace-only content (used for attachment-only messages)
   const content = msg.content.trim();
 
-  const renderReplyButton = (replyMsg: ChatMessage) => (
-    <button
-      onClick={() => onReply?.(replyMsg)}
-      className={`opacity-0 group-hover:opacity-100 transition-opacity p-2 rounded-full hover:bg-gray-200 text-gray-500 self-center shrink-0 ${isOwn ? "mr-1" : "ml-1"}`}
-      aria-label="Balas pesan"
-      title="Balas pesan"
-    >
-      <Icon icon="lucide:reply" width={16} height={16} />
-    </button>
-  );
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [menuOpen]);
+
+  const renderActionMenu = (replyMsg: ChatMessage, isAttachment: boolean) => {
+    if (isAttachment) {
+      return (
+        <button
+          onClick={() => onReply?.(replyMsg)}
+          className={`opacity-0 group-hover:opacity-100 transition-opacity p-2 rounded-full hover:bg-gray-200 text-gray-500 self-center shrink-0 ${isOwn ? "mr-1" : "ml-1"}`}
+          aria-label="Balas pesan"
+          title="Balas pesan"
+        >
+          <Icon icon="lucide:reply" width={16} height={16} />
+        </button>
+      );
+    }
+
+    return (
+      <div className={`relative opacity-0 group-hover:opacity-100 transition-opacity self-center shrink-0 ${isOwn ? "mr-1" : "ml-1"} ${menuOpen ? "opacity-100" : ""}`}>
+        <div className="relative" ref={menuRef}>
+          <button
+            onClick={() => setMenuOpen(!menuOpen)}
+            className={`p-2 rounded-full hover:bg-gray-200 text-gray-500 focus:outline-none ${menuOpen ? "bg-gray-200" : ""}`}
+            aria-label="Opsi lainnya"
+            title="Opsi lainnya"
+          >
+            <Icon icon="lucide:more-horizontal" width={16} height={16} />
+          </button>
+          {/* Dropdown Menu */}
+          {menuOpen && (
+            <div className={`absolute z-10 min-w-[140px] rounded-lg border border-[#edf0f5] bg-white shadow-[0_4px_16px_rgba(0,0,0,0.08)] ${isOwn ? "right-[110%] top-0" : "left-[110%] top-0"}`}>
+              <div className="py-1">
+                <button
+                  onClick={() => {
+                    setMenuOpen(false);
+                    onReply?.(replyMsg);
+                  }}
+                  className="flex w-full items-center gap-2.5 px-3.5 py-2 text-left text-[13px] text-gray-700 hover:bg-gray-50"
+                >
+                  <Icon icon="lucide:reply" width={15} height={15} className="text-gray-400" />
+                  Balas
+                </button>
+                <button
+                  onClick={() => {
+                    setMenuOpen(false);
+                    alert("Fitur laporan sedang dalam pengembangan oleh admin");
+                  }}
+                  className="flex w-full items-center gap-2.5 px-3.5 py-2 text-left text-[13px] text-gray-700 hover:bg-gray-50"
+                >
+                  <Icon icon="lucide:circle-alert" width={15} height={15} className="text-gray-400" />
+                  Laporkan
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
 
   const ticks = isOwn ? (
     <Icon 
@@ -108,9 +169,9 @@ export function MessageBubble({ msg, isOwn, onReply }: { msg: ChatMessage; isOwn
 
   const renderRow = (node: React.ReactNode, isAttachment: boolean, replyMsg: ChatMessage) => (
     <div className={`group flex items-end ${isOwn ? "justify-end" : "justify-start"} ${isAttachment && textBubble ? "mb-2" : ""}`}>
-      {isOwn && renderReplyButton(replyMsg)}
+      {isOwn && renderActionMenu(replyMsg, isAttachment)}
       {node}
-      {!isOwn && renderReplyButton(replyMsg)}
+      {!isOwn && renderActionMenu(replyMsg, isAttachment)}
     </div>
   );
 
