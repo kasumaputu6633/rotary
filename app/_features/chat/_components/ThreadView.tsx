@@ -164,7 +164,7 @@ export function ThreadView({
             </div>
           </div>
         ) : (
-          <div className="mx-auto w-full max-w-4xl space-y-3">
+          <div className="flex w-full flex-col space-y-3">
             {messages.map((msg) => (
               <MessageBubble 
                 key={msg.id} 
