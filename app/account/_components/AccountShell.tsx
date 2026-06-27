@@ -64,7 +64,7 @@ export function AccountShell({
         : "password";
 
   return (
-    <main className="seller-center bg-[#f7f8fa] font-poppins text-[var(--seller-ink)]">
+    <main className="seller-center bg-[#f7f8fa] font-open-sauce text-[var(--seller-ink)]">
       <div className="mx-auto grid max-w-[1280px] gap-5 px-4 py-7 md:px-8 lg:grid-cols-[250px_minmax(0,1fr)] lg:gap-7 lg:py-10">
         <aside className="hidden min-w-0 lg:block">
           <div className="overflow-hidden rounded-[10px] border border-[var(--seller-rule)] bg-white shadow-[var(--seller-shadow)]">

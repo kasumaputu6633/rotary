@@ -114,17 +114,17 @@ export default function NavbarAdmin({ user, onMenuToggle }: NavbarAdminProps) {
                                         className="h-9 w-9 rounded-full object-cover border border-[#f7a81b]"
                                     />
                                 ) : (
-                                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-tr from-[#f7a81b] to-[#e89a14] font-poppins text-xs font-semibold text-white shadow-sm">
+                                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-tr from-[#f7a81b] to-[#e89a14] font-open-sauce text-xs font-semibold text-white shadow-sm">
                                         {getInitials(adminName)}
                                     </div>
                                 )}
 
                                 {/* Profile Text */}
                                 <div className="hidden text-left md:block">
-                                    <p className="font-poppins text-xs font-semibold text-gray-900 truncate max-w-[120px]">
+                                    <p className="font-open-sauce text-xs font-semibold text-gray-900 truncate max-w-[120px]">
                                         {adminName}
                                     </p>
-                                    <p className="font-poppins text-[10px] text-gray-500 font-medium -mt-0.5">
+                                    <p className="font-open-sauce text-[10px] text-gray-500 font-medium -mt-0.5">
                                         Administrator
                                     </p>
                                 </div>
@@ -144,17 +144,17 @@ export default function NavbarAdmin({ user, onMenuToggle }: NavbarAdminProps) {
                                     className="absolute right-0 mt-2 w-56 origin-top-right rounded-2xl border border-gray-100 bg-white p-2.5 shadow-[0_10px_30px_rgba(0,0,0,0.08)] ring-1 ring-black/5 focus:outline-none animate-in fade-in slide-in-from-top-1 duration-150"
                                 >
                                     <div className="border-b border-gray-100 px-3 py-2 pb-3 mb-2">
-                                        <p className="font-poppins text-xs font-semibold text-gray-900">
+                                        <p className="font-open-sauce text-xs font-semibold text-gray-900">
                                             {adminName}
                                         </p>
-                                        <p className="font-poppins text-[11px] text-gray-400 truncate mt-0.5">
+                                        <p className="font-open-sauce text-[11px] text-gray-400 truncate mt-0.5">
                                             {user.email || "admin@rotary.com"}
                                         </p>
                                     </div>
 
                                     <Link
                                         href="/admin/dashboard"
-                                        className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left font-poppins text-[13px] text-gray-700 hover:bg-gray-50 hover:text-gray-950 transition-colors"
+                                        className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left font-open-sauce text-[13px] text-gray-700 hover:bg-gray-50 hover:text-gray-950 transition-colors"
                                     >
                                         <Icon icon="lucide:home" width={16} height={16} className="text-gray-400" />
                                         <span>Halaman Utama</span>
@@ -165,7 +165,7 @@ export default function NavbarAdmin({ user, onMenuToggle }: NavbarAdminProps) {
                                             setShowDropdown(false);
                                             setShowLogoutModal(true);
                                         }}
-                                        className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left font-poppins text-[13px] text-red-600 hover:bg-red-50 transition-colors"
+                                        className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left font-open-sauce text-[13px] text-red-600 hover:bg-red-50 transition-colors"
                                     >
                                         <Icon icon="lucide:log-out" width={16} height={16} />
                                         <span>Keluar</span>
@@ -198,10 +198,10 @@ export default function NavbarAdmin({ user, onMenuToggle }: NavbarAdminProps) {
                         </div>
 
                         <div className="text-center">
-                            <h3 className="font-poppins font-semibold text-[16px] text-gray-900">
+                            <h3 className="font-open-sauce font-semibold text-[16px] text-gray-900">
                                 Keluar dari Admin Panel?
                             </h3>
-                            <p className="font-poppins text-[12px] text-gray-500 mt-1">
+                            <p className="font-open-sauce text-[12px] text-gray-500 mt-1">
                                 Anda harus masuk kembali untuk mengelola dashboard admin.
                             </p>
                         </div>
@@ -210,14 +210,14 @@ export default function NavbarAdmin({ user, onMenuToggle }: NavbarAdminProps) {
                             <button
                                 onClick={() => setShowLogoutModal(false)}
                                 disabled={isPending}
-                                className="flex-1 font-poppins font-semibold text-[13px] text-gray-500 border border-gray-200 rounded-xl py-2.5 hover:bg-gray-50 transition-colors disabled:opacity-50"
+                                className="flex-1 font-open-sauce font-semibold text-[13px] text-gray-500 border border-gray-200 rounded-xl py-2.5 hover:bg-gray-50 transition-colors disabled:opacity-50"
                             >
                                 Batal
                             </button>
                             <button
                                 onClick={handleLogout}
                                 disabled={isPending}
-                                className="flex-1 font-poppins font-semibold text-[13px] text-white bg-red-600 rounded-xl py-2.5 hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-1.5"
+                                className="flex-1 font-open-sauce font-semibold text-[13px] text-white bg-red-600 rounded-xl py-2.5 hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-1.5"
                             >
                                 {isPending ? (
                                     <Icon icon="lucide:loader-2" className="animate-spin" width={14} height={14} />

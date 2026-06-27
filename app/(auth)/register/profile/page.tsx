@@ -41,7 +41,7 @@ export default function RegisterProfilePage() {
       <AuthIllustration src="/auth/form.png" />
 
       <AuthCard>
-        <h1 className="font-roboto-serif font-semibold text-[24px] text-black">
+        <h1 className="font-open-sauce font-semibold text-[24px] text-black">
           Lengkapi Profil
         </h1>
 
@@ -90,7 +90,7 @@ export default function RegisterProfilePage() {
           Daftar Sekarang
         </AuthButton>
 
-        <p className="font-poppins text-[13px] text-[#505050] mt-5">
+        <p className="font-open-sauce text-[13px] text-[#505050] mt-5">
           <Link href="/register/verify" className="text-[#17458f] underline">
             ← Kembali
           </Link>

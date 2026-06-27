@@ -107,7 +107,7 @@ export default function SidebarAdmin({ isOpen, onClose }: SidebarAdminProps) {
                     <div className="space-y-6">
                         {menuSections.map((section, idx) => (
                             <div key={idx} className="space-y-2">
-                                <h4 className="font-poppins text-[10px] font-bold uppercase tracking-wider text-gray-400 px-3">
+                                <h4 className="font-open-sauce text-[10px] font-bold uppercase tracking-wider text-gray-400 px-3">
                                     {section.title}
                                 </h4>
                                 <nav className="space-y-1">
@@ -123,7 +123,7 @@ export default function SidebarAdmin({ isOpen, onClose }: SidebarAdminProps) {
                                                         onClose();
                                                     }
                                                 }}
-                                                className={`flex items-center gap-3 rounded-xl px-3 py-2.5 font-poppins text-[13px] font-semibold transition-all duration-200 ${isActive
+                                                className={`flex items-center gap-3 rounded-xl px-3 py-2.5 font-open-sauce text-[13px] font-semibold transition-all duration-200 ${isActive
                                                     ? "bg-gradient-to-r from-[#f7a81b] to-[#e89a14] text-white shadow-md shadow-[#f7a81b]/15 translate-x-1"
                                                     : "text-gray-600 hover:bg-[#fff9f0] hover:text-[#f7a81b]"
                                                     }`}
@@ -146,7 +146,7 @@ export default function SidebarAdmin({ isOpen, onClose }: SidebarAdminProps) {
                 </div>
                 {/* Footer Area inside Sidebar */}
                 <div className="border-t border-[#eef2f6] p-4 bg-gray-50/50">
-                    <div className="flex items-center gap-2 text-[#17458f] font-poppins text-xs font-semibold">
+                    <div className="flex items-center gap-2 text-[#17458f] font-open-sauce text-xs font-semibold">
                         <Icon icon="lucide:shield-check" width={14} height={14} className="text-[#f7a81b]" />
                         <span>Rotary Admin Area v1.0</span>
                     </div>

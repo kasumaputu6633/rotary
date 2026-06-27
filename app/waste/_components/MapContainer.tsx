@@ -250,7 +250,7 @@ export default function MapContainer({
               <Marker key={`cluster-${clusterId}`} longitude={longitude} latitude={latitude} anchor="center">
                 <button
                   type="button"
-                  className="flex items-center justify-center rounded-full border-2 border-white bg-[#17458f] font-poppins font-bold text-white shadow-[0_8px_12px_rgba(23,69,143,0.24)] transition hover:-translate-y-0.5 hover:bg-[#123a79] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f7a81b] focus-visible:ring-offset-2"
+                  className="flex items-center justify-center rounded-full border-2 border-white bg-[#17458f] font-open-sauce font-bold text-white shadow-[0_8px_12px_rgba(23,69,143,0.24)] transition hover:-translate-y-0.5 hover:bg-[#123a79] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f7a81b] focus-visible:ring-offset-2"
                   style={{
                     width: `${size}px`,
                     height: `${size}px`,
@@ -310,7 +310,7 @@ export default function MapContainer({
       />
 
       {locationError && (
-        <div className="absolute right-4 top-[148px] z-10 rounded-lg border border-amber-200 bg-white px-4 py-3 font-poppins text-xs font-semibold text-amber-700">
+        <div className="absolute right-4 top-[148px] z-10 rounded-lg border border-amber-200 bg-white px-4 py-3 font-open-sauce text-xs font-semibold text-amber-700">
           {locationError}
         </div>
       )}

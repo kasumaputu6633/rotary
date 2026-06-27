@@ -14,15 +14,15 @@ export default function ForgotPasswordSentPage() {
             <Icon icon="lucide:mail-check" width={28} height={28} className="text-[#f7a81b]" aria-hidden="true" />
           </div>
 
-          <h1 className="font-roboto-serif font-semibold text-[24px] text-black">
+          <h1 className="font-open-sauce font-semibold text-[24px] text-black">
             Cek Email Anda
           </h1>
 
-          <p className="font-poppins text-[14px] text-[#555] leading-relaxed">
+          <p className="font-open-sauce text-[14px] text-[#555] leading-relaxed">
             Jika email terdaftar dan telah diverifikasi, kami akan mengirimkan link reset kata sandi. Silakan cek inbox dan folder spam.
           </p>
 
-          <p className="font-poppins text-[12px] text-[#968e8e] leading-relaxed">
+          <p className="font-open-sauce text-[12px] text-[#968e8e] leading-relaxed">
             Link berlaku selama <span className="font-semibold text-[#555]">30 menit</span>. Periksa juga folder spam.
           </p>
 
@@ -30,10 +30,10 @@ export default function ForgotPasswordSentPage() {
             href="/login"
             className="mt-3 bg-[#ffb81d] border border-[#979797] flex items-center justify-center h-8 rounded-[9px] w-full px-2.5 hover:brightness-95 transition-all"
           >
-            <span className="font-poppins text-[14px] text-black">Kembali ke Login</span>
+            <span className="font-open-sauce text-[14px] text-black">Kembali ke Login</span>
           </Link>
 
-          <p className="font-poppins text-[13px] text-[#505050]">
+          <p className="font-open-sauce text-[13px] text-[#505050]">
             Tidak menerima email?{" "}
             <Link href="/forgot-password" className="text-[#17458f] underline font-semibold">
               Coba lagi

@@ -213,7 +213,7 @@ export function AvatarCropModal({
 
   return (
     <div
-      className="fixed inset-0 z-[10000] flex items-center justify-center bg-slate-950/55 px-4 py-6 font-poppins"
+      className="fixed inset-0 z-[10000] flex items-center justify-center bg-slate-950/55 px-4 py-6 font-open-sauce"
       role="dialog"
       aria-modal="true"
       aria-labelledby="avatar-crop-title"

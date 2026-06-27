@@ -60,7 +60,7 @@ export default function LoginPage() {
       <AuthIllustration src="/auth/illustration-register.png" />
 
       <AuthCard>
-        <h1 className="font-roboto-serif font-semibold text-[24px] text-black">
+        <h1 className="font-open-sauce font-semibold text-[24px] text-black">
           Masuk
         </h1>
 
@@ -102,12 +102,12 @@ export default function LoginPage() {
 
           <Link
             href="/forgot-password"
-            className="font-poppins text-[14px] text-[#17458f] underline self-end"
+            className="font-open-sauce text-[14px] text-[#17458f] underline self-end"
           >
             Lupa Kata Sandi?
           </Link>
 
-          <Link href="/help" className="font-poppins text-[14px] text-[#17458f] underline">
+          <Link href="/help" className="font-open-sauce text-[14px] text-[#17458f] underline">
             Perlu Bantuan?
           </Link>
         </div>
@@ -116,7 +116,7 @@ export default function LoginPage() {
           Masuk
         </AuthButton>
 
-        <p className="font-poppins text-[13px] text-[#505050] mt-5">
+        <p className="font-open-sauce text-[13px] text-[#505050] mt-5">
           Belum punya akun?{" "}
           <Link href="/register" className="text-[#17458f] underline font-semibold">Daftar</Link>
         </p>

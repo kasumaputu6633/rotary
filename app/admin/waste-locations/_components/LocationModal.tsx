@@ -26,7 +26,7 @@ const DAY_LABELS_ID: Record<string, string> = {
 };
 
 const inputCls =
-    "w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 font-poppins text-[13px] text-gray-800 placeholder-gray-400 outline-none transition focus:border-[#f7a81b] focus:ring-2 focus:ring-[#f7a81b]/10 hover:border-gray-300";
+    "w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 font-open-sauce text-[13px] text-gray-800 placeholder-gray-400 outline-none transition focus:border-[#f7a81b] focus:ring-2 focus:ring-[#f7a81b]/10 hover:border-gray-300";
 
 const DEFAULT_HOURS = {
     monday: { open: "08:00", close: "17:00", isClosed: false },
@@ -270,7 +270,7 @@ export default function LocationModal({
 
                 {/* Header */}
                 <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4 shrink-0">
-                    <h3 className="font-poppins text-base font-bold text-gray-900">
+                    <h3 className="font-open-sauce text-base font-bold text-gray-900">
                         Edit Lokasi Sampah
                     </h3>
                     <button
@@ -285,7 +285,7 @@ export default function LocationModal({
                 <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-4">
                     {/* Error display */}
                     {error && (
-                        <div className="rounded-xl bg-red-50 p-3 text-xs text-red-600 font-semibold font-poppins flex items-center gap-2">
+                        <div className="rounded-xl bg-red-50 p-3 text-xs text-red-600 font-semibold font-open-sauce flex items-center gap-2">
                             <Icon icon="lucide:alert-circle" width={14} height={14} />
                             {error}
                         </div>
@@ -293,7 +293,7 @@ export default function LocationModal({
 
                     {/* Image Preview & Upload */}
                     <div className="space-y-2">
-                        <label className="block font-poppins text-[12px] font-bold text-gray-500 uppercase tracking-wider">
+                        <label className="block font-open-sauce text-[12px] font-bold text-gray-500 uppercase tracking-wider">
                             Gambar Lokasi <span className="text-red-500">*</span>
                         </label>
                         <div className="relative h-44 w-full bg-gray-50 rounded-xl border border-gray-200 overflow-hidden flex items-center justify-center">
@@ -302,11 +302,11 @@ export default function LocationModal({
                                     <Image src={previewUrl} alt="Preview" fill className="object-cover" />
                                     <div className="absolute inset-0 bg-black/30 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
                                         <button type="button" onClick={() => fileInputRef.current?.click()}
-                                            className="rounded-xl bg-white/90 px-3 py-1.5 font-poppins text-[11px] font-bold text-gray-800 hover:bg-white transition shadow">
+                                            className="rounded-xl bg-white/90 px-3 py-1.5 font-open-sauce text-[11px] font-bold text-gray-800 hover:bg-white transition shadow">
                                             <Icon icon="lucide:pencil" width={12} height={12} className="inline mr-1" />Ganti
                                         </button>
                                         <button type="button" onClick={handleClearImage}
-                                            className="rounded-xl bg-red-500/90 px-3 py-1.5 font-poppins text-[11px] font-bold text-white hover:bg-red-600 transition shadow">
+                                            className="rounded-xl bg-red-500/90 px-3 py-1.5 font-open-sauce text-[11px] font-bold text-white hover:bg-red-600 transition shadow">
                                             <Icon icon="lucide:trash-2" width={12} height={12} className="inline mr-1" />Hapus
                                         </button>
                                     </div>
@@ -315,7 +315,7 @@ export default function LocationModal({
                                 <button type="button" onClick={() => fileInputRef.current?.click()}
                                     className="flex flex-col items-center gap-1.5 text-gray-400 hover:text-gray-600 transition">
                                     <Icon icon="lucide:image" width={32} height={32} />
-                                    <span className="font-poppins text-[12px] font-semibold">Unggah Gambar</span>
+                                    <span className="font-open-sauce text-[12px] font-semibold">Unggah Gambar</span>
                                 </button>
                             )}
                         </div>
@@ -325,7 +325,7 @@ export default function LocationModal({
 
                     {/* Radio Tipe Lokasi */}
                     <div className="space-y-1.5">
-                        <label className="block font-poppins text-[12px] font-bold text-gray-500 uppercase tracking-wider">
+                        <label className="block font-open-sauce text-[12px] font-bold text-gray-500 uppercase tracking-wider">
                             Tipe Lokasi <span className="text-red-500">*</span>
                         </label>
                         <div className="flex gap-4">
@@ -338,7 +338,7 @@ export default function LocationModal({
                                 <div className={`h-4.5 w-4.5 rounded-full border flex items-center justify-center ${type === "tps" ? "border-[#0B2545]" : "border-gray-300"}`}>
                                     {type === "tps" && <div className="h-2 w-2 rounded-full bg-[#0B2545]" />}
                                 </div>
-                                <span className="font-poppins text-[12px]">TPS</span>
+                                <span className="font-open-sauce text-[12px]">TPS</span>
                             </label>
                             
                             <label className={`flex-1 flex items-center gap-2 p-2.5 rounded-xl border cursor-pointer transition select-none ${
@@ -350,14 +350,14 @@ export default function LocationModal({
                                 <div className={`h-4.5 w-4.5 rounded-full border flex items-center justify-center ${type === "vendor" ? "border-[#E53E3E]" : "border-gray-300"}`}>
                                     {type === "vendor" && <div className="h-2 w-2 rounded-full bg-[#E53E3E]" />}
                                 </div>
-                                <span className="font-poppins text-[12px]">Vendor</span>
+                                <span className="font-open-sauce text-[12px]">Vendor</span>
                             </label>
                         </div>
                     </div>
 
                     {/* Name */}
                     <div className="space-y-1.5">
-                        <label className="block font-poppins text-[12px] font-bold text-gray-500 uppercase tracking-wider">
+                        <label className="block font-open-sauce text-[12px] font-bold text-gray-500 uppercase tracking-wider">
                             Nama Lokasi <span className="text-red-500">*</span>
                         </label>
                         <input
@@ -373,7 +373,7 @@ export default function LocationModal({
                     {/* Email & Phone */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="space-y-1.5">
-                            <label className="block font-poppins text-[12px] font-bold text-gray-500 uppercase tracking-wider">
+                            <label className="block font-open-sauce text-[12px] font-bold text-gray-500 uppercase tracking-wider">
                                 Email Kontak
                             </label>
                             <input
@@ -385,7 +385,7 @@ export default function LocationModal({
                             />
                         </div>
                         <div className="space-y-1.5">
-                            <label className="block font-poppins text-[12px] font-bold text-gray-500 uppercase tracking-wider">
+                            <label className="block font-open-sauce text-[12px] font-bold text-gray-500 uppercase tracking-wider">
                                 Nomor Telepon / Kontak <span className="text-red-500">*</span>
                             </label>
                             <input
@@ -402,7 +402,7 @@ export default function LocationModal({
                     {/* Latitude, Longitude, Website */}
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <div className="space-y-1.5">
-                            <label className="block font-poppins text-[12px] font-bold text-gray-500 uppercase tracking-wider">
+                            <label className="block font-open-sauce text-[12px] font-bold text-gray-500 uppercase tracking-wider">
                                 Latitude <span className="text-red-500">*</span>
                             </label>
                             <input
@@ -415,7 +415,7 @@ export default function LocationModal({
                             />
                         </div>
                         <div className="space-y-1.5">
-                            <label className="block font-poppins text-[12px] font-bold text-gray-500 uppercase tracking-wider">
+                            <label className="block font-open-sauce text-[12px] font-bold text-gray-500 uppercase tracking-wider">
                                 Longitude <span className="text-red-500">*</span>
                             </label>
                             <input
@@ -428,7 +428,7 @@ export default function LocationModal({
                             />
                         </div>
                         <div className="space-y-1.5 sm:col-span-1">
-                            <label className="block font-poppins text-[12px] font-bold text-gray-500 uppercase tracking-wider">
+                            <label className="block font-open-sauce text-[12px] font-bold text-gray-500 uppercase tracking-wider">
                                 Website
                             </label>
                             <input
@@ -443,7 +443,7 @@ export default function LocationModal({
 
                     {/* Address Detail */}
                     <div className="space-y-1.5">
-                        <label className="block font-poppins text-[12px] font-bold text-gray-500 uppercase tracking-wider">
+                        <label className="block font-open-sauce text-[12px] font-bold text-gray-500 uppercase tracking-wider">
                             Alamat Lengkap <span className="text-red-500">*</span>
                         </label>
                         <input
@@ -458,7 +458,7 @@ export default function LocationModal({
 
                     {/* Waste Types accepted */}
                     <div className="space-y-2">
-                        <label className="block font-poppins text-[12px] font-bold text-gray-500 uppercase tracking-wider">
+                        <label className="block font-open-sauce text-[12px] font-bold text-gray-500 uppercase tracking-wider">
                             Jenis Sampah yang Diterima <span className="text-red-500">*</span>
                         </label>
                         <div className="flex flex-wrap gap-1.5">
@@ -469,7 +469,7 @@ export default function LocationModal({
                                         type="button"
                                         key={typeKey}
                                         onClick={() => handleToggleWasteType(typeKey)}
-                                        className={`inline-flex items-center gap-1.5 border rounded-xl px-3 py-1.5 font-poppins text-[12px] font-semibold transition select-none ${
+                                        className={`inline-flex items-center gap-1.5 border rounded-xl px-3 py-1.5 font-open-sauce text-[12px] font-semibold transition select-none ${
                                             isSelected
                                                 ? "bg-[#17458f] text-white border-[#17458f] shadow-sm shadow-[#17458f]/10"
                                                 : "bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100 hover:text-gray-800"
@@ -489,12 +489,12 @@ export default function LocationModal({
 
                     {/* Jam Operasional */}
                     <div className="space-y-2 pt-2">
-                        <label className="block font-poppins text-[12px] font-bold text-gray-500 uppercase tracking-wider">
+                        <label className="block font-open-sauce text-[12px] font-bold text-gray-500 uppercase tracking-wider">
                             Jam Operasional <span className="text-red-500">*</span>
                         </label>
                         <div className="space-y-3 rounded-2xl border border-gray-100 bg-gray-50/50 p-4">
                             <div className="space-y-1.5">
-                                <label className="block font-poppins text-[11px] font-semibold text-gray-500">Hari Operasional</label>
+                                <label className="block font-open-sauce text-[11px] font-semibold text-gray-500">Hari Operasional</label>
                                 <div className="flex flex-wrap gap-1.5">
                                     {DAY_KEYS.map((day) => {
                                         const isSelected = selectedDays.includes(day);
@@ -505,7 +505,7 @@ export default function LocationModal({
                                                 onClick={() => setSelectedDays(prev =>
                                                     prev.includes(day) ? prev.filter(d => d !== day) : [...prev, day]
                                                 )}
-                                                className={`rounded-lg px-2.5 py-1.5 font-poppins text-[12px] font-semibold transition select-none ${
+                                                className={`rounded-lg px-2.5 py-1.5 font-open-sauce text-[12px] font-semibold transition select-none ${
                                                     isSelected
                                                         ? "bg-[#17458f] text-white shadow-sm"
                                                         : "bg-gray-100 text-gray-400 hover:bg-gray-200 hover:text-gray-600"
@@ -519,13 +519,13 @@ export default function LocationModal({
                             </div>
                             <div className="grid grid-cols-2 gap-3">
                                 <div className="space-y-1.5">
-                                    <label className="block font-poppins text-[11px] font-semibold text-gray-500">Jam Buka</label>
+                                    <label className="block font-open-sauce text-[11px] font-semibold text-gray-500">Jam Buka</label>
                                     <input type="time" value={openTime} onChange={(e) => setOpenTime(e.target.value)}
                                         onClick={(e) => (e.currentTarget as any).showPicker?.()}
                                         className={inputCls} />
                                 </div>
                                 <div className="space-y-1.5">
-                                    <label className="block font-poppins text-[11px] font-semibold text-gray-500">Jam Tutup</label>
+                                    <label className="block font-open-sauce text-[11px] font-semibold text-gray-500">Jam Tutup</label>
                                     <input type="time" value={closeTime} onChange={(e) => setCloseTime(e.target.value)}
                                         onClick={(e) => (e.currentTarget as any).showPicker?.()}
                                         className={inputCls} />
@@ -540,7 +540,7 @@ export default function LocationModal({
                     <button
                         type="button"
                         onClick={onClose}
-                        className="rounded-xl border border-gray-200 px-4 py-2.5 font-poppins text-[13px] font-semibold text-gray-600 bg-white transition hover:bg-gray-50"
+                        className="rounded-xl border border-gray-200 px-4 py-2.5 font-open-sauce text-[13px] font-semibold text-gray-600 bg-white transition hover:bg-gray-50"
                     >
                         Batal
                     </button>
@@ -548,7 +548,7 @@ export default function LocationModal({
                         type="submit"
                         onClick={handleSubmit}
                         disabled={isSubmitting}
-                        className="rounded-xl bg-[#f7a81b] hover:bg-[#e89a14] px-5 py-2.5 font-poppins text-[13px] font-semibold text-white transition flex items-center justify-center gap-1.5 shadow-md shadow-[#f7a81b]/10 disabled:opacity-75 disabled:cursor-not-allowed"
+                        className="rounded-xl bg-[#f7a81b] hover:bg-[#e89a14] px-5 py-2.5 font-open-sauce text-[13px] font-semibold text-white transition flex items-center justify-center gap-1.5 shadow-md shadow-[#f7a81b]/10 disabled:opacity-75 disabled:cursor-not-allowed"
                     >
                         {isSubmitting ? (
                             <>

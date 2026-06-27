@@ -11,7 +11,7 @@ export function SellerToaster() {
       duration={4000}
       toastOptions={{
         style: {
-          fontFamily: "var(--font-poppins, sans-serif)",
+          fontFamily: "var(--font-open-sauce, sans-serif)",
           fontSize: "13px",
           borderRadius: "8px",
         },

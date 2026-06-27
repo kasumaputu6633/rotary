@@ -125,7 +125,7 @@ export default function ProductGallery({
           >
             {/* Header */}
             <div className="mb-6 flex items-start justify-between gap-4">
-              <h2 className="font-poppins text-[20px] font-bold text-black">{product.title}</h2>
+              <h2 className="font-open-sauce text-[20px] font-bold text-black">{product.title}</h2>
               <button
                 type="button"
                 onClick={() => setIsOpen(false)}
@@ -188,7 +188,7 @@ export default function ProductGallery({
 
               {/* Right Column (Thumbnails) */}
               <div className="w-full md:w-[320px] shrink-0">
-                <h3 className="mb-4 font-poppins text-[15px] font-bold text-[#31353b]">Gambar Barang</h3>
+                <h3 className="mb-4 font-open-sauce text-[15px] font-bold text-[#31353b]">Gambar Barang</h3>
                 <div className="grid grid-cols-4 gap-3">
                   {galleryImages.map((imageUrl, index) => (
                     <button

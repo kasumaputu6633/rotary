@@ -10,7 +10,7 @@ export function ProductsFilterDrawer({
 }) {
   return (
     <details className="group mb-3 lg:hidden">
-      <summary className="flex h-10 cursor-pointer list-none items-center justify-center gap-2 rounded-lg border border-[#cbd5e1] bg-white px-4 font-poppins text-[12px] font-semibold text-[#17458f] shadow-[0_8px_18px_rgba(15,23,42,0.06)] transition hover:bg-[#eef6ff] [&::-webkit-details-marker]:hidden">
+      <summary className="flex h-10 cursor-pointer list-none items-center justify-center gap-2 rounded-lg border border-[#cbd5e1] bg-white px-4 font-open-sauce text-[12px] font-semibold text-[#17458f] shadow-[0_8px_18px_rgba(15,23,42,0.06)] transition hover:bg-[#eef6ff] [&::-webkit-details-marker]:hidden">
         <Icon icon="lucide:sliders-horizontal" width={15} height={15} aria-hidden="true" />
         Filter listing
         {activeFilterCount > 0 ? (

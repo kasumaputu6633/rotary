@@ -152,9 +152,9 @@ export default function LocationDetailSheet({ location, onClose, isCollapsed, on
 
         {/* Content */}
         <div className="p-5 flex flex-col">
-          <h2 className="font-roboto-serif text-2xl font-bold text-gray-900">{title}</h2>
+          <h2 className="font-open-sauce text-2xl font-bold text-gray-900">{title}</h2>
           
-          <div className="flex items-center gap-2 mt-2 text-sm text-gray-600 font-poppins">
+          <div className="flex items-center gap-2 mt-2 text-sm text-gray-600 font-open-sauce">
             <Icon icon={isVendor ? "mdi:recycle" : "mdi:hospital-marker"} className="w-5 h-5 text-[#17458f]" />
             <span className="capitalize">{category}</span>
           </div>
@@ -163,7 +163,7 @@ export default function LocationDetailSheet({ location, onClose, isCollapsed, on
           <div className="flex border-b border-gray-200 mt-6">
             <button
               onClick={() => setActiveTab("overview")}
-              className={`flex-1 py-3 text-sm font-bold font-poppins text-center transition-colors ${activeTab === "overview"
+              className={`flex-1 py-3 text-sm font-bold font-open-sauce text-center transition-colors ${activeTab === "overview"
                 ? "text-[#17458f] border-b-2 border-[#17458f]"
                 : "text-gray-500 hover:text-gray-700"
                 }`}
@@ -172,7 +172,7 @@ export default function LocationDetailSheet({ location, onClose, isCollapsed, on
             </button>
             <button
               onClick={() => setActiveTab("about")}
-              className={`flex-1 py-3 text-sm font-bold font-poppins text-center transition-colors ${activeTab === "about"
+              className={`flex-1 py-3 text-sm font-bold font-open-sauce text-center transition-colors ${activeTab === "about"
                 ? "text-[#17458f] border-b-2 border-[#17458f]"
                 : "text-gray-500 hover:text-gray-700"
                 }`}
@@ -182,7 +182,7 @@ export default function LocationDetailSheet({ location, onClose, isCollapsed, on
           </div>
 
           {/* Tab Content */}
-          <div className="py-6 font-poppins">
+          <div className="py-6 font-open-sauce">
             {activeTab === "overview" && (
               <div className="flex flex-col gap-6">
                 {/* Action Buttons */}

@@ -19,10 +19,10 @@ function StatCard({ label, value, icon, iconBg, iconColor }: StatCardProps) {
                 <Icon icon={icon} width={20} height={20} className={iconColor} />
             </div>
             <div>
-                <p className="font-poppins text-[11px] font-medium text-gray-400 uppercase tracking-wide">
+                <p className="font-open-sauce text-[11px] font-medium text-gray-400 uppercase tracking-wide">
                     {label}
                 </p>
-                <p className="font-poppins text-[22px] font-bold leading-tight text-gray-900">
+                <p className="font-open-sauce text-[22px] font-bold leading-tight text-gray-900">
                     {value.toLocaleString("id-ID")}
                 </p>
             </div>

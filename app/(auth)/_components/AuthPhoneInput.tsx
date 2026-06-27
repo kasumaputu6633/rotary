@@ -28,7 +28,7 @@ export default function AuthPhoneInput({ id, label, value, onChange, disabled, e
 
   return (
     <div className="flex flex-col gap-[6px] w-full">
-      <label htmlFor={id} className="font-poppins font-semibold text-[14px] text-black">
+      <label htmlFor={id} className="font-open-sauce font-semibold text-[14px] text-black">
         {label}
       </label>
       <div className="flex w-full gap-2">
@@ -36,7 +36,7 @@ export default function AuthPhoneInput({ id, label, value, onChange, disabled, e
         <button
           type="button"
           disabled
-          className="flex items-center gap-[6px] h-8 px-3 rounded-[9px] border border-[#979797] bg-[rgba(130,130,130,0.27)] text-[13px] font-poppins shrink-0 cursor-not-allowed"
+          className="flex items-center gap-[6px] h-8 px-3 rounded-[9px] border border-[#979797] bg-[rgba(130,130,130,0.27)] text-[13px] font-open-sauce shrink-0 cursor-not-allowed"
           aria-label={`Kode negara ${COUNTRY.code}`}
         >
           <span aria-hidden="true">{COUNTRY.flag}</span>
@@ -53,12 +53,12 @@ export default function AuthPhoneInput({ id, label, value, onChange, disabled, e
           value={value}
           onChange={handleChange}
           disabled={disabled}
-          className={`flex-1 bg-[rgba(130,130,130,0.27)] border h-8 rounded-[9px] w-full px-3 text-[13px] font-poppins outline-none focus:bg-white transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${
+          className={`flex-1 bg-[rgba(130,130,130,0.27)] border h-8 rounded-[9px] w-full px-3 text-[13px] font-open-sauce outline-none focus:bg-white transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${
             error ? "border-red-500 focus:border-red-500" : "border-[#979797] focus:border-[#17458f]"
           }`}
         />
       </div>
-      {error && <p className="font-poppins text-[12px] text-red-500">{error}</p>}
+      {error && <p className="font-open-sauce text-[12px] text-red-500">{error}</p>}
     </div>
   );
 }

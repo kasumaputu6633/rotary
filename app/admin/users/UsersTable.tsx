@@ -81,10 +81,10 @@ function DeleteModal({
                     </div>
 
                     {/* Title */}
-                    <h3 className="text-center font-poppins text-[17px] font-bold text-gray-900">
+                    <h3 className="text-center font-open-sauce text-[17px] font-bold text-gray-900">
                         Hapus Pengguna?
                     </h3>
-                    <p className="mt-1.5 text-center font-poppins text-[12.5px] text-gray-500 leading-relaxed">
+                    <p className="mt-1.5 text-center font-open-sauce text-[12.5px] text-gray-500 leading-relaxed">
                         Apakah kamu yakin ingin menghapus{" "}
                         <span className="font-semibold text-gray-800">
                             {user.fullName || user.email || "pengguna ini"}
@@ -103,22 +103,22 @@ function DeleteModal({
                                 className="h-9 w-9 rounded-full object-cover"
                             />
                         ) : (
-                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-tr from-[#f7a81b] to-[#e89a14] font-poppins text-xs font-bold text-white">
+                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-tr from-[#f7a81b] to-[#e89a14] font-open-sauce text-xs font-bold text-white">
                                 {getInitials(user.fullName || user.email || "?")}
                             </div>
                         )}
                         <div className="min-w-0">
-                            <p className="truncate font-poppins text-sm font-semibold text-gray-900">
+                            <p className="truncate font-open-sauce text-sm font-semibold text-gray-900">
                                 {user.fullName || "-"}
                             </p>
-                            <p className="truncate font-poppins text-[11px] text-gray-400">
+                            <p className="truncate font-open-sauce text-[11px] text-gray-400">
                                 {user.email}
                             </p>
                         </div>
                     </div>
 
                     {error && (
-                        <p className="mt-3 rounded-lg bg-red-50 px-3 py-2 font-poppins text-[12px] text-red-600">
+                        <p className="mt-3 rounded-lg bg-red-50 px-3 py-2 font-open-sauce text-[12px] text-red-600">
                             {error}
                         </p>
                     )}
@@ -128,14 +128,14 @@ function DeleteModal({
                         <button
                             onClick={onClose}
                             disabled={isPending}
-                            className="flex-1 rounded-xl border border-gray-200 py-2.5 font-poppins text-[13px] font-semibold text-gray-600 transition-colors hover:bg-gray-50 disabled:opacity-50"
+                            className="flex-1 rounded-xl border border-gray-200 py-2.5 font-open-sauce text-[13px] font-semibold text-gray-600 transition-colors hover:bg-gray-50 disabled:opacity-50"
                         >
                             Batal
                         </button>
                         <button
                             onClick={handleDelete}
                             disabled={isPending}
-                            className="flex-1 flex items-center justify-center gap-1.5 rounded-xl bg-red-600 py-2.5 font-poppins text-[13px] font-semibold text-white transition-colors hover:bg-red-700 disabled:opacity-60"
+                            className="flex-1 flex items-center justify-center gap-1.5 rounded-xl bg-red-600 py-2.5 font-open-sauce text-[13px] font-semibold text-white transition-colors hover:bg-red-700 disabled:opacity-60"
                         >
                             {isPending ? (
                                 <Icon icon="lucide:loader-2" className="animate-spin" width={14} height={14} />
@@ -183,7 +183,7 @@ function SearchBar({ defaultValue }: { defaultValue: string }) {
                 value={value}
                 onChange={(e) => setValue(e.target.value)}
                 placeholder="Cari nama, email, telepon..."
-                className="w-full rounded-xl border border-gray-200 bg-white py-2 pl-9 pr-4 font-poppins text-[13px] text-gray-800 placeholder-gray-400 outline-none transition focus:border-[#f7a81b] focus:ring-2 focus:ring-[#f7a81b]/20"
+                className="w-full rounded-xl border border-gray-200 bg-white py-2 pl-9 pr-4 font-open-sauce text-[13px] text-gray-800 placeholder-gray-400 outline-none transition focus:border-[#f7a81b] focus:ring-2 focus:ring-[#f7a81b]/20"
             />
         </form>
     );
@@ -216,7 +216,7 @@ function RoleFilter({ current }: { current: string }) {
                 <button
                     key={opt.value}
                     onClick={() => setRole(opt.value)}
-                    className={`rounded-lg px-3.5 py-1.5 font-poppins text-[12px] font-semibold transition-all ${
+                    className={`rounded-lg px-3.5 py-1.5 font-open-sauce text-[12px] font-semibold transition-all ${
                         current === opt.value
                             ? "bg-[#17458f] text-white shadow-sm"
                             : "text-gray-500 hover:text-gray-800"
@@ -260,7 +260,7 @@ function Pagination({
             <button
                 onClick={() => goTo(page - 1)}
                 disabled={page <= 1}
-                className="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 bg-white font-poppins text-sm text-gray-500 transition hover:bg-gray-50 disabled:opacity-40"
+                className="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 bg-white font-open-sauce text-sm text-gray-500 transition hover:bg-gray-50 disabled:opacity-40"
             >
                 <Icon icon="lucide:chevron-left" width={14} height={14} />
             </button>
@@ -271,11 +271,11 @@ function Pagination({
                 return (
                     <span key={p} className="flex items-center gap-1">
                         {showEllipsis && (
-                            <span className="px-1 font-poppins text-xs text-gray-400">…</span>
+                            <span className="px-1 font-open-sauce text-xs text-gray-400">…</span>
                         )}
                         <button
                             onClick={() => goTo(p)}
-                            className={`flex h-8 w-8 items-center justify-center rounded-lg font-poppins text-[13px] font-semibold transition ${
+                            className={`flex h-8 w-8 items-center justify-center rounded-lg font-open-sauce text-[13px] font-semibold transition ${
                                 p === page
                                     ? "bg-[#17458f] text-white shadow-sm"
                                     : "border border-gray-200 bg-white text-gray-600 hover:bg-gray-50"
@@ -290,7 +290,7 @@ function Pagination({
             <button
                 onClick={() => goTo(page + 1)}
                 disabled={page >= totalPages}
-                className="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 bg-white font-poppins text-sm text-gray-500 transition hover:bg-gray-50 disabled:opacity-40"
+                className="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 bg-white font-open-sauce text-sm text-gray-500 transition hover:bg-gray-50 disabled:opacity-40"
             >
                 <Icon icon="lucide:chevron-right" width={14} height={14} />
             </button>
@@ -333,7 +333,7 @@ export default function UsersTable({
                     <SearchBar defaultValue={search} />
                     <RoleFilter current={role} />
                 </div>
-                <p className="font-poppins text-[12px] text-gray-400">
+                <p className="font-open-sauce text-[12px] text-gray-400">
                     {total} pengguna ditemukan
                 </p>
             </div>
@@ -344,25 +344,25 @@ export default function UsersTable({
                     <table className="w-full min-w-[780px]">
                         <thead>
                             <tr className="border-b border-gray-100 bg-gradient-to-r from-[#f8faff] to-[#f0f4ff]">
-                                <th className="px-5 py-3.5 text-left font-poppins text-[11px] font-bold uppercase tracking-wider text-gray-500">
+                                <th className="px-5 py-3.5 text-left font-open-sauce text-[11px] font-bold uppercase tracking-wider text-gray-500">
                                     Pengguna
                                 </th>
-                                <th className="px-5 py-3.5 text-left font-poppins text-[11px] font-bold uppercase tracking-wider text-gray-500">
+                                <th className="px-5 py-3.5 text-left font-open-sauce text-[11px] font-bold uppercase tracking-wider text-gray-500">
                                     Nama Toko
                                 </th>
-                                <th className="px-5 py-3.5 text-left font-poppins text-[11px] font-bold uppercase tracking-wider text-gray-500">
+                                <th className="px-5 py-3.5 text-left font-open-sauce text-[11px] font-bold uppercase tracking-wider text-gray-500">
                                     Role
                                 </th>
-                                <th className="px-5 py-3.5 text-left font-poppins text-[11px] font-bold uppercase tracking-wider text-gray-500">
+                                <th className="px-5 py-3.5 text-left font-open-sauce text-[11px] font-bold uppercase tracking-wider text-gray-500">
                                     No. Telepon
                                 </th>
-                                <th className="px-5 py-3.5 text-center font-poppins text-[11px] font-bold uppercase tracking-wider text-gray-500">
+                                <th className="px-5 py-3.5 text-center font-open-sauce text-[11px] font-bold uppercase tracking-wider text-gray-500">
                                     Total Listing
                                 </th>
-                                <th className="px-5 py-3.5 text-left font-poppins text-[11px] font-bold uppercase tracking-wider text-gray-500">
+                                <th className="px-5 py-3.5 text-left font-open-sauce text-[11px] font-bold uppercase tracking-wider text-gray-500">
                                     Dibuat
                                 </th>
-                                <th className="px-5 py-3.5 text-center font-poppins text-[11px] font-bold uppercase tracking-wider text-gray-500">
+                                <th className="px-5 py-3.5 text-center font-open-sauce text-[11px] font-bold uppercase tracking-wider text-gray-500">
                                     Aksi
                                 </th>
                             </tr>
@@ -378,7 +378,7 @@ export default function UsersTable({
                                                 height={36}
                                                 className="text-gray-200"
                                             />
-                                            <p className="font-poppins text-sm text-gray-400">
+                                            <p className="font-open-sauce text-sm text-gray-400">
                                                 {search
                                                     ? "Tidak ada pengguna yang cocok."
                                                     : "Belum ada pengguna."}
@@ -409,19 +409,19 @@ export default function UsersTable({
                                                             className="h-9 w-9 shrink-0 rounded-full object-cover ring-2 ring-white shadow-sm"
                                                         />
                                                     ) : (
-                                                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-tr from-[#f7a81b] to-[#e89a14] font-poppins text-[11px] font-bold text-white shadow-sm">
+                                                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-tr from-[#f7a81b] to-[#e89a14] font-open-sauce text-[11px] font-bold text-white shadow-sm">
                                                             {initials}
                                                         </div>
                                                     )}
                                                     <div className="min-w-0">
-                                                        <p className="truncate font-poppins text-[13px] font-semibold text-gray-900">
+                                                        <p className="truncate font-open-sauce text-[13px] font-semibold text-gray-900">
                                                             {user.fullName || (
                                                                 <span className="italic text-gray-400">
                                                                     —
                                                                 </span>
                                                             )}
                                                         </p>
-                                                        <p className="truncate font-poppins text-[11px] text-gray-400">
+                                                        <p className="truncate font-open-sauce text-[11px] text-gray-400">
                                                             {user.email}
                                                         </p>
                                                     </div>
@@ -430,7 +430,7 @@ export default function UsersTable({
 
                                             {/* Shop Name */}
                                             <td className="px-5 py-3.5">
-                                                <span className="font-poppins text-[13px] text-gray-700">
+                                                <span className="font-open-sauce text-[13px] text-gray-700">
                                                     {user.shopName || (
                                                         <span className="text-gray-300">—</span>
                                                     )}
@@ -440,7 +440,7 @@ export default function UsersTable({
                                             {/* Role Badge */}
                                             <td className="px-5 py-3.5">
                                                 <span
-                                                    className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 font-poppins text-[11px] font-semibold ${roleConf.className}`}
+                                                    className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 font-open-sauce text-[11px] font-semibold ${roleConf.className}`}
                                                 >
                                                     <Icon
                                                         icon={roleConf.icon}
@@ -453,7 +453,7 @@ export default function UsersTable({
 
                                             {/* Phone */}
                                             <td className="px-5 py-3.5">
-                                                <span className="font-poppins text-[13px] text-gray-700">
+                                                <span className="font-open-sauce text-[13px] text-gray-700">
                                                     {user.phone || (
                                                         <span className="text-gray-300">—</span>
                                                     )}
@@ -463,7 +463,7 @@ export default function UsersTable({
                                             {/* Total Listings */}
                                             <td className="px-5 py-3.5 text-center">
                                                 <span
-                                                    className={`inline-flex h-6 min-w-[1.5rem] items-center justify-center rounded-full px-2 font-poppins text-[12px] font-bold ${
+                                                    className={`inline-flex h-6 min-w-[1.5rem] items-center justify-center rounded-full px-2 font-open-sauce text-[12px] font-bold ${
                                                         user.totalListings > 0
                                                             ? "bg-[#17458f]/10 text-[#17458f]"
                                                             : "bg-gray-100 text-gray-400"
@@ -475,7 +475,7 @@ export default function UsersTable({
 
                                             {/* Created At */}
                                             <td className="px-5 py-3.5">
-                                                <span className="font-poppins text-[12px] text-gray-500">
+                                                <span className="font-open-sauce text-[12px] text-gray-500">
                                                     {formatDate(user.createdAt)}
                                                 </span>
                                             </td>
@@ -507,7 +507,7 @@ export default function UsersTable({
                 {/* Footer */}
                 {users.length > 0 && (
                     <div className="flex items-center justify-between border-t border-gray-100 bg-gray-50/50 px-5 py-3">
-                        <p className="font-poppins text-[12px] text-gray-400">
+                        <p className="font-open-sauce text-[12px] text-gray-400">
                             Menampilkan {(page - 1) * pageSize + 1}–
                             {Math.min(page * pageSize, total)} dari {total}
                         </p>

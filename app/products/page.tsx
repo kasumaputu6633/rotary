@@ -154,26 +154,26 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
                   name="q"
                   defaultValue={q}
                   placeholder="Cari barang, kategori, atau lokasi"
-                  className="h-10 w-full rounded-lg border border-[#c5cbd6] pl-9 pr-3 font-poppins text-[13px] outline-none focus:border-[#f7a81b] focus:ring-2 focus:ring-[#fff2d6]"
+                  className="h-10 w-full rounded-lg border border-[#c5cbd6] pl-9 pr-3 font-open-sauce text-[13px] outline-none focus:border-[#f7a81b] focus:ring-2 focus:ring-[#fff2d6]"
                 />
               </label>
               <select
                 name="sort"
                 defaultValue={sort}
-                className="h-10 rounded-lg border border-[#c5cbd6] bg-white px-3 font-poppins text-[12px] font-semibold text-[#17458f] outline-none focus:border-[#f7a81b] focus:ring-2 focus:ring-[#fff2d6]"
+                className="h-10 rounded-lg border border-[#c5cbd6] bg-white px-3 font-open-sauce text-[12px] font-semibold text-[#17458f] outline-none focus:border-[#f7a81b] focus:ring-2 focus:ring-[#fff2d6]"
                 aria-label="Urutkan listing"
               >
                 {sortOptions.map((option) => (
                   <option key={option.value} value={option.value}>{option.label}</option>
                 ))}
               </select>
-              <button type="submit" className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-[#f7a81b] px-4 font-poppins text-[12px] font-semibold text-white hover:bg-[#e89a14]">
+              <button type="submit" className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-[#f7a81b] px-4 font-open-sauce text-[12px] font-semibold text-white hover:bg-[#e89a14]">
                 <Icon icon="lucide:sliders-horizontal" width={15} height={15} aria-hidden="true" />
                 Terapkan
               </button>
             </form>
 
-            <div className="mt-5 flex flex-wrap items-center justify-between gap-3 font-poppins">
+            <div className="mt-5 flex flex-wrap items-center justify-between gap-3 font-open-sauce">
               <p className="text-[13px] text-[#5f6370]">
                 {totalProducts > 0 ? `Menampilkan ${start}-${end} dari ${totalProducts} listing` : "Tidak ada listing yang cocok"}
               </p>
@@ -188,7 +188,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
             </div>
 
             {products.length > 0 ? (
-              <div className="mt-7 grid grid-cols-[repeat(auto-fill,minmax(142px,1fr))] gap-x-3 gap-y-7 sm:grid-cols-[repeat(auto-fill,minmax(158px,1fr))] xl:grid-cols-[repeat(auto-fill,minmax(168px,1fr))]">
+              <div className="mt-7 grid grid-cols-[repeat(auto-fill,minmax(142px,1fr))] gap-x-3 gap-y-5 sm:grid-cols-[repeat(auto-fill,minmax(150px,1fr))] lg:grid-cols-[repeat(auto-fill,minmax(135px,1fr))]">
                 {products.map((product) => (
                   <ProductCard key={product.id} product={product} />
                 ))}
@@ -198,16 +198,16 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
                 <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-white text-[#17458f] shadow-sm">
                   <Icon icon="lucide:search-x" width={22} height={22} aria-hidden="true" />
                 </div>
-                <p className="mt-4 font-poppins text-[15px] font-semibold text-black">Belum ada barang yang cocok</p>
-                <p className="mt-2 font-poppins text-[13px] text-[#6b7280]">Coba kurangi filter atau cari dengan kata kunci lain.</p>
-                <Link href="/products" className="mt-5 inline-flex h-10 items-center rounded-full bg-[#f7a81b] px-5 font-poppins text-[12px] font-semibold text-white">
+                <p className="mt-4 font-open-sauce text-[15px] font-semibold text-black">Belum ada barang yang cocok</p>
+                <p className="mt-2 font-open-sauce text-[13px] text-[#6b7280]">Coba kurangi filter atau cari dengan kata kunci lain.</p>
+                <Link href="/products" className="mt-5 inline-flex h-10 items-center rounded-full bg-[#f7a81b] px-5 font-open-sauce text-[12px] font-semibold text-white">
                   Reset Filter
                 </Link>
               </div>
             )}
 
             {totalPages > 1 && (
-              <nav className="mt-9 flex flex-wrap items-center justify-center gap-2 font-poppins" aria-label="Pagination produk">
+              <nav className="mt-9 flex flex-wrap items-center justify-center gap-2 font-open-sauce" aria-label="Pagination produk">
                 <Link
                   href={buildProductsHref(current, { page: Math.max(page - 1, 1) })}
                   aria-disabled={page <= 1}

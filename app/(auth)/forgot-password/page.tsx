@@ -44,12 +44,12 @@ export default function ForgotPasswordPage() {
       <AuthIllustration src="/auth/forgotpass.png" />
 
       <AuthCard>
-        <h1 className="font-roboto-serif font-semibold text-[24px] text-black">
+        <h1 className="font-open-sauce font-semibold text-[24px] text-black">
           Lupa Kata Sandi
         </h1>
 
         <div className="flex flex-col gap-2.5 items-start pt-11.25 pb-10.5 w-full">
-          <p className="font-poppins text-[14px] text-black leading-relaxed">
+          <p className="font-open-sauce text-[14px] text-black leading-relaxed">
             Pilih kontak akun untuk menerima panduan reset kata sandi.
           </p>
 
@@ -82,13 +82,13 @@ export default function ForgotPasswordPage() {
             />
           )}
 
-          <p className="font-poppins text-[12px] text-[#6b7280] leading-relaxed">
+          <p className="font-open-sauce text-[12px] text-[#6b7280] leading-relaxed">
             {method === "email"
               ? "Link reset akan dikirim ke email terverifikasi."
               : "Kode OTP 6 digit akan dikirim ke WhatsApp terverifikasi."}
           </p>
 
-          <Link href="/help" className="font-poppins text-[14px] text-[#17458f] underline">
+          <Link href="/help" className="font-open-sauce text-[14px] text-[#17458f] underline">
             Perlu Bantuan?
           </Link>
         </div>
@@ -97,7 +97,7 @@ export default function ForgotPasswordPage() {
           {method === "email" ? "Kirim Link Reset" : "Kirim Kode WhatsApp"}
         </AuthButton>
 
-        <p className="font-poppins text-[13px] text-[#505050] mt-5">
+        <p className="font-open-sauce text-[13px] text-[#505050] mt-5">
           <Link href="/login" className="text-[#17458f] underline">
             ← Kembali ke Masuk
           </Link>

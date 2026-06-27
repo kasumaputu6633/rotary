@@ -73,7 +73,7 @@ export default function PasswordResetOtpForm() {
             onKeyDown={(event) => handleKeyDown(index, event)}
             onPaste={handlePaste}
             aria-label={`Digit kode ${index + 1}`}
-            className={`h-12 w-12 rounded-[9px] border text-center font-poppins text-[20px] font-semibold outline-none transition-colors hover:border-[#17458f] hover:bg-white focus:border-[#17458f] focus:bg-white ${
+            className={`h-12 w-12 rounded-[9px] border text-center font-open-sauce text-[20px] font-semibold outline-none transition-colors hover:border-[#17458f] hover:bg-white focus:border-[#17458f] focus:bg-white ${
               digit
                 ? "border-[#17458f] bg-white"
                 : "border-[#979797] bg-[rgba(130,130,130,0.27)]"
@@ -82,10 +82,10 @@ export default function PasswordResetOtpForm() {
         ))}
       </div>
 
-      {error ? <p className="mt-2 font-poppins text-[12px] text-red-500">{error}</p> : null}
-      {message ? <p className="mt-2 font-poppins text-[12px] text-green-600">{message}</p> : null}
+      {error ? <p className="mt-2 font-open-sauce text-[12px] text-red-500">{error}</p> : null}
+      {message ? <p className="mt-2 font-open-sauce text-[12px] text-green-600">{message}</p> : null}
 
-      <p className="mt-3 font-poppins text-[13px] text-[#505050]">
+      <p className="mt-3 font-open-sauce text-[13px] text-[#505050]">
         Tidak menerima kode?{" "}
         <button
           type="button"
@@ -103,7 +103,7 @@ export default function PasswordResetOtpForm() {
         </AuthButton>
       </div>
 
-      <p className="mt-5 font-poppins text-[13px] text-[#505050]">
+      <p className="mt-5 font-open-sauce text-[13px] text-[#505050]">
         <Link href="/forgot-password" className="text-[#17458f] underline">
           ← Gunakan kontak lain
         </Link>

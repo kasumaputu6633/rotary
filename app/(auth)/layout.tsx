@@ -31,12 +31,12 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       </main>
 
       <footer className="border-t border-[#676767] py-5 flex flex-col items-center gap-3">
-        <div className="flex gap-[22px] items-center justify-center font-poppins text-[12px] text-[#505050]">
+        <div className="flex gap-[22px] items-center justify-center font-open-sauce text-[12px] text-[#505050]">
           <Link href="/terms">Ketentuan Penggunaan</Link>
           <Link href="/privacy">Pemberitahuan Privasi</Link>
           <Link href="/help">Bantuan</Link>
         </div>
-        <p className="font-poppins text-[12px] text-[#656565]">
+        <p className="font-open-sauce text-[12px] text-[#656565]">
           © 2026 Rotary International. All rights reserved.
         </p>
       </footer>

@@ -55,20 +55,30 @@ export default async function HomeCategoryGrid() {
         <div className="ds-split-layout">
           <div className="ds-split-header mb-8 lg:mb-0">
             <div>
-              <h2 className="font-roboto-serif text-[26px] font-semibold leading-tight text-black md:text-[32px]">
+              <span className="inline-flex items-center gap-1.5 font-open-sauce text-[11px] font-semibold uppercase tracking-[0.08em] text-[#17458f]">
+                <Icon icon="lucide:layout-grid" width={13} height={13} aria-hidden="true" />
+                Jelajahi Kategori
+              </span>
+              <h2 className="mt-3 font-open-sauce text-[26px] font-semibold leading-tight text-black md:text-[32px]">
                 Pilih Kategori
               </h2>
-              <p className="mt-2 font-poppins text-[14px] leading-relaxed text-black md:text-[15px]">
+              <p className="mt-2 font-open-sauce text-[14px] leading-relaxed text-[#5f6370] md:text-[15px]">
                 Temukan berbagai barang reusable berkualitas untuk mendukung gaya hidup sirkular dan ramah lingkungan.
               </p>
             </div>
             <div>
               <Link
                 href="/products"
-                className="inline-flex h-9 items-center gap-2 rounded-lg border border-[#cbd5e1] px-3 font-poppins text-[12px] font-semibold text-[#17458f] hover:bg-[#eef6ff] transition-colors"
+                className="group/cta inline-flex h-10 items-center gap-2 rounded-lg border border-[#cbd5e1] px-4 font-open-sauce text-[12px] font-semibold text-[#17458f] transition-colors hover:border-[#17458f] hover:bg-[#eef6ff]"
               >
                 Lihat semua kategori
-                <Icon icon="lucide:arrow-right" width={14} height={14} aria-hidden="true" />
+                <Icon
+                  icon="lucide:arrow-right"
+                  width={14}
+                  height={14}
+                  aria-hidden="true"
+                  className="transition-transform duration-200 group-hover/cta:translate-x-0.5"
+                />
               </Link>
             </div>
           </div>
@@ -85,13 +95,10 @@ export default async function HomeCategoryGrid() {
                   <div className="ds-v3-card-img-container">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={imageUrl} alt={category.name} className="ds-v3-card-img" />
-                    <div className="ds-v3-card-img-overlay" />
                   </div>
-                  <div className="ds-v3-card-content font-poppins text-white">
-                    <div>
-                      <h3 className="ds-v3-title-text">{category.name}</h3>
-                      <span className="ds-v3-count-text">{categoryCountMap.get(category.name) ?? 0} listing</span>
-                    </div>
+                  <div className="ds-v3-card-content font-open-sauce">
+                    <h3 className="ds-v3-title-text text-gray-800">{category.name}</h3>
+                    <span className="ds-v3-count-text text-gray-400">{categoryCountMap.get(category.name) ?? 0} listing</span>
                   </div>
                 </Link>
               );

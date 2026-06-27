@@ -21,7 +21,7 @@ const WASTE_TYPES = [
 ];
 
 const inputCls =
-    "w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 font-poppins text-[13px] text-gray-800 placeholder-gray-400 outline-none transition focus:border-[#f7a81b] focus:ring-2 focus:ring-[#f7a81b]/10 hover:border-gray-300";
+    "w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 font-open-sauce text-[13px] text-gray-800 placeholder-gray-400 outline-none transition focus:border-[#f7a81b] focus:ring-2 focus:ring-[#f7a81b]/10 hover:border-gray-300";
 
 const DAY_KEYS = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
 const DAY_LABELS_ID: Record<string, string> = {
@@ -55,7 +55,7 @@ function LivePreview({
             {/* Label */}
             <div className="flex items-center gap-2">
                 <div className="h-1.5 w-1.5 rounded-full bg-[#f7a81b]" />
-                <p className="font-poppins text-[11px] font-bold uppercase tracking-wider text-gray-400">
+                <p className="font-open-sauce text-[11px] font-bold uppercase tracking-wider text-gray-400">
                     Preview Real-time
                 </p>
             </div>
@@ -70,11 +70,11 @@ function LivePreview({
                     ) : (
                         <div className="flex flex-col items-center gap-2 text-gray-300">
                             <Icon icon="lucide:image" width={36} height={36} />
-                            <span className="font-poppins text-[11px]">Foto belum diunggah</span>
+                            <span className="font-open-sauce text-[11px]">Foto belum diunggah</span>
                         </div>
                     )}
                     {previewUrl && (
-                        <div className="absolute bottom-2 right-2 rounded-lg bg-black/40 px-2 py-1 font-poppins text-[10px] font-semibold text-white backdrop-blur-sm">
+                        <div className="absolute bottom-2 right-2 rounded-lg bg-black/40 px-2 py-1 font-open-sauce text-[10px] font-semibold text-white backdrop-blur-sm">
                             Foto Lokasi
                         </div>
                     )}
@@ -85,7 +85,7 @@ function LivePreview({
                     {isEmpty ? (
                         <div className="py-6 text-center">
                             <Icon icon="lucide:pencil-line" width={28} height={28} className="mx-auto text-gray-200" />
-                            <p className="mt-2 font-poppins text-[11px] text-gray-300">
+                            <p className="mt-2 font-open-sauce text-[11px] text-gray-300">
                                 Isi form untuk melihat preview
                             </p>
                         </div>
@@ -94,17 +94,17 @@ function LivePreview({
                             {/* Name & Type */}
                             <div className="flex items-start justify-between gap-2">
                                 <div className="min-w-0">
-                                    <h3 className="font-poppins text-[15px] font-bold text-gray-900 leading-snug truncate">
+                                    <h3 className="font-open-sauce text-[15px] font-bold text-gray-900 leading-snug truncate">
                                         {name || <span className="italic text-gray-300 font-normal text-[13px]">Nama lokasi...</span>}
                                     </h3>
                                     {address && (
-                                        <p className="mt-0.5 flex items-center gap-1.5 font-poppins text-[11px] font-semibold text-[#17458f] truncate">
+                                        <p className="mt-0.5 flex items-center gap-1.5 font-open-sauce text-[11px] font-semibold text-[#17458f] truncate">
                                             <Icon icon="lucide:map-pin" width={11} height={11} className="shrink-0" />
                                             {address}
                                         </p>
                                     )}
                                 </div>
-                                <span className={`shrink-0 rounded-full px-2.5 py-0.5 font-poppins text-[9px] font-bold text-white uppercase select-none ${
+                                <span className={`shrink-0 rounded-full px-2.5 py-0.5 font-open-sauce text-[9px] font-bold text-white uppercase select-none ${
                                     type === "tps" ? "bg-[#0B2545]" : "bg-[#E53E3E]"
                                 }`}>
                                     {type}
@@ -119,31 +119,31 @@ function LivePreview({
                                 {formattedHours && formattedHours !== "-" && (
                                     <div className="flex items-start gap-2.5">
                                         <Icon icon="lucide:clock" width={13} height={13} className="mt-0.5 shrink-0 text-gray-400" />
-                                        <span className="font-poppins text-[11px] text-gray-600 leading-relaxed">{formattedHours}</span>
+                                        <span className="font-open-sauce text-[11px] text-gray-600 leading-relaxed">{formattedHours}</span>
                                     </div>
                                 )}
                                 {phone && (
                                     <div className="flex items-start gap-2.5">
                                         <Icon icon="lucide:phone" width={13} height={13} className="mt-0.5 shrink-0 text-gray-400" />
-                                        <span className="font-poppins text-[11px] text-gray-600">{phone}</span>
+                                        <span className="font-open-sauce text-[11px] text-gray-600">{phone}</span>
                                     </div>
                                 )}
                                 {email && (
                                     <div className="flex items-start gap-2.5">
                                         <Icon icon="lucide:mail" width={13} height={13} className="mt-0.5 shrink-0 text-gray-400" />
-                                        <span className="font-poppins text-[11px] text-gray-600 truncate">{email}</span>
+                                        <span className="font-open-sauce text-[11px] text-gray-600 truncate">{email}</span>
                                     </div>
                                 )}
                                 {website && (
                                     <div className="flex items-start gap-2.5">
                                         <Icon icon="lucide:globe" width={13} height={13} className="mt-0.5 shrink-0 text-gray-400" />
-                                        <span className="font-poppins text-[11px] text-gray-600 truncate">{website}</span>
+                                        <span className="font-open-sauce text-[11px] text-gray-600 truncate">{website}</span>
                                     </div>
                                 )}
                                 {(latitude || longitude) && (
                                     <div className="flex items-start gap-2.5">
                                         <Icon icon="lucide:compass" width={13} height={13} className="mt-0.5 shrink-0 text-gray-400" />
-                                        <span className="font-poppins text-[11px] text-gray-500 truncate">
+                                        <span className="font-open-sauce text-[11px] text-gray-500 truncate">
                                             {latitude || "0"}, {longitude || "0"}
                                         </span>
                                     </div>
@@ -160,7 +160,7 @@ function LivePreview({
                                             return (
                                                 <span
                                                     key={t}
-                                                    className={`inline-flex items-center gap-1 rounded-lg border px-2 py-0.5 font-poppins text-[10px] font-semibold ${meta ? `${meta.bg} ${meta.border} ${meta.text}` : "bg-gray-50 border-gray-200 text-gray-600"}`}
+                                                    className={`inline-flex items-center gap-1 rounded-lg border px-2 py-0.5 font-open-sauce text-[10px] font-semibold ${meta ? `${meta.bg} ${meta.border} ${meta.text}` : "bg-gray-50 border-gray-200 text-gray-600"}`}
                                                 >
                                                     {meta && <Icon icon={meta.icon} width={10} height={10} className={meta.iconColor} />}
                                                     {t}
@@ -175,7 +175,7 @@ function LivePreview({
                 </div>
             </div>
 
-            <p className="font-poppins text-[10.5px] text-gray-400 text-center leading-relaxed">
+            <p className="font-open-sauce text-[10.5px] text-gray-400 text-center leading-relaxed">
                 Preview ini menampilkan tampilan kartu lokasi<br />sebelum disimpan.
             </p>
         </div>
@@ -301,7 +301,7 @@ export default function AddLocationClient() {
         <div className="space-y-5">
 
             {/* Breadcrumb */}
-            <nav className="flex items-center gap-1.5 font-poppins text-[12px] text-gray-400">
+            <nav className="flex items-center gap-1.5 font-open-sauce text-[12px] text-gray-400">
                 <span>Dashboard</span>
                 <Icon icon="lucide:chevron-right" width={12} height={12} className="text-gray-300" />
                 <Link href="/admin/waste-locations" className="hover:text-[#17458f] transition-colors">Lokasi</Link>
@@ -312,14 +312,14 @@ export default function AddLocationClient() {
             {/* Page header */}
             <div className="flex flex-wrap items-start justify-between gap-4">
                 <div>
-                    <h1 className="font-poppins text-2xl font-bold text-gray-900">Tambah Lokasi</h1>
-                    <p className="mt-0.5 font-poppins text-sm text-gray-500">
+                    <h1 className="font-open-sauce text-2xl font-bold text-gray-900">Tambah Lokasi</h1>
+                    <p className="mt-0.5 font-open-sauce text-sm text-gray-500">
                         Lengkapi data di bawah ini untuk menambahkan lokasi penampungan sampah baru ke database.
                     </p>
                 </div>
                 <Link
                     href="/admin/waste-locations"
-                    className="flex items-center gap-1.5 rounded-xl border border-gray-200 bg-white px-4 py-2 font-poppins text-[13px] font-semibold text-gray-600 shadow-sm transition hover:bg-gray-50"
+                    className="flex items-center gap-1.5 rounded-xl border border-gray-200 bg-white px-4 py-2 font-open-sauce text-[13px] font-semibold text-gray-600 shadow-sm transition hover:bg-gray-50"
                 >
                     <Icon icon="lucide:arrow-left" width={14} height={14} />
                     Kembali
@@ -335,13 +335,13 @@ export default function AddLocationClient() {
 
                         {/* Feedback banners */}
                         {error && (
-                            <div className="flex items-center gap-2 px-6 py-3 bg-red-50 font-poppins text-[12.5px] font-semibold text-red-600 animate-fade-in">
+                            <div className="flex items-center gap-2 px-6 py-3 bg-red-50 font-open-sauce text-[12.5px] font-semibold text-red-600 animate-fade-in">
                                 <Icon icon="lucide:alert-circle" width={15} height={15} className="shrink-0" />
                                 {error}
                             </div>
                         )}
                         {isSuccess && (
-                            <div className="flex items-center gap-2 px-6 py-3 bg-green-50 font-poppins text-[12.5px] font-semibold text-green-700">
+                            <div className="flex items-center gap-2 px-6 py-3 bg-green-50 font-open-sauce text-[12.5px] font-semibold text-green-700">
                                 <Icon icon="lucide:check-circle" width={15} height={15} className="shrink-0" />
                                 Lokasi berhasil ditambahkan ke database! Mengalihkan...
                             </div>
@@ -349,7 +349,7 @@ export default function AddLocationClient() {
 
                         {/* ── 1. Upload File ─────────────────────────────── */}
                         <div className="px-6 py-5 space-y-3">
-                            <p className="font-poppins text-[13px] font-bold text-gray-700">Upload Gambar Lokasi <span className="text-red-500">*</span></p>
+                            <p className="font-open-sauce text-[13px] font-bold text-gray-700">Upload Gambar Lokasi <span className="text-red-500">*</span></p>
                             <div
                                 onDragOver={handleDragOver}
                                 onDragLeave={handleDragLeave}
@@ -367,11 +367,11 @@ export default function AddLocationClient() {
                                         <Image src={previewUrl} alt="Preview" fill className="object-cover" />
                                         <div className="absolute inset-0 bg-black/30 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
                                             <button type="button" onClick={(e) => { e.stopPropagation(); fileInputRef.current?.click(); }}
-                                                className="rounded-xl bg-white/90 px-3 py-1.5 font-poppins text-[12px] font-bold text-gray-800 hover:bg-white transition shadow">
+                                                className="rounded-xl bg-white/90 px-3 py-1.5 font-open-sauce text-[12px] font-bold text-gray-800 hover:bg-white transition shadow">
                                                 <Icon icon="lucide:pencil" width={12} height={12} className="inline mr-1" />Ganti
                                             </button>
                                             <button type="button" onClick={(e) => { e.stopPropagation(); handleClearImage(); }}
-                                                className="rounded-xl bg-red-500/90 px-3 py-1.5 font-poppins text-[12px] font-bold text-white hover:bg-red-600 transition shadow">
+                                                className="rounded-xl bg-red-500/90 px-3 py-1.5 font-open-sauce text-[12px] font-bold text-white hover:bg-red-600 transition shadow">
                                                 <Icon icon="lucide:trash-2" width={12} height={12} className="inline mr-1" />Hapus
                                             </button>
                                         </div>
@@ -382,11 +382,11 @@ export default function AddLocationClient() {
                                             <Icon icon={isDragging ? "lucide:download" : "lucide:upload"} width={24} height={24}
                                                 className={isDragging ? "text-white" : "text-gray-400"} />
                                         </div>
-                                        <p className="font-poppins text-[12.5px] text-gray-500">
+                                        <p className="font-open-sauce text-[12.5px] text-gray-500">
                                             {isDragging ? "Lepaskan untuk mengunggah" : "Maks 10 MB, PNG, JPEG, WEBP"}
                                         </p>
                                         <button type="button" onClick={() => fileInputRef.current?.click()}
-                                            className="rounded-xl bg-gray-900 px-5 py-2 font-poppins text-[12px] font-bold text-white hover:bg-gray-700 transition shadow-sm">
+                                            className="rounded-xl bg-gray-900 px-5 py-2 font-open-sauce text-[12px] font-bold text-white hover:bg-gray-700 transition shadow-sm">
                                             Telusuri File
                                         </button>
                                     </div>
@@ -398,7 +398,7 @@ export default function AddLocationClient() {
 
                         {/* ── 2. Tipe Lokasi (Radio Buttons) ─────────────── */}
                         <div className="px-6 py-5 space-y-3">
-                            <p className="font-poppins text-[13px] font-bold text-gray-700">Tipe Lokasi <span className="text-red-500">*</span></p>
+                            <p className="font-open-sauce text-[13px] font-bold text-gray-700">Tipe Lokasi <span className="text-red-500">*</span></p>
                             <div className="flex flex-col sm:flex-row gap-4">
                                 <label className={`flex-1 flex items-center justify-between p-3.5 rounded-xl border-2 cursor-pointer transition select-none ${
                                     type === "tps" 
@@ -410,7 +410,7 @@ export default function AddLocationClient() {
                                         <div className={`h-4 w-4 rounded-full border-2 flex items-center justify-center ${type === "tps" ? "border-[#0B2545]" : "border-gray-300"}`}>
                                             {type === "tps" && <div className="h-2 w-2 rounded-full bg-[#0B2545]" />}
                                         </div>
-                                        <span className="font-poppins text-[13px]">TPS (Tempat Pembuangan Sementara)</span>
+                                        <span className="font-open-sauce text-[13px]">TPS (Tempat Pembuangan Sementara)</span>
                                     </div>
                                 </label>
                                 
@@ -424,7 +424,7 @@ export default function AddLocationClient() {
                                         <div className={`h-4 w-4 rounded-full border-2 flex items-center justify-center ${type === "vendor" ? "border-[#E53E3E]" : "border-gray-300"}`}>
                                             {type === "vendor" && <div className="h-2 w-2 rounded-full bg-[#E53E3E]" />}
                                         </div>
-                                        <span className="font-poppins text-[13px]">Vendor / Pusat Daur Ulang</span>
+                                        <span className="font-open-sauce text-[13px]">Vendor / Pusat Daur Ulang</span>
                                     </div>
                                 </label>
                             </div>
@@ -432,13 +432,13 @@ export default function AddLocationClient() {
 
                         {/* ── 3. Jenis Sampah ────────────────────────────── */}
                         <div className="px-6 py-5 space-y-3">
-                            <p className="font-poppins text-[13px] font-bold text-gray-700">Jenis Sampah Yang Diterima <span className="text-red-500">*</span></p>
+                            <p className="font-open-sauce text-[13px] font-bold text-gray-700">Jenis Sampah Yang Diterima <span className="text-red-500">*</span></p>
                             <div className="flex flex-wrap gap-2">
                                 {WASTE_TYPES.map((t) => {
                                     const sel = selectedWasteTypes.includes(t.key);
                                     return (
                                         <button key={t.key} type="button" onClick={() => toggleWasteType(t.key)}
-                                            className={`inline-flex items-center gap-2 rounded-xl border px-3.5 py-2 font-poppins text-[12.5px] font-semibold transition-all select-none ${
+                                            className={`inline-flex items-center gap-2 rounded-xl border px-3.5 py-2 font-open-sauce text-[12.5px] font-semibold transition-all select-none ${
                                                 sel ? "border-[#f7a81b] bg-[#f7a81b] text-white shadow-sm shadow-[#f7a81b]/20"
                                                     : `${t.bg} ${t.border} ${t.text} hover:border-[#f7a81b]/50`}`}>
                                             <span className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border-2 transition-all ${sel ? "border-white bg-white" : "border-current"}`}>
@@ -454,53 +454,53 @@ export default function AddLocationClient() {
 
                         {/* ── 4. Informasi Lokasi ────────────────────────── */}
                         <div className="px-6 py-5 space-y-4">
-                            <p className="font-poppins text-[13px] font-bold text-gray-700">Detail Informasi Lokasi</p>
+                            <p className="font-open-sauce text-[13px] font-bold text-gray-700">Detail Informasi Lokasi</p>
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div className="space-y-1.5">
-                                    <label className="block font-poppins text-[12px] font-semibold text-gray-500">Nama Lokasi <span className="text-red-500">*</span></label>
+                                    <label className="block font-open-sauce text-[12px] font-semibold text-gray-500">Nama Lokasi <span className="text-red-500">*</span></label>
                                     <input type="text" value={name} onChange={(e) => setName(e.target.value)}
                                         placeholder="Misal: Mang Adi Recycle" className={inputCls} required />
                                 </div>
                                 <div className="space-y-1.5">
-                                    <label className="block font-poppins text-[12px] font-semibold text-gray-500">Email Kontak</label>
+                                    <label className="block font-open-sauce text-[12px] font-semibold text-gray-500">Email Kontak</label>
                                     <input type="email" value={email} onChange={(e) => setEmail(e.target.value)}
                                         placeholder="Misal: kontak@daurulang.com" className={inputCls} />
                                 </div>
                                 <div className="space-y-1.5">
-                                    <label className="block font-poppins text-[12px] font-semibold text-gray-500">Kontak / Telepon <span className="text-red-500">*</span></label>
+                                    <label className="block font-open-sauce text-[12px] font-semibold text-gray-500">Kontak / Telepon <span className="text-red-500">*</span></label>
                                     <input type="text" value={phone} onChange={(e) => setPhone(e.target.value)}
                                         placeholder="+62 812-3456-7890" className={inputCls} required />
                                 </div>
                                 <div className="space-y-1.5">
-                                    <label className="block font-poppins text-[12px] font-semibold text-gray-500">Website Resmi</label>
+                                    <label className="block font-open-sauce text-[12px] font-semibold text-gray-500">Website Resmi</label>
                                     <input type="url" value={website} onChange={(e) => setWebsite(e.target.value)}
                                         placeholder="https://www.laporansampah.com" className={inputCls} />
                                 </div>
                                 <div className="space-y-1.5">
-                                    <label className="block font-poppins text-[12px] font-semibold text-gray-500">Latitude <span className="text-red-500">*</span></label>
+                                    <label className="block font-open-sauce text-[12px] font-semibold text-gray-500">Latitude <span className="text-red-500">*</span></label>
                                     <input type="text" value={latitude} onChange={(e) => setLatitude(e.target.value)}
                                         placeholder="Contoh: -8.6500" className={inputCls} required />
                                 </div>
                                 <div className="space-y-1.5">
-                                    <label className="block font-poppins text-[12px] font-semibold text-gray-500">Longitude <span className="text-red-500">*</span></label>
+                                    <label className="block font-open-sauce text-[12px] font-semibold text-gray-500">Longitude <span className="text-red-500">*</span></label>
                                     <input type="text" value={longitude} onChange={(e) => setLongitude(e.target.value)}
                                         placeholder="Contoh: 115.2166" className={inputCls} required />
                                 </div>
                             </div>
 
                             <div className="space-y-1.5">
-                                <label className="block font-poppins text-[12px] font-semibold text-gray-500">Alamat Lengkap <span className="text-red-500">*</span></label>
+                                <label className="block font-open-sauce text-[12px] font-semibold text-gray-500">Alamat Lengkap <span className="text-red-500">*</span></label>
                                 <input type="text" value={address} onChange={(e) => setAddress(e.target.value)}
                                     placeholder="Jalan, nomor, desa, kecamatan, kode pos..." className={inputCls} required />
                             </div>
 
                             {/* Jam Operasional */}
                             <div className="space-y-2 pt-2">
-                                <label className="block font-poppins text-[12px] font-bold text-gray-500 uppercase tracking-wider">Jam Operasional <span className="text-red-500">*</span></label>
+                                <label className="block font-open-sauce text-[12px] font-bold text-gray-500 uppercase tracking-wider">Jam Operasional <span className="text-red-500">*</span></label>
                                 <div className="space-y-4 rounded-2xl border border-gray-100 bg-gray-50/50 p-4">
                                     <div className="space-y-1.5">
-                                        <label className="block font-poppins text-[11px] font-semibold text-gray-500">Hari Operasional</label>
+                                        <label className="block font-open-sauce text-[11px] font-semibold text-gray-500">Hari Operasional</label>
                                         <div className="flex flex-wrap gap-1.5">
                                             {DAY_KEYS.map((day) => {
                                                 const isSelected = selectedDays.includes(day);
@@ -511,7 +511,7 @@ export default function AddLocationClient() {
                                                         onClick={() => setSelectedDays(prev =>
                                                             prev.includes(day) ? prev.filter(d => d !== day) : [...prev, day]
                                                         )}
-                                                        className={`rounded-lg px-2.5 py-1.5 font-poppins text-[12px] font-semibold transition select-none ${
+                                                        className={`rounded-lg px-2.5 py-1.5 font-open-sauce text-[12px] font-semibold transition select-none ${
                                                             isSelected
                                                                 ? "bg-[#17458f] text-white shadow-sm"
                                                                 : "bg-gray-100 text-gray-400 hover:bg-gray-200 hover:text-gray-600"
@@ -525,13 +525,13 @@ export default function AddLocationClient() {
                                     </div>
                                     <div className="grid grid-cols-2 gap-4">
                                         <div className="space-y-1.5">
-                                            <label className="block font-poppins text-[11px] font-semibold text-gray-500">Jam Buka</label>
+                                            <label className="block font-open-sauce text-[11px] font-semibold text-gray-500">Jam Buka</label>
                                             <input type="time" value={openTime} onChange={(e) => setOpenTime(e.target.value)}
                                                 onClick={(e) => (e.currentTarget as any).showPicker?.()}
                                                 className={inputCls} />
                                         </div>
                                         <div className="space-y-1.5">
-                                            <label className="block font-poppins text-[11px] font-semibold text-gray-500">Jam Tutup</label>
+                                            <label className="block font-open-sauce text-[11px] font-semibold text-gray-500">Jam Tutup</label>
                                             <input type="time" value={closeTime} onChange={(e) => setCloseTime(e.target.value)}
                                                 onClick={(e) => (e.currentTarget as any).showPicker?.()}
                                                 className={inputCls} />
@@ -544,11 +544,11 @@ export default function AddLocationClient() {
                         {/* ── 5. Submit ──────────────────────────────────── */}
                         <div className="flex items-center justify-between gap-3 px-6 py-4 bg-gray-50/50">
                             <Link href="/admin/waste-locations"
-                                className="font-poppins text-[13px] font-semibold text-gray-500 hover:text-gray-700 transition">
+                                className="font-open-sauce text-[13px] font-semibold text-gray-500 hover:text-gray-700 transition">
                                 Batal
                             </Link>
                             <button type="submit" disabled={isSubmitting || isSuccess}
-                                className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#f7a81b] to-[#e89a14] px-7 py-2.5 font-poppins text-[13px] font-bold text-white shadow-md shadow-[#f7a81b]/20 transition hover:opacity-95 disabled:opacity-70 disabled:cursor-not-allowed">
+                                className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#f7a81b] to-[#e89a14] px-7 py-2.5 font-open-sauce text-[13px] font-bold text-white shadow-md shadow-[#f7a81b]/20 transition hover:opacity-95 disabled:opacity-70 disabled:cursor-not-allowed">
                                 {isSubmitting
                                     ? <><Icon icon="lucide:loader-2" width={15} height={15} className="animate-spin" />Menyimpan...</>
                                     : isSuccess

@@ -20,7 +20,7 @@ export default async function LoginVerifyPage() {
       <AuthIllustration src="/auth/otp.png" />
 
       <AuthCard>
-        <h1 className="font-roboto-serif font-semibold text-[24px] text-black">
+        <h1 className="font-open-sauce font-semibold text-[24px] text-black">
           {isTwoFactor ? "Verifikasi Dua Langkah" : "Verifikasi Perangkat"}
         </h1>
 
@@ -29,12 +29,12 @@ export default async function LoginVerifyPage() {
             <Icon icon="lucide:shield-check" width={24} height={24} className="text-[#f7a81b]" aria-hidden="true" />
           </div>
 
-          <p className="font-poppins text-[14px] text-black text-center">
+          <p className="font-open-sauce text-[14px] text-black text-center">
             {isTwoFactor
               ? `Masukkan kode keamanan yang telah dikirim melalui ${contact.includes("@") ? "email" : "WhatsApp"} ke`
               : `Kami mendeteksi masuk dari perangkat baru. Kode dikirim melalui ${contact.includes("@") ? "email" : "WhatsApp"} ke`}
           </p>
-          <p className="font-poppins font-semibold text-[14px] text-[#17458f]">
+          <p className="font-open-sauce font-semibold text-[14px] text-[#17458f]">
             {maskContact(contact)}
           </p>
 

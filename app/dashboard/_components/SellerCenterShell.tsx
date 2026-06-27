@@ -237,7 +237,7 @@ export default function SellerCenterShell({
   }, [pathname]);
 
   return (
-    <div className="seller-center min-h-screen bg-[var(--seller-paper)] font-poppins text-[var(--seller-ink)] lg:h-screen lg:overflow-hidden">
+    <div className="seller-center min-h-screen bg-[var(--seller-paper)] font-open-sauce text-[var(--seller-ink)] lg:h-screen lg:overflow-hidden">
       <div className="grid min-h-screen lg:h-screen lg:min-h-0 lg:grid-cols-[268px_minmax(0,1fr)]">
         <aside className="hidden border-r border-[var(--seller-rule)] bg-[var(--seller-surface)] lg:flex lg:h-screen lg:flex-col lg:overflow-hidden">
           <div className="flex items-center border-b border-[var(--seller-rule)] px-5 py-4">

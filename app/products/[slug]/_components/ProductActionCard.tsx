@@ -23,7 +23,7 @@ export default function ProductActionCard({
   const handoverOptions = product.handoverOptions ?? [];
 
   return (
-    <div className="rounded-lg border border-[#d8deea] bg-white p-4 font-poppins shadow-[0_10px_28px_rgba(15,23,42,0.08)]">
+    <div className="rounded-lg border border-[#d8deea] bg-white p-4 font-open-sauce shadow-[0_10px_28px_rgba(15,23,42,0.08)]">
       <h2 className="text-[15px] font-semibold text-black">
         {product.status === "reserved" ? "Informasi Barang" : "Hubungi Pemilik"}
       </h2>

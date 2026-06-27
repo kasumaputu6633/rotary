@@ -104,7 +104,7 @@ export default function NavbarAuthButtons({
           {isUser && (
             <Link
               href="/dashboard/listings/new"
-              className="group inline-flex h-9 w-9 items-center justify-center rounded-full bg-[#f7a81b] font-poppins text-[12px] font-semibold text-white shadow-[0_6px_14px_rgba(247,168,27,0.22)] transition-all hover:bg-[#e09918] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f7a81b] focus-visible:ring-offset-2 whitespace-nowrap md:w-auto md:gap-2 md:px-4 md:text-[13px]"
+              className="group inline-flex h-9 w-9 items-center justify-center rounded-full bg-[#f7a81b] font-open-sauce text-[12px] font-semibold text-white shadow-[0_6px_14px_rgba(247,168,27,0.22)] transition-all hover:bg-[#e09918] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f7a81b] focus-visible:ring-offset-2 whitespace-nowrap md:w-auto md:gap-2 md:px-4 md:text-[13px]"
               aria-label="Jual Barang"
             >
               <Icon icon="lucide:plus-circle" width={15} height={15} className="transition-transform group-hover:rotate-90" aria-hidden="true" />
@@ -127,12 +127,12 @@ export default function NavbarAuthButtons({
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={userAvatarUrl} alt="" className="h-full w-full object-cover" />
                 ) : (
-                  <span className="font-poppins text-[11px] font-bold leading-none text-white">
+                  <span className="font-open-sauce text-[11px] font-bold leading-none text-white">
                     {getInitials(resolvedShopName)}
                   </span>
                 )}
               </div>
-              <span className="hidden max-w-24 truncate whitespace-nowrap font-poppins text-[13px] font-semibold text-[#555] xl:inline">
+              <span className="hidden max-w-24 truncate whitespace-nowrap font-open-sauce text-[13px] font-semibold text-[#555] xl:inline">
                 {resolvedShopName}
               </span>
               <Icon
@@ -169,17 +169,17 @@ export default function NavbarAuthButtons({
                         // eslint-disable-next-line @next/next/no-img-element
                         <img src={userAvatarUrl} alt="" className="h-full w-full object-cover" />
                       ) : (
-                        <span className="font-poppins text-[13px] font-bold leading-none text-white">
+                        <span className="font-open-sauce text-[13px] font-bold leading-none text-white">
                           {getInitials(resolvedShopName)}
                         </span>
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-poppins font-semibold text-[14px] text-black truncate">
+                      <p className="font-open-sauce font-semibold text-[14px] text-black truncate">
                         {resolvedShopName}
                       </p>
                       {userFullName && userFullName !== resolvedShopName ? (
-                        <p className="mt-0.5 truncate font-poppins text-[11px] text-[#6b7280]">{userFullName}</p>
+                        <p className="mt-0.5 truncate font-open-sauce text-[11px] text-[#6b7280]">{userFullName}</p>
                       ) : null}
                     </div>
                   </div>
@@ -193,7 +193,7 @@ export default function NavbarAuthButtons({
                     role="menuitem"
                   >
                     <Icon icon="lucide:user" width={16} height={16} className="text-[#555] transition-colors group-hover:text-[#17458f]" aria-hidden="true" />
-                    <span className="font-poppins text-[13px] text-[#333] group-hover:text-[#17458f] group-hover:font-semibold transition-colors">
+                    <span className="font-open-sauce text-[13px] text-[#333] group-hover:text-[#17458f] group-hover:font-semibold transition-colors">
                       {isUser ? "Akun Saya" : "Dashboard Admin"}
                     </span>
                   </Link>
@@ -207,7 +207,7 @@ export default function NavbarAuthButtons({
                         role="menuitem"
                       >
                         <Icon icon="lucide:heart" width={16} height={16} className="text-[#555] transition-colors group-hover:text-[#17458f]" aria-hidden="true" />
-                        <span className="font-poppins text-[13px] text-[#333] transition-colors group-hover:font-semibold group-hover:text-[#17458f]">
+                        <span className="font-open-sauce text-[13px] text-[#333] transition-colors group-hover:font-semibold group-hover:text-[#17458f]">
                           Favorit
                         </span>
                       </Link>
@@ -219,7 +219,7 @@ export default function NavbarAuthButtons({
                         role="menuitem"
                       >
                         <Icon icon="lucide:shield-check" width={16} height={16} className="text-[#555] transition-colors group-hover:text-[#17458f]" aria-hidden="true" />
-                        <span className="font-poppins text-[13px] text-[#333] transition-colors group-hover:font-semibold group-hover:text-[#17458f]">
+                        <span className="font-open-sauce text-[13px] text-[#333] transition-colors group-hover:font-semibold group-hover:text-[#17458f]">
                           Keamanan Akun
                         </span>
                       </Link>
@@ -232,7 +232,7 @@ export default function NavbarAuthButtons({
                           role="menuitem"
                         >
                           <Icon icon="lucide:store" width={16} height={16} className="text-[#555] transition-colors group-hover:text-[#17458f]" aria-hidden="true" />
-                          <span className="font-poppins text-[13px] text-[#333] transition-colors group-hover:font-semibold group-hover:text-[#17458f]">
+                          <span className="font-open-sauce text-[13px] text-[#333] transition-colors group-hover:font-semibold group-hover:text-[#17458f]">
                             Seller Center
                           </span>
                         </Link>
@@ -250,7 +250,7 @@ export default function NavbarAuthButtons({
                     role="menuitem"
                   >
                     <Icon icon="lucide:log-out" width={16} height={16} className="text-red-500" aria-hidden="true" />
-                    <span className="font-poppins text-[13px] text-red-500 font-medium">
+                    <span className="font-open-sauce text-[13px] text-red-500 font-medium">
                       Keluar
                     </span>
                   </button>
@@ -267,7 +267,7 @@ export default function NavbarAuthButtons({
     <div className="flex items-center gap-2 md:gap-3">
       <Link
         href="/login?redirect=/dashboard/listings/new"
-        className="group inline-flex h-8 w-8 items-center justify-center rounded-full bg-[#f7a81b] font-poppins text-[12px] font-semibold text-white shadow-[0_6px_14px_rgba(247,168,27,0.22)] transition-all hover:-translate-y-0.5 hover:bg-[#e09918] hover:shadow-[0_10px_20px_rgba(247,168,27,0.28)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f7a81b] focus-visible:ring-offset-2 whitespace-nowrap md:h-9 md:w-auto md:gap-2 md:px-4 md:text-[13px]"
+        className="group inline-flex h-8 w-8 items-center justify-center rounded-full bg-[#f7a81b] font-open-sauce text-[12px] font-semibold text-white shadow-[0_6px_14px_rgba(247,168,27,0.22)] transition-all hover:-translate-y-0.5 hover:bg-[#e09918] hover:shadow-[0_10px_20px_rgba(247,168,27,0.28)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f7a81b] focus-visible:ring-offset-2 whitespace-nowrap md:h-9 md:w-auto md:gap-2 md:px-4 md:text-[13px]"
         aria-label="Jual Barang"
       >
         <Icon icon="lucide:plus-circle" width={15} height={15} className="transition-transform group-hover:rotate-90" aria-hidden="true" />
@@ -275,7 +275,7 @@ export default function NavbarAuthButtons({
       </Link>
       <Link
         href="/login"
-        className="inline-flex h-8 items-center rounded-full border border-[#f7a81b] px-3 font-poppins text-[12px] font-semibold text-[#f7a81b] transition-colors hover:bg-[#fff8ec] whitespace-nowrap md:h-9 md:px-5 md:text-[13px]"
+        className="inline-flex h-8 items-center rounded-full border border-[#f7a81b] px-3 font-open-sauce text-[12px] font-semibold text-[#f7a81b] transition-colors hover:bg-[#fff8ec] whitespace-nowrap md:h-9 md:px-5 md:text-[13px]"
       >
         <span className="hidden sm:inline">Register/Masuk</span>
         <span className="sm:hidden">Masuk</span>

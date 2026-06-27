@@ -121,10 +121,10 @@ export default function LocationCard({
                 )}
             </div>
             <div className="min-w-0">
-                <p className="truncate font-poppins text-xs font-bold text-gray-900">
+                <p className="truncate font-open-sauce text-xs font-bold text-gray-900">
                     {namaUsaha}
                 </p>
-                <p className="truncate font-poppins text-[10px] text-gray-400 mt-0.5 animate-pulse">
+                <p className="truncate font-open-sauce text-[10px] text-gray-400 mt-0.5 animate-pulse">
                     {alamat || "-"}
                 </p>
             </div>
@@ -157,21 +157,21 @@ export default function LocationCard({
 
                 {/* Info */}
                 <div className="min-w-0 space-y-1">
-                    <h4 className="font-poppins text-base font-bold text-gray-900 truncate">
+                    <h4 className="font-open-sauce text-base font-bold text-gray-900 truncate">
                         {namaUsaha}
                     </h4>
 
-                    <p className="font-poppins text-[11px] font-semibold text-[#17458f] flex items-center gap-1.5 truncate">
+                    <p className="font-open-sauce text-[11px] font-semibold text-[#17458f] flex items-center gap-1.5 truncate">
                         <Icon icon="lucide:map-pin" width={12} />
                         {alamat || "-"}
                     </p>
 
-                    <p className="font-poppins text-[11px] text-gray-500 flex items-center gap-1.5 truncate">
+                    <p className="font-open-sauce text-[11px] text-gray-500 flex items-center gap-1.5 truncate">
                         <Icon icon="lucide:clock" width={12} />
                         {formatOperatingHours(operatingHours)}
                     </p>
 
-                    <p className="font-poppins text-[11px] text-gray-400 flex items-center gap-1.5 truncate">
+                    <p className="font-open-sauce text-[11px] text-gray-400 flex items-center gap-1.5 truncate">
                         <Icon icon="lucide:phone" width={12} />
                         {teleponKontak || "-"}
                     </p>

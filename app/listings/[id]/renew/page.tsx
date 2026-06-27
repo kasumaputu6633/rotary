@@ -79,11 +79,11 @@ export default async function RenewListingPage({ params, searchParams }: RenewPa
                 <Icon icon="lucide:check-circle" width={28} height={28} aria-hidden="true" />
               </span>
 
-              <h1 className="font-roboto-serif font-semibold text-[22px] text-black text-center">
+              <h1 className="font-open-sauce font-semibold text-[22px] text-black text-center">
                 Listing Diperpanjang!
               </h1>
               
-              <p className="font-poppins text-[13px] text-[#505050] text-center mt-3 leading-relaxed">
+              <p className="font-open-sauce text-[13px] text-[#505050] text-center mt-3 leading-relaxed">
                 Terima kasih atas konfirmasi Anda. Listing Anda kini telah aktif kembali untuk 30 hari ke depan.
               </p>
 
@@ -97,7 +97,7 @@ export default async function RenewListingPage({ params, searchParams }: RenewPa
                     <Icon icon="lucide:image" width={20} height={20} aria-hidden="true" />
                   )}
                 </div>
-                <div className="min-w-0 flex-1 font-poppins">
+                <div className="min-w-0 flex-1 font-open-sauce">
                   <p className="text-[13px] font-semibold text-[#1f2937] truncate">{listing.title}</p>
                   <p className="text-[11px] text-[#6b7280] mt-0.5">{listing.category}</p>
                   <span className="inline-flex items-center gap-1 rounded bg-[#eefaf2] px-1.5 py-0.5 text-[9px] font-semibold text-[#2f7d49] mt-1.5">
@@ -110,13 +110,13 @@ export default async function RenewListingPage({ params, searchParams }: RenewPa
               <div className="mt-8 w-full flex flex-col gap-2.5">
                 <Link
                   href={`/products/${listing.slug}`}
-                  className="flex w-full min-h-11 items-center justify-center rounded-lg bg-[#17458f] text-white text-[13px] font-semibold transition hover:brightness-95 shadow-[0_4px_12px_rgba(23,69,143,0.15)] font-poppins"
+                  className="flex w-full min-h-11 items-center justify-center rounded-lg bg-[#17458f] text-white text-[13px] font-semibold transition hover:brightness-95 shadow-[0_4px_12px_rgba(23,69,143,0.15)] font-open-sauce"
                 >
                   Lihat Listing Barang
                 </Link>
                 <Link
                   href="/dashboard/listings"
-                  className="flex w-full min-h-11 items-center justify-center rounded-lg border border-[#bcbcbc] bg-white text-[#17458f] text-[13px] font-semibold transition hover:bg-slate-50 font-poppins"
+                  className="flex w-full min-h-11 items-center justify-center rounded-lg border border-[#bcbcbc] bg-white text-[#17458f] text-[13px] font-semibold transition hover:bg-slate-50 font-open-sauce"
                 >
                   Ke Seller Center Dashboard
                 </Link>
@@ -128,22 +128,22 @@ export default async function RenewListingPage({ params, searchParams }: RenewPa
                 <Icon icon="lucide:alert-circle" width={28} height={28} aria-hidden="true" />
               </span>
 
-              <h1 className="font-roboto-serif font-semibold text-[22px] text-black text-center">
+              <h1 className="font-open-sauce font-semibold text-[22px] text-black text-center">
                 Gagal Memperbarui
               </h1>
 
-              <p className="font-poppins text-[13px] text-[#ef4444] text-center mt-3 bg-[#fdf2f2] rounded-lg p-3 border border-[#fde8e8] w-full">
+              <p className="font-open-sauce text-[13px] text-[#ef4444] text-center mt-3 bg-[#fdf2f2] rounded-lg p-3 border border-[#fde8e8] w-full">
                 {error}
               </p>
 
-              <p className="font-poppins text-[12px] text-[#505050] text-center mt-4 leading-relaxed">
+              <p className="font-open-sauce text-[12px] text-[#505050] text-center mt-4 leading-relaxed">
                 Silakan hubungi admin Rotary atau perpanjang secara manual dari halaman dashboard Seller Center Anda.
               </p>
 
               <div className="mt-8 w-full">
                 <Link
                   href="/dashboard/listings"
-                  className="flex w-full min-h-11 items-center justify-center rounded-lg bg-[#17458f] text-white text-[13px] font-semibold transition hover:brightness-95 shadow-[0_4px_12px_rgba(23,69,143,0.15)] font-poppins"
+                  className="flex w-full min-h-11 items-center justify-center rounded-lg bg-[#17458f] text-white text-[13px] font-semibold transition hover:brightness-95 shadow-[0_4px_12px_rgba(23,69,143,0.15)] font-open-sauce"
                 >
                   Masuk ke Seller Center
                 </Link>

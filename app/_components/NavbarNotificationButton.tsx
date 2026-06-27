@@ -92,7 +92,7 @@ export default function NavbarNotificationButton() {
         aria-expanded={showDropdown}
       >
         <Icon icon="lucide:bell" width={21} height={21} className="text-[#555]" aria-hidden="true" />
-        <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-[#ef476f] font-poppins text-[9px] font-bold text-white">
+        <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-[#ef476f] font-open-sauce text-[9px] font-bold text-white">
           2
         </span>
       </button>
@@ -109,13 +109,13 @@ export default function NavbarNotificationButton() {
           <div className="flex items-start justify-between border-b border-gray-100 px-4 py-3">
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="font-poppins text-[17px] font-semibold text-black">Notifikasi</h2>
-                <span className="flex items-center gap-1 font-poppins text-[10px] font-semibold text-[#ef476f]">
+                <h2 className="font-open-sauce text-[17px] font-semibold text-black">Notifikasi</h2>
+                <span className="flex items-center gap-1 font-open-sauce text-[10px] font-semibold text-[#ef476f]">
                   <span className="h-1.5 w-1.5 rounded-full bg-[#ef476f]" />
                   2 baru
                 </span>
               </div>
-              <p className="mt-0.5 font-poppins text-[11px] text-[#6b7280]">Chat, minat barang, dan kabar listing.</p>
+              <p className="mt-0.5 font-open-sauce text-[11px] text-[#6b7280]">Chat, minat barang, dan kabar listing.</p>
             </div>
             <Link
               href="/account/notifications"
@@ -130,13 +130,13 @@ export default function NavbarNotificationButton() {
           <div className="max-h-[340px] overflow-y-auto">
             <section className="px-4 py-3">
               <div className="flex items-center justify-between">
-                <h3 className="font-poppins text-[14px] font-semibold text-black">Ringkasan Listing</h3>
-                <button type="button" className="font-poppins text-[12px] font-semibold text-[#17458f] hover:text-[#f7a81b]">
+                <h3 className="font-open-sauce text-[14px] font-semibold text-black">Ringkasan Listing</h3>
+                <button type="button" className="font-open-sauce text-[12px] font-semibold text-[#17458f] hover:text-[#f7a81b]">
                   Lihat Semua
                 </button>
               </div>
 
-              <div className="mt-2.5 flex items-center gap-2 rounded-lg border border-gray-100 px-3 py-2 font-poppins text-[12px] text-black">
+              <div className="mt-2.5 flex items-center gap-2 rounded-lg border border-gray-100 px-3 py-2 font-open-sauce text-[12px] text-black">
                 <Icon icon="lucide:messages-square" width={17} height={17} className="shrink-0 text-[#f7a81b]" aria-hidden="true" />
                 <span className="min-w-0 flex-1">
                   <span className="block truncate font-semibold">2 chat perlu dibalas</span>
@@ -152,14 +152,14 @@ export default function NavbarNotificationButton() {
                     className="group flex flex-col items-center gap-1 rounded-lg p-1.5 text-center transition-colors hover:bg-[#fff7e8]"
                   >
                     <Icon icon={step.icon} width={21} height={21} className="text-[#17458f] transition-transform group-hover:-translate-y-0.5" aria-hidden="true" />
-                    <span className="font-poppins text-[10px] leading-tight text-black">{step.label}</span>
+                    <span className="font-open-sauce text-[10px] leading-tight text-black">{step.label}</span>
                   </button>
                 ))}
               </div>
             </section>
 
             <section className="border-t-[6px] border-[#f4f6f8] px-4 py-3">
-              <h3 className="font-poppins text-[14px] font-semibold text-black">Aktivitas Terbaru</h3>
+              <h3 className="font-open-sauce text-[14px] font-semibold text-black">Aktivitas Terbaru</h3>
               <div className="mt-3 grid gap-2">
                 {activities.map((activity) => (
                   <button
@@ -169,10 +169,10 @@ export default function NavbarNotificationButton() {
                   >
                     <Icon icon={activity.icon} width={18} height={18} className={`${activity.accent} mt-0.5 transition-transform group-hover:-translate-y-0.5`} aria-hidden="true" />
                     <span className="min-w-0">
-                      <span className="block truncate font-poppins text-[12px] font-semibold text-black group-hover:text-[#17458f]">
+                      <span className="block truncate font-open-sauce text-[12px] font-semibold text-black group-hover:text-[#17458f]">
                         {activity.title}
                       </span>
-                      <span className="mt-0.5 block font-poppins text-[11px] leading-snug text-[#6b7280]">
+                      <span className="mt-0.5 block font-open-sauce text-[11px] leading-snug text-[#6b7280]">
                         {activity.description}
                       </span>
                     </span>
@@ -182,18 +182,18 @@ export default function NavbarNotificationButton() {
             </section>
 
             <section className="border-t-[6px] border-[#f4f6f8] px-4 py-3">
-              <h3 className="font-poppins text-[14px] font-semibold text-black">Aksi Cepat</h3>
+              <h3 className="font-open-sauce text-[14px] font-semibold text-black">Aksi Cepat</h3>
               <div className="mt-3 grid grid-cols-2 gap-2">
                 <button
                   type="button"
-                  className="flex h-9 items-center justify-center gap-2 rounded-lg bg-[#f7a81b] font-poppins text-[12px] font-semibold text-white transition-colors hover:bg-[#e89a14]"
+                  className="flex h-9 items-center justify-center gap-2 rounded-lg bg-[#f7a81b] font-open-sauce text-[12px] font-semibold text-white transition-colors hover:bg-[#e89a14]"
                 >
                   <Icon icon="lucide:messages-square" width={15} height={15} aria-hidden="true" />
                   Buka Chat
                 </button>
                 <button
                   type="button"
-                  className="flex h-9 items-center justify-center gap-2 rounded-lg border border-[#17458f] font-poppins text-[12px] font-semibold text-[#17458f] transition-colors hover:bg-[#eef6ff]"
+                  className="flex h-9 items-center justify-center gap-2 rounded-lg border border-[#17458f] font-open-sauce text-[12px] font-semibold text-[#17458f] transition-colors hover:bg-[#eef6ff]"
                 >
                   <Icon icon="lucide:plus-circle" width={15} height={15} aria-hidden="true" />
                   Jual Barang
@@ -203,10 +203,10 @@ export default function NavbarNotificationButton() {
           </div>
 
           <div className="flex items-center justify-between border-t border-gray-100 px-4 py-3">
-            <button type="button" className="font-poppins text-[12px] font-semibold text-[#17458f] hover:text-[#f7a81b]">
+            <button type="button" className="font-open-sauce text-[12px] font-semibold text-[#17458f] hover:text-[#f7a81b]">
               Tandai semua dibaca
             </button>
-            <button type="button" className="font-poppins text-[12px] font-semibold text-[#17458f] hover:text-[#f7a81b]">
+            <button type="button" className="font-open-sauce text-[12px] font-semibold text-[#17458f] hover:text-[#f7a81b]">
               Lihat selengkapnya
             </button>
           </div>

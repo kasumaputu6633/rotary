@@ -60,7 +60,7 @@ export function PhoneVerificationCard({ phone, verified }: PhoneVerificationCard
                   <Icon icon="lucide:badge-check" width={19} height={19} aria-hidden="true" />
                 </span>
                 <div className="min-w-0 flex-1">
-                  <p className="font-poppins text-[14px] font-semibold tabular-nums text-[var(--seller-ink)]">
+                  <p className="font-open-sauce text-[14px] font-semibold tabular-nums text-[var(--seller-ink)]">
                     {formatIndonesianPhone(phone!)}
                   </p>
                   <p className="mt-0.5 inline-flex items-center gap-1 text-[11px] font-semibold text-[var(--seller-success)]">

@@ -18,7 +18,7 @@ export default function AuthInput({ label, error, id, type, ...props }: AuthInpu
 
   return (
     <div className="flex flex-col gap-[6px] w-full">
-      <label htmlFor={id} className="font-poppins font-semibold text-[14px] text-black">
+      <label htmlFor={id} className="font-open-sauce font-semibold text-[14px] text-black">
         {label}
       </label>
       <div className="relative">
@@ -26,7 +26,7 @@ export default function AuthInput({ label, error, id, type, ...props }: AuthInpu
           id={id}
           type={isPassword ? (show ? "text" : "password") : type}
           {...props}
-          className={`bg-[rgba(130,130,130,0.27)] border h-8 rounded-[9px] w-full px-3 text-[13px] font-poppins outline-none focus:bg-white transition-colors ${
+          className={`bg-[rgba(130,130,130,0.27)] border h-8 rounded-[9px] w-full px-3 text-[13px] font-open-sauce outline-none focus:bg-white transition-colors ${
             isPassword ? "pr-9" : ""
           } ${
             error
@@ -45,7 +45,7 @@ export default function AuthInput({ label, error, id, type, ...props }: AuthInpu
           </button>
         )}
       </div>
-      {error && <p className="font-poppins text-[12px] text-red-500">{error}</p>}
+      {error && <p className="font-open-sauce text-[12px] text-red-500">{error}</p>}
     </div>
   );
 }

@@ -91,10 +91,10 @@ export default function AdminDashboardPage() {
       {/* Header section */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="font-poppins text-2xl font-bold text-gray-900 md:text-3xl">
+          <h1 className="font-open-sauce text-2xl font-bold text-gray-900 md:text-3xl">
             Admin Overview
           </h1>
-          <p className="font-poppins text-sm text-gray-500 mt-1">
+          <p className="font-open-sauce text-sm text-gray-500 mt-1">
             Ringkasan data pengguna, penjualan barang bekas, dan koordinasi pengangkutan sampah.
           </p>
         </div>
@@ -103,7 +103,7 @@ export default function AdminDashboardPage() {
         <div className="relative">
           <button
             onClick={() => setShowDatePicker(!showDatePicker)}
-            className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 font-poppins text-xs font-semibold text-gray-700 hover:bg-gray-50 shadow-sm"
+            className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 font-open-sauce text-xs font-semibold text-gray-700 hover:bg-gray-50 shadow-sm"
           >
             <Icon icon="lucide:calendar" width={16} height={16} className="text-[#f7a81b]" />
             <span>10 April, 2026 - 10 Mei, 2026</span>
@@ -118,7 +118,7 @@ export default function AdminDashboardPage() {
                   <button
                     key={option}
                     onClick={() => setShowDatePicker(false)}
-                    className="w-full text-left font-poppins text-xs px-3 py-2 rounded-lg hover:bg-amber-50 hover:text-[#f7a81b] text-gray-700 transition-colors"
+                    className="w-full text-left font-open-sauce text-xs px-3 py-2 rounded-lg hover:bg-amber-50 hover:text-[#f7a81b] text-gray-700 transition-colors"
                   >
                     {option}
                   </button>
@@ -138,10 +138,10 @@ export default function AdminDashboardPage() {
           >
             <div className="flex items-center justify-between">
               <div>
-                <p className="font-poppins text-xs font-medium text-gray-400 uppercase tracking-wider">
+                <p className="font-open-sauce text-xs font-medium text-gray-400 uppercase tracking-wider">
                   {stat.title}
                 </p>
-                <h3 className="font-poppins text-3xl font-bold text-gray-900 mt-2 tracking-tight">
+                <h3 className="font-open-sauce text-3xl font-bold text-gray-900 mt-2 tracking-tight">
                   {stat.value}
                 </h3>
               </div>
@@ -150,7 +150,7 @@ export default function AdminDashboardPage() {
               </div>
             </div>
 
-            <div className="flex items-center gap-2 mt-4 text-xs font-poppins text-gray-500">
+            <div className="flex items-center gap-2 mt-4 text-xs font-open-sauce text-gray-500">
               <span className="inline-flex items-center gap-0.5 font-semibold text-emerald-600">
                 <Icon icon="lucide:trending-up" width={12} height={12} />
                 {stat.percentage}
@@ -170,17 +170,17 @@ export default function AdminDashboardPage() {
         <div className="lg:col-span-2 rounded-2xl border border-white bg-white p-6 shadow-sm">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h3 className="font-poppins text-base font-bold text-gray-900">
+              <h3 className="font-open-sauce text-base font-bold text-gray-900">
                 Analisis Pendapatan & Jasa
               </h3>
-              <p className="font-poppins text-xs text-gray-400">Total komisi penjualan & iuran vendor</p>
+              <p className="font-open-sauce text-xs text-gray-400">Total komisi penjualan & iuran vendor</p>
             </div>
             <div className="flex gap-2">
               {["This Week", "This Month"].map((tf) => (
                 <button
                   key={tf}
                   onClick={() => setTimeframe(tf)}
-                  className={`font-poppins text-[11px] font-semibold px-3 py-1.5 rounded-lg border transition-all ${timeframe === tf
+                  className={`font-open-sauce text-[11px] font-semibold px-3 py-1.5 rounded-lg border transition-all ${timeframe === tf
                       ? "border-[#f7a81b] bg-[#fff9f0] text-[#f7a81b] shadow-sm"
                       : "border-gray-200 text-gray-500 hover:bg-gray-50"
                     }`}
@@ -226,7 +226,7 @@ export default function AdminDashboardPage() {
             </svg>
 
             {/* Chart X Labels */}
-            <div className="flex justify-between items-center px-2 pt-3 border-t border-gray-100 font-poppins text-[10px] font-semibold text-gray-400">
+            <div className="flex justify-between items-center px-2 pt-3 border-t border-gray-100 font-open-sauce text-[10px] font-semibold text-gray-400">
               <span>Senin</span>
               <span>Selasa</span>
               <span>Rabu</span>
@@ -242,7 +242,7 @@ export default function AdminDashboardPage() {
         <div className="rounded-2xl border border-white bg-white p-6 shadow-sm flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between mb-4">
-              <h3 className="font-poppins text-base font-bold text-gray-900">
+              <h3 className="font-open-sauce text-base font-bold text-gray-900">
                 Penyetoran Limbah
               </h3>
               <span className="rounded-full bg-emerald-50 border border-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-700">
@@ -250,7 +250,7 @@ export default function AdminDashboardPage() {
               </span>
             </div>
 
-            <p className="font-poppins text-xs text-gray-400 mb-4">
+            <p className="font-open-sauce text-xs text-gray-400 mb-4">
               Data transaksi pengangkutan sampah daur ulang terbaru hari ini.
             </p>
 
@@ -258,10 +258,10 @@ export default function AdminDashboardPage() {
               {wasteSummary.map((item, idx) => (
                 <div key={idx} className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 border border-slate-100 hover:bg-slate-100/50 transition-colors">
                   <div>
-                    <p className="font-poppins text-xs font-bold text-gray-800">{item.type}</p>
-                    <p className="font-poppins text-[10px] text-gray-500">{item.quantity} • {item.points}</p>
+                    <p className="font-open-sauce text-xs font-bold text-gray-800">{item.type}</p>
+                    <p className="font-open-sauce text-[10px] text-gray-500">{item.quantity} • {item.points}</p>
                   </div>
-                  <span className={`font-poppins text-[9px] font-semibold px-2 py-1 rounded-md ${item.status === "Sudah Diambil" ? "bg-blue-50 text-blue-700" : "bg-amber-50 text-[#f7a81b]"
+                  <span className={`font-open-sauce text-[9px] font-semibold px-2 py-1 rounded-md ${item.status === "Sudah Diambil" ? "bg-blue-50 text-blue-700" : "bg-amber-50 text-[#f7a81b]"
                     }`}>
                     {item.status}
                   </span>
@@ -270,7 +270,7 @@ export default function AdminDashboardPage() {
             </div>
           </div>
 
-          <a href="/admin/waste-locations" className="mt-4 w-full inline-flex items-center justify-center gap-1.5 rounded-xl bg-gray-50 px-4 py-2.5 text-center font-poppins text-xs font-semibold text-gray-600 hover:bg-gray-100 transition-colors">
+          <a href="/admin/waste-locations" className="mt-4 w-full inline-flex items-center justify-center gap-1.5 rounded-xl bg-gray-50 px-4 py-2.5 text-center font-open-sauce text-xs font-semibold text-gray-600 hover:bg-gray-100 transition-colors">
             <span>Kelola Lokasi Limbah</span>
             <Icon icon="lucide:arrow-right" width={14} height={14} />
           </a>
@@ -282,10 +282,10 @@ export default function AdminDashboardPage() {
         {/* Recent Activity List */}
         <div className="lg:col-span-2 rounded-2xl border border-white bg-white p-6 shadow-sm">
           <div className="flex items-center justify-between mb-5">
-            <h3 className="font-poppins text-base font-bold text-gray-900">
+            <h3 className="font-open-sauce text-base font-bold text-gray-900">
               Aktivitas Terbaru
             </h3>
-            <button className="font-poppins text-xs font-bold text-[#17458f] hover:text-[#f7a81b] transition-colors">
+            <button className="font-open-sauce text-xs font-bold text-[#17458f] hover:text-[#f7a81b] transition-colors">
               Lihat Semua
             </button>
           </div>
@@ -298,14 +298,14 @@ export default function AdminDashboardPage() {
                     <Icon icon="lucide:activity" width={16} height={16} />
                   </div>
                   <div>
-                    <p className="font-poppins text-xs text-gray-800">
+                    <p className="font-open-sauce text-xs text-gray-800">
                       <span className="font-semibold text-gray-950">{act.user}</span> {act.action}{" "}
                       <span className="font-semibold text-[#17458f]">{act.target}</span>
                     </p>
-                    <p className="font-poppins text-[10px] text-gray-400 mt-1">{act.time}</p>
+                    <p className="font-open-sauce text-[10px] text-gray-400 mt-1">{act.time}</p>
                   </div>
                 </div>
-                <span className={`font-poppins text-[9px] font-bold px-2 py-0.5 rounded-full border shrink-0 ${act.badgeColor}`}>
+                <span className={`font-open-sauce text-[9px] font-bold px-2 py-0.5 rounded-full border shrink-0 ${act.badgeColor}`}>
                   {act.badge}
                 </span>
               </div>
@@ -315,7 +315,7 @@ export default function AdminDashboardPage() {
 
         {/* Admin Shortcuts / Action Panel */}
         <div className="rounded-2xl border border-white bg-white p-6 shadow-sm">
-          <h3 className="font-poppins text-base font-bold text-gray-900 mb-5">
+          <h3 className="font-open-sauce text-base font-bold text-gray-900 mb-5">
             Tindakan Cepat
           </h3>
 
@@ -329,7 +329,7 @@ export default function AdminDashboardPage() {
               <a
                 key={idx}
                 href={shortcut.href}
-                className={`flex flex-col items-center justify-center p-4 rounded-2xl border border-slate-100 text-center font-poppins transition-all group ${shortcut.bg}`}
+                className={`flex flex-col items-center justify-center p-4 rounded-2xl border border-slate-100 text-center font-open-sauce transition-all group ${shortcut.bg}`}
               >
                 <Icon
                   icon={shortcut.icon}

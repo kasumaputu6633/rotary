@@ -37,7 +37,7 @@ export default function Filters({
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Cari nama lokasi, alamat..."
-                    className="w-full rounded-xl border border-gray-200 bg-white py-2 pl-10 pr-4 font-poppins text-[13px] text-gray-800 placeholder-gray-400 outline-none transition focus:border-[#f7a81b] focus:ring-2 focus:ring-[#f7a81b]/10"
+                    className="w-full rounded-xl border border-gray-200 bg-white py-2 pl-10 pr-4 font-open-sauce text-[13px] text-gray-800 placeholder-gray-400 outline-none transition focus:border-[#f7a81b] focus:ring-2 focus:ring-[#f7a81b]/10"
                 />
 
                 {searchQuery && (
@@ -57,7 +57,7 @@ export default function Filters({
                     <select
                         value={selectedType}
                         onChange={(e) => setSelectedType(e.target.value)}
-                        className="appearance-none rounded-xl border border-gray-200 bg-white py-2 pl-4 pr-10 font-poppins text-[13px] font-medium text-gray-700 outline-none transition hover:border-gray-300 focus:border-[#f7a81b] focus:ring-2 focus:ring-[#f7a81b]/10"
+                        className="appearance-none rounded-xl border border-gray-200 bg-white py-2 pl-4 pr-10 font-open-sauce text-[13px] font-medium text-gray-700 outline-none transition hover:border-gray-300 focus:border-[#f7a81b] focus:ring-2 focus:ring-[#f7a81b]/10"
                     >
                         <option value="">Semua Tipe Lokasi</option>
                         <option value="tps">TPS</option>
@@ -77,7 +77,7 @@ export default function Filters({
                     <select
                         value={selectedWasteType}
                         onChange={(e) => setSelectedWasteType(e.target.value)}
-                        className="appearance-none rounded-xl border border-gray-200 bg-white py-2 pl-4 pr-10 font-poppins text-[13px] font-medium text-gray-700 outline-none transition hover:border-gray-300 focus:border-[#f7a81b] focus:ring-2 focus:ring-[#f7a81b]/10"
+                        className="appearance-none rounded-xl border border-gray-200 bg-white py-2 pl-4 pr-10 font-open-sauce text-[13px] font-medium text-gray-700 outline-none transition hover:border-gray-300 focus:border-[#f7a81b] focus:ring-2 focus:ring-[#f7a81b]/10"
                     >
                         <option value="">Semua Jenis Sampah</option>
 

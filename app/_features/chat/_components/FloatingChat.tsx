@@ -143,7 +143,7 @@ export default function FloatingChat({ currentUserId }: { currentUserId: string 
       )}
 
       {/* Container panel + launcher — z-9800 di atas overlay z-9799 */}
-      <div className="fixed bottom-6 right-5 z-[9800] font-poppins md:bottom-16 md:right-24">
+      <div className="fixed bottom-6 right-5 z-[9800] font-open-sauce md:bottom-16 md:right-24">
         {!isOpen && (
           <button
             type="button"

@@ -9,7 +9,7 @@ export default function NavbarSearch() {
         name="q"
         type="text"
         placeholder="Cari di Marketplace"
-        className="flex-1 px-4 font-poppins text-[13px] text-gray-700 placeholder:text-[#9ca3af] outline-none bg-transparent min-w-0"
+        className="flex-1 px-4 font-open-sauce text-[13px] text-gray-700 placeholder:text-[#9ca3af] outline-none bg-transparent min-w-0"
       />
       <button
         type="submit"

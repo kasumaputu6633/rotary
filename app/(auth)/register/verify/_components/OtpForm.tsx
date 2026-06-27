@@ -64,17 +64,17 @@ export default function OtpForm() {
             onChange={(e) => handleChange(i, e.target.value)}
             onKeyDown={(e) => handleKeyDown(i, e)}
             onPaste={handlePaste}
-            className={`w-12 h-12 text-center text-[20px] font-poppins font-semibold border rounded-[9px] outline-none hover:bg-white hover:border-[#17458f] focus:bg-white focus:border-[#17458f] transition-colors ${
+            className={`w-12 h-12 text-center text-[20px] font-open-sauce font-semibold border rounded-[9px] outline-none hover:bg-white hover:border-[#17458f] focus:bg-white focus:border-[#17458f] transition-colors ${
               digit ? "bg-white border-[#17458f]" : "bg-[rgba(130,130,130,0.27)] border-[#979797]"
             }`}
           />
         ))}
       </div>
 
-      {error && <p className="font-poppins text-[12px] text-red-500 mt-2">{error}</p>}
-      {resent && <p className="font-poppins text-[12px] text-green-600 mt-2">Kode baru telah dikirim.</p>}
+      {error && <p className="font-open-sauce text-[12px] text-red-500 mt-2">{error}</p>}
+      {resent && <p className="font-open-sauce text-[12px] text-green-600 mt-2">Kode baru telah dikirim.</p>}
 
-      <p className="font-poppins text-[13px] text-[#505050] mt-3">
+      <p className="font-open-sauce text-[13px] text-[#505050] mt-3">
         Tidak menerima kode?{" "}
         <button
           type="button"
@@ -92,7 +92,7 @@ export default function OtpForm() {
         </AuthButton>
       </div>
 
-      <p className="font-poppins text-[13px] text-[#505050] mt-5">
+      <p className="font-open-sauce text-[13px] text-[#505050] mt-5">
         <Link href="/register" className="text-[#17458f] underline">← Kembali</Link>
       </p>
     </>

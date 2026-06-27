@@ -96,7 +96,7 @@ export default function WasteLocationsClient({ initialLocations }: WasteLocation
     return (
         <div className="space-y-6">
             {/* Breadcrumb */}
-            <nav className="flex items-center gap-1.5 font-poppins text-[12px] text-gray-400">
+            <nav className="flex items-center gap-1.5 font-open-sauce text-[12px] text-gray-400">
                 <span>Dashboard</span>
                 <Icon icon="lucide:chevron-right" width={12} height={12} className="text-gray-300" />
                 <span className="font-semibold text-[#17458f]">Lokasi</span>
@@ -105,10 +105,10 @@ export default function WasteLocationsClient({ initialLocations }: WasteLocation
             {/* Page Header */}
             <div className="flex flex-wrap items-center justify-between gap-4">
                 <div>
-                    <h1 className="font-poppins text-2xl font-bold text-gray-900">
+                    <h1 className="font-open-sauce text-2xl font-bold text-gray-900">
                         Waste Location
                     </h1>
-                    <p className="mt-0.5 font-poppins text-sm text-gray-500">
+                    <p className="mt-0.5 font-open-sauce text-sm text-gray-500">
                         Kelola lokasi pembuangan sampah, jam operasional, dan jenis sampah yang diterima.
                     </p>
                 </div>
@@ -116,7 +116,7 @@ export default function WasteLocationsClient({ initialLocations }: WasteLocation
                 {/* Tambah Lokasi → navigates to dedicated add page */}
                 <Link
                     href="/admin/waste-locations/add"
-                    className="flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-[#f7a81b] to-[#e89a14] px-4 py-2.5 font-poppins text-[13px] font-bold text-white transition hover:opacity-95 shadow-md shadow-[#f7a81b]/15"
+                    className="flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-[#f7a81b] to-[#e89a14] px-4 py-2.5 font-open-sauce text-[13px] font-bold text-white transition hover:opacity-95 shadow-md shadow-[#f7a81b]/15"
                 >
                     <Icon icon="lucide:plus" width={16} height={16} />
                     <span>Tambah Lokasi</span>
@@ -142,10 +142,10 @@ export default function WasteLocationsClient({ initialLocations }: WasteLocation
                     <div className="rounded-2xl border border-dashed border-gray-200 bg-white py-16 text-center">
                         <div className="flex flex-col items-center gap-2">
                             <Icon icon="lucide:map-pin-off" width={40} height={40} className="text-gray-300" />
-                            <p className="font-poppins text-sm font-semibold text-gray-500">
+                            <p className="font-open-sauce text-sm font-semibold text-gray-500">
                                 Tidak ada lokasi sampah yang ditemukan
                             </p>
-                            <p className="font-poppins text-[12px] text-gray-400">
+                            <p className="font-open-sauce text-[12px] text-gray-400">
                                 Coba sesuaikan kata kunci pencarian atau filter Anda.
                             </p>
                         </div>
@@ -165,7 +165,7 @@ export default function WasteLocationsClient({ initialLocations }: WasteLocation
             {/* Footer & Pagination */}
             {filteredLocations.length > 0 && (
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-gray-100 bg-gray-50/50 rounded-2xl px-5 py-4 shadow-sm">
-                    <p className="font-poppins text-[12px] text-gray-400">
+                    <p className="font-open-sauce text-[12px] text-gray-400">
                         Menampilkan{" "}
                         {Math.min(filteredLocations.length, (currentPage - 1) * PAGE_SIZE + 1)}–
                         {Math.min(currentPage * PAGE_SIZE, filteredLocations.length)}{" "}
@@ -177,7 +177,7 @@ export default function WasteLocationsClient({ initialLocations }: WasteLocation
                             <button
                                 onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                                 disabled={currentPage === 1}
-                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-200 bg-white font-poppins text-[12px] font-semibold text-gray-500 transition hover:bg-gray-50 disabled:opacity-40 select-none"
+                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-200 bg-white font-open-sauce text-[12px] font-semibold text-gray-500 transition hover:bg-gray-50 disabled:opacity-40 select-none"
                             >
                                 Sebelumnya
                             </button>
@@ -186,7 +186,7 @@ export default function WasteLocationsClient({ initialLocations }: WasteLocation
                                 <button
                                     key={p}
                                     onClick={() => setCurrentPage(p)}
-                                    className={`flex h-8 w-8 items-center justify-center rounded-lg font-poppins text-[13px] font-bold transition ${p === currentPage
+                                    className={`flex h-8 w-8 items-center justify-center rounded-lg font-open-sauce text-[13px] font-bold transition ${p === currentPage
                                             ? "bg-[#f7a81b] text-white shadow-sm shadow-[#f7a81b]/10"
                                             : "border border-gray-200 bg-white text-gray-600 hover:bg-gray-50"
                                         }`}
@@ -198,7 +198,7 @@ export default function WasteLocationsClient({ initialLocations }: WasteLocation
                             <button
                                 onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                                 disabled={currentPage === totalPages}
-                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-200 bg-white font-poppins text-[12px] font-semibold text-gray-500 transition hover:bg-gray-50 disabled:opacity-40 select-none"
+                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-200 bg-white font-open-sauce text-[12px] font-semibold text-gray-500 transition hover:bg-gray-50 disabled:opacity-40 select-none"
                             >
                                 Selanjutnya
                             </button>

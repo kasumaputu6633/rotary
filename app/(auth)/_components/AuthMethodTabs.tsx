@@ -26,7 +26,7 @@ export default function AuthMethodTabs({ value, onChange }: AuthMethodTabsProps)
             role="tab"
             aria-selected={isActive}
             onClick={() => onChange(tab.id)}
-            className={`flex-1 flex items-center justify-center gap-[6px] h-8 rounded-[7px] text-[13px] font-poppins font-medium transition-all ${
+            className={`flex-1 flex items-center justify-center gap-[6px] h-8 rounded-[7px] text-[13px] font-open-sauce font-medium transition-all ${
               isActive
                 ? "bg-white text-[#17458f] shadow-sm"
                 : "text-[#505050] hover:text-black"

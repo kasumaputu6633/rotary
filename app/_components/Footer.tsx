@@ -35,13 +35,13 @@ export default function Footer() {
               />
             </div>
 
-            <p className="mt-7 max-w-[400px] font-poppins text-[16px] leading-[1.42] text-black">
+            <p className="mt-7 max-w-[400px] font-open-sauce text-[16px] leading-[1.42] text-black">
               Rotary membantu barang bekas layak pakai menemukan pemilik baru dan mengarahkan limbah ke tempat penampungan yang tepat.
             </p>
 
             <a
               href="#page-top"
-              className="mt-9 inline-flex h-9.5 items-center gap-3 border border-[#f7a81b] px-3.5 pr-5 font-poppins text-[12px] font-semibold text-black transition-colors hover:bg-[#fff7e8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f7a81b] focus-visible:ring-offset-4"
+              className="mt-9 inline-flex h-9.5 items-center gap-3 border border-[#f7a81b] px-3.5 pr-5 font-open-sauce text-[12px] font-semibold text-black transition-colors hover:bg-[#fff7e8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f7a81b] focus-visible:ring-offset-4"
             >
               <Icon icon="lucide:chevrons-up" width={18} height={18} aria-hidden="true" />
               BACK TO TOP
@@ -50,13 +50,13 @@ export default function Footer() {
 
           <div className="grid gap-10 pt-5 sm:grid-cols-[minmax(160px,1fr)] sm:gap-16 lg:w-[360px] lg:gap-24 lg:pt-5">
             <div>
-              <h2 className="font-poppins text-[14px] font-semibold text-black">Site Map</h2>
+              <h2 className="font-open-sauce text-[14px] font-semibold text-black">Site Map</h2>
               <nav className="mt-7 flex flex-col gap-6" aria-label="Site Map">
                 {siteMapLinks.map((link) => (
                   <Link
                     key={link.href}
                     href={link.href}
-                    className="font-poppins text-[14px] text-black transition-colors hover:text-[#17458f]"
+                    className="font-open-sauce text-[14px] text-black transition-colors hover:text-[#17458f]"
                   >
                     {link.label}
                   </Link>
@@ -67,7 +67,7 @@ export default function Footer() {
         </div>
 
         <div className="mt-9 border-t border-[#8d8d8d] pt-5 text-center">
-          <p className="font-poppins text-[12px] text-black">
+          <p className="font-open-sauce text-[12px] text-black">
             © 2026 Rotary International. All rights reserved.
           </p>
         </div>

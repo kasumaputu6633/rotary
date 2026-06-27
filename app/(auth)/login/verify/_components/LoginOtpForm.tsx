@@ -60,7 +60,7 @@ export default function LoginOtpForm({ allowRecoveryCode }: { allowRecoveryCode:
     <>
       {useRecoveryCode ? (
         <label className="mt-4 grid w-full gap-1.5">
-          <span className="font-poppins text-[12px] font-semibold text-black">Recovery code</span>
+          <span className="font-open-sauce text-[12px] font-semibold text-black">Recovery code</span>
           <input
             type="text"
             value={recoveryCode}
@@ -87,7 +87,7 @@ export default function LoginOtpForm({ allowRecoveryCode }: { allowRecoveryCode:
               onChange={(e) => handleChange(i, e.target.value)}
               onKeyDown={(e) => handleKeyDown(i, e)}
               onPaste={handlePaste}
-              className={`w-12 h-12 text-center text-[20px] font-poppins font-semibold border rounded-[9px] outline-none hover:bg-white hover:border-[#17458f] focus:bg-white focus:border-[#17458f] transition-colors ${
+              className={`w-12 h-12 text-center text-[20px] font-open-sauce font-semibold border rounded-[9px] outline-none hover:bg-white hover:border-[#17458f] focus:bg-white focus:border-[#17458f] transition-colors ${
                 digit ? "bg-white border-[#17458f]" : "bg-[rgba(130,130,130,0.27)] border-[#979797]"
               }`}
             />
@@ -95,11 +95,11 @@ export default function LoginOtpForm({ allowRecoveryCode }: { allowRecoveryCode:
         </div>
       )}
 
-      {error && <p className="font-poppins text-[12px] text-red-500 mt-2">{error}</p>}
-      {resent && <p className="font-poppins text-[12px] text-green-600 mt-2">Kode baru telah dikirim.</p>}
+      {error && <p className="font-open-sauce text-[12px] text-red-500 mt-2">{error}</p>}
+      {resent && <p className="font-open-sauce text-[12px] text-green-600 mt-2">Kode baru telah dikirim.</p>}
 
       {!useRecoveryCode ? (
-        <p className="font-poppins text-[13px] text-[#505050] mt-3">
+        <p className="font-open-sauce text-[13px] text-[#505050] mt-3">
           Tidak menerima kode?{" "}
           <button
             type="button"
@@ -132,13 +132,13 @@ export default function LoginOtpForm({ allowRecoveryCode }: { allowRecoveryCode:
             setResent(false);
             reset();
           }}
-          className="mt-4 font-poppins text-[13px] font-semibold text-[#17458f] underline"
+          className="mt-4 font-open-sauce text-[13px] font-semibold text-[#17458f] underline"
         >
           {useRecoveryCode ? "Gunakan kode verifikasi" : "Gunakan recovery code"}
         </button>
       ) : null}
 
-      <p className="font-poppins text-[13px] text-[#505050] mt-5">
+      <p className="font-open-sauce text-[13px] text-[#505050] mt-5">
         <Link href="/login" className="text-[#17458f] underline">← Kembali ke Login</Link>
       </p>
     </>

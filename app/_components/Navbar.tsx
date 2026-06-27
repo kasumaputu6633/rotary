@@ -34,7 +34,7 @@ export default async function Navbar() {
           <div className="hidden h-8 items-center justify-between border-b border-gray-100 md:flex">
             <div className="flex items-center gap-2">
               <Icon icon="lucide:recycle" width={13} height={13} className="text-[#f7a81b]" aria-hidden="true" />
-              <p className="font-poppins text-[12px] text-[#6b7280]">
+              <p className="font-open-sauce text-[12px] text-[#6b7280]">
                 Dukung sirkular ekonomi Bali
               </p>
             </div>
@@ -44,7 +44,7 @@ export default async function Navbar() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="font-poppins text-[12px] text-[#6b7280] hover:text-[#17458f] transition-colors whitespace-nowrap"
+                  className="font-open-sauce text-[12px] text-[#6b7280] hover:text-[#17458f] transition-colors whitespace-nowrap"
                 >
                   {link.label}
                 </Link>
@@ -76,7 +76,7 @@ export default async function Navbar() {
 
             <Link
               href="/products"
-              className="hidden lg:inline-flex font-poppins text-[14px] text-[#333] hover:text-[#17458f] transition-colors whitespace-nowrap"
+              className="hidden lg:inline-flex font-open-sauce text-[14px] text-[#333] hover:text-[#17458f] transition-colors whitespace-nowrap"
             >
               Kategori
             </Link>
@@ -113,7 +113,7 @@ export default async function Navbar() {
                 <Link
                   key={link.label}
                   href={link.href}
-                  className="font-poppins text-[13px] text-[#8f8a8a] hover:text-[#17458f] transition-colors whitespace-nowrap"
+                  className="font-open-sauce text-[13px] font-medium text-[#5b6470] hover:text-[#17458f] transition-colors whitespace-nowrap"
                 >
                   {link.label}
                 </Link>

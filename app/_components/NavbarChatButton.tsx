@@ -19,7 +19,7 @@ export default function NavbarChatButton() {
     >
       <Icon icon="lucide:messages-square" width={21} height={21} className="text-[#555]" aria-hidden="true" />
       {count > 0 && (
-        <span className="absolute -right-0.5 -top-0.5 flex h-3.5 min-w-3.5 items-center justify-center rounded-full bg-[#ef476f] font-poppins text-[8px] font-bold text-white px-0.5">
+        <span className="absolute -right-0.5 -top-0.5 flex h-3.5 min-w-3.5 items-center justify-center rounded-full bg-[#ef476f] font-open-sauce text-[8px] font-bold text-white px-0.5">
           {count > 9 ? "9+" : count}
         </span>
       )}

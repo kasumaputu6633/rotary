@@ -40,7 +40,7 @@ export default async function AdminUsersPage({ searchParams }: PageProps) {
     return (
         <div className="mx-auto max-w-7xl space-y-6">
             {/* Breadcrumb */}
-            <nav className="flex items-center gap-1.5 font-poppins text-[12px] text-gray-400">
+            <nav className="flex items-center gap-1.5 font-open-sauce text-[12px] text-gray-400">
                 <span>Dashboard</span>
                 <Icon icon="lucide:chevron-right" width={12} height={12} className="text-gray-300" />
                 <span className="font-semibold text-[#17458f]">Users</span>
@@ -49,10 +49,10 @@ export default async function AdminUsersPage({ searchParams }: PageProps) {
             {/* Page Header */}
             <div className="flex flex-wrap items-start justify-between gap-4">
                 <div>
-                    <h1 className="font-poppins text-2xl font-bold text-gray-900">
+                    <h1 className="font-open-sauce text-2xl font-bold text-gray-900">
                         Users Overview
                     </h1>
-                    <p className="mt-0.5 font-poppins text-sm text-gray-500">
+                    <p className="mt-0.5 font-open-sauce text-sm text-gray-500">
                         Kelola semua anggota, peran, dan data pengguna platform.
                     </p>
                 </div>

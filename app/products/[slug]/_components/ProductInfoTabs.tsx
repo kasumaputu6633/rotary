@@ -11,7 +11,7 @@ export default function ProductInfoTabs({ product }: { product: ListingCardData 
 
   return (
     <div className="mt-6 border-t border-[#e5e7eb]">
-      <div className="flex gap-10 border-b border-[#edf0f5] font-poppins text-[13px] font-semibold">
+      <div className="flex gap-10 border-b border-[#edf0f5] font-open-sauce text-[13px] font-semibold">
         <button
           type="button"
           onClick={() => setActiveTab("detail")}
@@ -39,7 +39,7 @@ export default function ProductInfoTabs({ product }: { product: ListingCardData 
       </div>
 
       {activeTab === "detail" ? (
-        <dl className="mt-4 grid gap-2.5 font-poppins text-[13px]">
+        <dl className="mt-4 grid gap-2.5 font-open-sauce text-[13px]">
           <div className="grid grid-cols-[112px_1fr] gap-3">
             <dt className="text-[#6b7280]">Kondisi</dt>
             <dd className="font-medium text-black">{product.condition}</dd>
@@ -78,7 +78,7 @@ export default function ProductInfoTabs({ product }: { product: ListingCardData 
           )}
         </dl>
       ) : (
-        <div className="mt-4 grid gap-2.5 font-poppins text-[13px] text-black">
+        <div className="mt-4 grid gap-2.5 font-open-sauce text-[13px] text-black">
           {[
             "Pastikan kondisi barang sudah sesuai sebelum membuat kesepakatan.",
             product.status === "reserved"

@@ -1,20 +1,20 @@
 import type { Metadata } from "next";
-import { Poppins, Roboto_Serif } from "next/font/google";
+import localFont from "next/font/local";
 import DropdownOverlay from "./_components/DropdownOverlay";
 import FloatingChat from "./_features/chat/_components/FloatingChat";
 import { getSessionUserId } from "@/lib/auth";
 import "./globals.css";
 
-const poppins = Poppins({
-  variable: "--font-poppins",
-  subsets: ["latin"],
-  weight: ["400", "600"],
-});
-
-const robotoSerif = Roboto_Serif({
-  variable: "--font-roboto-serif",
-  subsets: ["latin"],
-  weight: ["400", "600"],
+const openSauce = localFont({
+  variable: "--font-open-sauce",
+  display: "swap",
+  src: [
+    { path: "./fonts/OpenSauceOne-Regular.ttf", weight: "400", style: "normal" },
+    { path: "./fonts/OpenSauceOne-Italic.ttf", weight: "400", style: "italic" },
+    { path: "./fonts/OpenSauceOne-Medium.ttf", weight: "500", style: "normal" },
+    { path: "./fonts/OpenSauceOne-SemiBold.ttf", weight: "600", style: "normal" },
+    { path: "./fonts/OpenSauceOne-Bold.ttf", weight: "700", style: "normal" },
+  ],
 });
 
 export const metadata: Metadata = {
@@ -41,7 +41,7 @@ export default async function RootLayout({
   return (
     <html
       lang="id"
-      className={`${poppins.variable} ${robotoSerif.variable} h-full antialiased`}
+      className={`${openSauce.variable} h-full antialiased`}
     >
       <body id="page-top" className="min-h-full flex flex-col">
         <DropdownOverlay />

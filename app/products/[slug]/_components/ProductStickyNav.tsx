@@ -91,8 +91,8 @@ export default function ProductStickyNav({ hasRecommendations, title }: ProductS
       } transition duration-200`}
     >
       <div className="mx-auto grid h-12 max-w-[1240px] grid-cols-[360px_minmax(0,1fr)_300px] items-center gap-6 px-6 xl:px-0">
-        <p className="truncate font-poppins text-[13px] font-semibold text-black">{title}</p>
-        <nav className="flex h-full items-center gap-10 font-poppins text-[13px] font-semibold" aria-label="Navigasi detail produk">
+        <p className="truncate font-open-sauce text-[13px] font-semibold text-black">{title}</p>
+        <nav className="flex h-full items-center gap-10 font-open-sauce text-[13px] font-semibold" aria-label="Navigasi detail produk">
           <a className={tabClass("detail-produk")} href="#detail-produk" onClick={(e) => handleClick(e, "detail-produk")}>
             Detail Produk
           </a>

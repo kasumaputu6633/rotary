@@ -12,7 +12,7 @@ export default function ProductCard({ product }: { product: ListingCardData }) {
   const typeColor = isReserved ? "text-[#17458f]" : isSale ? "text-[#f47b20]" : "text-[#2f7d49]";
 
   return (
-    <article className="group min-w-0 font-poppins">
+    <article className="group min-w-0 font-open-sauce">
       <div className="relative">
         <Link
           href={`/products/${product.slug}`}
@@ -50,23 +50,23 @@ export default function ProductCard({ product }: { product: ListingCardData }) {
       </div>
 
       <Link href={`/products/${product.slug}`} className="block">
-        <h3 className="mt-2 line-clamp-2 min-h-[34px] text-[13px] leading-[17px] text-[#1f2937] transition-colors group-hover:text-[#17458f]">
+        <h3 className="mt-2 line-clamp-2 min-h-[34px] text-[13px] font-normal leading-[17px] text-[#31353b] transition-colors group-hover:text-[#17458f]">
           {product.title}
         </h3>
-        <p className="mt-1 text-[18px] font-bold leading-tight text-black">{formatPrice(product.price, product.mode)}</p>
+        <p className="mt-1 text-[16px] font-bold leading-tight text-[#212121]">{formatPrice(product.price, product.mode)}</p>
 
-        <div className={`mt-1 flex min-w-0 items-center gap-1.5 text-[11px] font-semibold ${typeColor}`}>
-          <Icon icon={typeIcon} width={13} height={13} className="shrink-0" aria-hidden="true" />
+        <div className={`mt-1.5 flex min-w-0 items-center gap-1 text-[11px] font-semibold ${typeColor}`}>
+          <Icon icon={typeIcon} width={12} height={12} className="shrink-0" aria-hidden="true" />
           <span className="truncate">{typeLabel}</span>
         </div>
 
-        <div className="mt-1 flex min-w-0 items-center gap-1.5 text-[12px] text-[#6b7280]">
-          <Icon icon="lucide:badge-check" width={13} height={13} className="shrink-0 text-[#f7a81b]" aria-hidden="true" />
+        <div className="mt-1 flex min-w-0 items-center gap-1 text-[11px] text-[#6b7280]">
+          <Icon icon="lucide:badge-check" width={12} height={12} className="shrink-0 text-[#f7a81b]" aria-hidden="true" />
           <span className="truncate">{product.condition}</span>
         </div>
 
-        <div className="mt-1 flex min-w-0 items-center gap-1.5 text-[12px] text-[#6b7280]">
-          <Icon icon="lucide:map-pin" width={13} height={13} className="shrink-0 text-[#9aa3af]" aria-hidden="true" />
+        <div className="mt-1 flex min-w-0 items-center gap-1 text-[11px] text-[#6b7280]">
+          <Icon icon="lucide:map-pin" width={12} height={12} className="shrink-0 text-[#9aa3af]" aria-hidden="true" />
           <span className="truncate">{publicLocation}</span>
         </div>
       </Link>

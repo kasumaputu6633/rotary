@@ -15,7 +15,7 @@ export default function PasswordRequirements({ password }: { password: string })
             <span className={`flex items-center justify-center w-4 h-4 rounded-full shrink-0 ${ok ? "text-green-500" : "text-[#bbb]"}`}>
               <Icon icon={ok ? "lucide:circle-check" : "lucide:circle-x"} width={14} height={14} aria-hidden="true" />
             </span>
-            <span className={`font-poppins text-[12px] ${ok ? "text-green-600" : "text-[#aaa]"}`}>
+            <span className={`font-open-sauce text-[12px] ${ok ? "text-green-600" : "text-[#aaa]"}`}>
               {label}
             </span>
           </li>

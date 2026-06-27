@@ -43,7 +43,7 @@ export function EmailVerificationCard({
                 <Icon icon={verified ? "lucide:badge-check" : "lucide:mail-warning"} width={19} height={19} aria-hidden="true" />
               </span>
               <div className="min-w-0 flex-1">
-                <p className="break-all font-poppins text-[13px] font-semibold text-[var(--seller-ink)]">
+                <p className="break-all font-open-sauce text-[13px] font-semibold text-[var(--seller-ink)]">
                   {email ?? "Email belum ditambahkan"}
                 </p>
                 <p className={`mt-0.5 inline-flex items-center gap-1 text-[11px] font-semibold ${

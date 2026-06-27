@@ -55,7 +55,7 @@ export default function RegisterPage() {
       <AuthIllustration src="/auth/illustration-register.png" />
 
       <AuthCard>
-        <h1 className="font-roboto-serif font-semibold text-[24px] text-black">
+        <h1 className="font-open-sauce font-semibold text-[24px] text-black">
           Daftar
         </h1>
 
@@ -94,7 +94,7 @@ export default function RegisterPage() {
               onChange={(e) => setAgreed(e.target.checked)}
               className="mt-[3px] shrink-0 accent-[#17458f] w-4 h-4 cursor-pointer"
             />
-            <span className="font-poppins text-[14px] text-black leading-relaxed">
+            <span className="font-open-sauce text-[14px] text-black leading-relaxed">
               Dengan melanjutkan, anda menyetujui{" "}
               <Link href="/terms" className="text-[#17458f] underline">Ketentuan Penggunaan</Link>
               {" "}dan{" "}
@@ -103,7 +103,7 @@ export default function RegisterPage() {
             </span>
           </label>
 
-          <Link href="/help" className="font-poppins text-[14px] text-[#17458f] underline">
+          <Link href="/help" className="font-open-sauce text-[14px] text-[#17458f] underline">
             Perlu Bantuan?
           </Link>
         </div>
@@ -112,7 +112,7 @@ export default function RegisterPage() {
           Lanjut
         </AuthButton>
 
-        <p className="font-poppins text-[13px] text-[#505050] mt-5">
+        <p className="font-open-sauce text-[13px] text-[#505050] mt-5">
           Sudah punya akun?{" "}
           <Link href="/login" className="text-[#17458f] underline font-semibold">Masuk</Link>
         </p>

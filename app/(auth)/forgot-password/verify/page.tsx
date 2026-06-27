@@ -15,7 +15,7 @@ export default async function ForgotPasswordVerifyPage() {
       <AuthIllustration src="/auth/otp.png" />
 
       <AuthCard>
-        <h1 className="font-roboto-serif text-[24px] font-semibold text-black">
+        <h1 className="font-open-sauce text-[24px] font-semibold text-black">
           Verifikasi WhatsApp
         </h1>
 
@@ -29,10 +29,10 @@ export default async function ForgotPasswordVerifyPage() {
               aria-hidden="true"
             />
           </div>
-          <p className="text-center font-poppins text-[14px] text-black">
+          <p className="text-center font-open-sauce text-[14px] text-black">
             Jika nomor terdaftar dan terverifikasi, kode 6 digit telah dikirim ke
           </p>
-          <p className="font-poppins text-[14px] font-semibold text-[#17458f]">
+          <p className="font-open-sauce text-[14px] font-semibold text-[#17458f]">
             {maskContact(contact)}
           </p>
 

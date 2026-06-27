@@ -16,16 +16,16 @@ export default async function RegisterVerifyPage() {
       <AuthIllustration src="/auth/otp.png" />
 
       <AuthCard>
-        <h1 className="font-roboto-serif font-semibold text-[24px] text-black">
+        <h1 className="font-open-sauce font-semibold text-[24px] text-black">
           Verifikasi
         </h1>
 
         <div className="flex flex-col gap-[10px] items-center pt-[45px] pb-[42px] w-full">
-          <p className="font-poppins text-[14px] text-black text-center">
+          <p className="font-open-sauce text-[14px] text-black text-center">
             Masukkan kode 6 digit yang telah dikirim melalui{" "}
             {contact.includes("@") ? "email" : "WhatsApp"} ke
           </p>
-          <p className="font-poppins font-semibold text-[14px] text-[#17458f]">
+          <p className="font-open-sauce font-semibold text-[14px] text-[#17458f]">
             {maskContact(contact)}
           </p>
 

@@ -162,7 +162,7 @@ export function DevicesSettings({
         </div>
 
         {totalDevicesPages > 1 && (
-          <div className="mt-4 flex items-center justify-between gap-3 font-poppins text-[11px]">
+          <div className="mt-4 flex items-center justify-between gap-3 font-open-sauce text-[11px]">
             <button
               type="button"
               disabled={activeDevicesPage === 1}
@@ -228,7 +228,7 @@ export function DevicesSettings({
         </div>
 
         {totalSessionsPages > 1 && (
-          <div className="mt-4 flex items-center justify-between gap-3 font-poppins text-[11px]">
+          <div className="mt-4 flex items-center justify-between gap-3 font-open-sauce text-[11px]">
             <button
               type="button"
               disabled={activeSessionsPage === 1}

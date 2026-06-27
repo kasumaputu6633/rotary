@@ -128,7 +128,7 @@ function LocationImage({ location, className }: { location: WasteLocation; class
 
   return (
     <div className={`${className} flex items-center justify-center bg-[#edf3fb] text-[#17458f]`}>
-      <span className="font-poppins text-lg font-bold">{getInitials(location.namaUsaha) || "R"}</span>
+      <span className="font-open-sauce text-lg font-bold">{getInitials(location.namaUsaha) || "R"}</span>
     </div>
   );
 }
@@ -189,7 +189,7 @@ function LocationListCard({
 
       <div className="min-w-0">
         <div className="mb-1.5 flex items-center gap-2">
-          <span className="rounded-md bg-[#e8f0fb] px-2 py-1 font-poppins text-[10px] font-semibold text-[#17458f]">
+          <span className="rounded-md bg-[#e8f0fb] px-2 py-1 font-open-sauce text-[10px] font-semibold text-[#17458f]">
             {getLocationTypeLabel(location.type)}
           </span>
           {hasMapCoordinate(location) && (
@@ -198,10 +198,10 @@ function LocationListCard({
             </span>
           )}
         </div>
-        <h3 className="line-clamp-2 font-poppins text-[15px] font-semibold leading-snug text-[#171717]">
+        <h3 className="line-clamp-2 font-open-sauce text-[15px] font-semibold leading-snug text-[#171717]">
           {location.namaUsaha}
         </h3>
-        <p className="mt-1 line-clamp-2 font-poppins text-[12px] leading-relaxed text-[#5f6370]">
+        <p className="mt-1 line-clamp-2 font-open-sauce text-[12px] leading-relaxed text-[#5f6370]">
           {location.alamat || "Alamat belum tersedia"}
         </p>
         <div className="mt-3">
@@ -252,15 +252,15 @@ function LocationDetailCard({
         />
 
         <div className="min-w-0 pr-10 md:pr-0">
-          <p className="mb-2 flex items-center gap-2 font-poppins text-xs font-semibold text-[#17458f]">
+          <p className="mb-2 flex items-center gap-2 font-open-sauce text-xs font-semibold text-[#17458f]">
             <Icon icon="lucide:map-pin" width={15} height={15} className="text-[#f7a81b]" />
             {getLocationTypeLabel(location.type)}
           </p>
-          <h2 className="font-poppins text-[22px] font-semibold leading-tight text-[#171717] md:text-[24px]">
+          <h2 className="font-open-sauce text-[22px] font-semibold leading-tight text-[#171717] md:text-[24px]">
             {location.namaUsaha}
           </h2>
 
-          <div className="mt-4 grid gap-3 font-poppins text-[13px] text-[#4b5563]">
+          <div className="mt-4 grid gap-3 font-open-sauce text-[13px] text-[#4b5563]">
             <div>
               <p className="font-semibold text-[#171717]">Jam Operasional</p>
               <p className="mt-1 flex items-center gap-2">
@@ -295,20 +295,20 @@ function LocationDetailCard({
 
         <div className="flex h-full flex-col justify-between gap-5">
           <div>
-            <p className="mb-3 font-poppins text-[13px] font-semibold text-[#171717]">Sampah yang diterima</p>
+            <p className="mb-3 font-open-sauce text-[13px] font-semibold text-[#171717]">Sampah yang diterima</p>
             <MaterialBadges materials={location.jenisSampahDiterima} limit={8} />
           </div>
 
           <div className="space-y-2">
             {shareNotice && (
-              <p className="font-poppins text-xs font-semibold text-[#247839]">{shareNotice}</p>
+              <p className="font-open-sauce text-xs font-semibold text-[#247839]">{shareNotice}</p>
             )}
             <div className="grid grid-cols-2 gap-2">
               <a
                 href={buildDirectionsUrl(location)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-[#17458f] px-3 font-poppins text-[13px] font-semibold text-white transition hover:bg-[#123a79] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#17458f] focus-visible:ring-offset-2 active:translate-y-px"
+                className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-[#17458f] px-3 font-open-sauce text-[13px] font-semibold text-white transition hover:bg-[#123a79] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#17458f] focus-visible:ring-offset-2 active:translate-y-px"
               >
                 <Icon icon="lucide:navigation" width={16} height={16} />
                 Petunjuk arah
@@ -317,7 +317,7 @@ function LocationDetailCard({
                 type="button"
                 onClick={onRecenter}
                 disabled={!canRecenter}
-                className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-[#c5cbd6] bg-[#f8fafc] px-3 font-poppins text-[13px] font-semibold text-[#17458f] transition hover:border-[#9eb8df] hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#17458f] focus-visible:ring-offset-2 active:translate-y-px disabled:cursor-not-allowed disabled:border-[#d8deea] disabled:text-[#9aa3b2]"
+                className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-[#c5cbd6] bg-[#f8fafc] px-3 font-open-sauce text-[13px] font-semibold text-[#17458f] transition hover:border-[#9eb8df] hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#17458f] focus-visible:ring-offset-2 active:translate-y-px disabled:cursor-not-allowed disabled:border-[#d8deea] disabled:text-[#9aa3b2]"
               >
                 <Icon icon="lucide:crosshair" width={16} height={16} />
                 Pusatkan
@@ -327,7 +327,7 @@ function LocationDetailCard({
               <button
                 type="button"
                 onClick={onToggleSave}
-                className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-[#d8deea] bg-white px-3 font-poppins text-[13px] font-semibold text-[#5f6370] transition hover:border-[#f7a81b] hover:bg-[#fffaf0] hover:text-[#986a12] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#17458f] focus-visible:ring-offset-2 active:translate-y-px"
+                className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-[#d8deea] bg-white px-3 font-open-sauce text-[13px] font-semibold text-[#5f6370] transition hover:border-[#f7a81b] hover:bg-[#fffaf0] hover:text-[#986a12] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#17458f] focus-visible:ring-offset-2 active:translate-y-px"
               >
                 <Icon icon={isSaved ? "lucide:bookmark-check" : "lucide:bookmark"} width={16} height={16} />
                 {isSaved ? "Disimpan" : "Simpan"}
@@ -445,14 +445,14 @@ export default function WasteMapClient({ initialLocations }: WasteMapClientProps
       <aside className="relative z-20 flex max-h-none flex-col border-b border-[#d8deea] bg-white lg:h-[calc(100dvh-133px)] lg:border-b-0 lg:border-r">
         <div className="border-b border-[#e6eaf0] bg-white px-5 py-5 md:px-6">
           <div className="mb-4">
-            <p className="inline-flex items-center gap-2 font-poppins text-xs font-semibold text-[#17458f]">
+            <p className="inline-flex items-center gap-2 font-open-sauce text-xs font-semibold text-[#17458f]">
               <Icon icon="lucide:recycle" width={14} height={14} className="text-[#f7a81b]" aria-hidden="true" />
               Direktori limbah Bali
             </p>
-            <h1 className="mt-2 font-roboto-serif text-[26px] font-semibold leading-[1.15] text-[#171717] md:text-[28px]">
+            <h1 className="mt-2 font-open-sauce text-[26px] font-semibold leading-[1.15] text-[#171717] md:text-[28px]">
               Lokasi Penampung
             </h1>
-            <p className="mt-3 max-w-[42ch] font-poppins text-[13px] leading-6 text-[#5f6370]">
+            <p className="mt-3 max-w-[42ch] font-open-sauce text-[13px] leading-6 text-[#5f6370]">
               Temukan tempat yang menerima material tertentu tanpa mencampurnya dengan marketplace barang layak pakai.
             </p>
           </div>
@@ -474,12 +474,12 @@ export default function WasteMapClient({ initialLocations }: WasteMapClientProps
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
                 placeholder="Cari lokasi atau material..."
-                className="h-11 w-full rounded-lg border border-[#c5cbd6] bg-white pl-10 pr-3 font-poppins text-[13px] text-[#171717] outline-none transition placeholder:text-[#5f6370] focus:border-[#17458f] focus:ring-2 focus:ring-[#17458f]/15"
+                className="h-11 w-full rounded-lg border border-[#c5cbd6] bg-white pl-10 pr-3 font-open-sauce text-[13px] text-[#171717] outline-none transition placeholder:text-[#5f6370] focus:border-[#17458f] focus:ring-2 focus:ring-[#17458f]/15"
               />
             </label>
             <button
               type="submit"
-              className="h-11 rounded-lg bg-[#f7a81b] font-poppins text-[13px] font-semibold text-[#171717] transition hover:bg-[#e89a14] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#17458f] focus-visible:ring-offset-2 active:translate-y-px"
+              className="h-11 rounded-lg bg-[#f7a81b] font-open-sauce text-[13px] font-semibold text-[#171717] transition hover:bg-[#e89a14] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#17458f] focus-visible:ring-offset-2 active:translate-y-px"
             >
               Filter
             </button>
@@ -494,7 +494,7 @@ export default function WasteMapClient({ initialLocations }: WasteMapClientProps
                   key={material}
                   type="button"
                   onClick={() => setActiveMaterial(material)}
-                  className={`min-h-11 rounded-lg border px-3.5 py-2 font-poppins text-xs font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#17458f] focus-visible:ring-offset-2 ${
+                  className={`min-h-11 rounded-lg border px-3.5 py-2 font-open-sauce text-xs font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#17458f] focus-visible:ring-offset-2 ${
                     isActive
                       ? "border-[#f7a81b] bg-[#f7a81b] text-[#171717]"
                       : "border-[#d8deea] bg-white text-[#4b5563] hover:border-[#17458f] hover:text-[#17458f]"
@@ -508,7 +508,7 @@ export default function WasteMapClient({ initialLocations }: WasteMapClientProps
         </div>
 
         <div className="flex items-center justify-between px-5 py-4 md:px-6">
-          <h2 className="font-poppins text-[17px] font-semibold text-[#171717]">
+          <h2 className="font-open-sauce text-[17px] font-semibold text-[#171717]">
             {filteredLocations.length} Lokasi Ditemukan
           </h2>
           {(query || activeMaterial !== "Semua") && (
@@ -518,7 +518,7 @@ export default function WasteMapClient({ initialLocations }: WasteMapClientProps
                 setQuery("");
                 setActiveMaterial("Semua");
               }}
-              className="rounded-md px-2 py-1 font-poppins text-xs font-semibold text-[#17458f] transition hover:bg-[#e8f0fb] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#17458f] focus-visible:ring-offset-2"
+              className="rounded-md px-2 py-1 font-open-sauce text-xs font-semibold text-[#17458f] transition hover:bg-[#e8f0fb] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#17458f] focus-visible:ring-offset-2"
             >
               Reset
             </button>
@@ -540,10 +540,10 @@ export default function WasteMapClient({ initialLocations }: WasteMapClientProps
               <div className="mx-auto mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-[#e8f0fb] text-[#17458f]">
                 <Icon icon="lucide:map-pin-off" width={22} height={22} />
               </div>
-              <h3 className="font-poppins text-[17px] font-semibold text-[#171717]">
+              <h3 className="font-open-sauce text-[17px] font-semibold text-[#171717]">
                 Belum ada lokasi yang cocok
               </h3>
-              <p className="mx-auto mt-2 max-w-[32ch] font-poppins text-[13px] leading-6 text-[#5f6370]">
+              <p className="mx-auto mt-2 max-w-[32ch] font-open-sauce text-[13px] leading-6 text-[#5f6370]">
                 Coba ubah kata kunci atau pilih material lain. Data lokasi penampung akan muncul setelah admin menambahkannya.
               </p>
             </div>
@@ -561,7 +561,7 @@ export default function WasteMapClient({ initialLocations }: WasteMapClientProps
 
         {filteredLocations.length === 0 && (
           <div className="pointer-events-none absolute left-1/2 top-6 z-10 w-[calc(100%-32px)] max-w-md -translate-x-1/2 rounded-lg bg-white px-4 py-3 text-center shadow-[0_8px_12px_rgba(15,23,42,0.12)]">
-            <p className="font-poppins text-sm font-semibold text-gray-800">
+            <p className="font-open-sauce text-sm font-semibold text-gray-800">
               Peta akan menampilkan titik lokasi penampung yang sesuai filter.
             </p>
           </div>

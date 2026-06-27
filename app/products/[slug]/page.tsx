@@ -73,7 +73,7 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
       <ProductStickyNav hasRecommendations={recommendations.length > 0} title={product.title} />
       <main className="bg-white">
         <div className="mx-auto max-w-[1240px] px-4 py-6 sm:px-6 lg:py-8 xl:px-0">
-          <nav className="flex min-w-0 items-center gap-2 overflow-hidden whitespace-nowrap font-poppins text-[12px]" aria-label="Breadcrumb">
+          <nav className="flex min-w-0 items-center gap-2 overflow-hidden whitespace-nowrap font-open-sauce text-[12px]" aria-label="Breadcrumb">
             <Link href="/" className="shrink-0 text-[#17458f] hover:underline">Home</Link>
             <Icon icon="lucide:chevron-right" className="shrink-0 text-[#f7a81b]" aria-hidden="true" />
             <Link href={categoryHref} className="shrink-0 text-[#17458f] hover:underline">{product.category}</Link>
@@ -95,10 +95,10 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
             isOwner={userId === product.sellerId}
           >
             <div className="min-w-0">
-              <h1 className="font-poppins text-[19px] font-semibold leading-snug text-black md:text-[21px]">
+              <h1 className="font-open-sauce text-[19px] font-semibold leading-snug text-black md:text-[21px]">
                 {product.title}
               </h1>
-              <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 font-poppins text-[12px] text-[#6b7280]">
+              <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 font-open-sauce text-[12px] text-[#6b7280]">
                 <span>{formatPrice(product.price, product.mode) === "Gratis" ? "Barang donasi" : "Barang dijual"}</span>
                 {product.status === "reserved" ? (
                   <>
@@ -114,7 +114,7 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
                 <span className="h-1 w-1 rounded-full bg-[#cbd5e1]" aria-hidden="true" />
                 <span>{publicLocation}</span>
               </div>
-              <p className="mt-4 font-poppins text-[28px] font-bold leading-none text-black md:text-[30px]">
+              <p className="mt-4 font-open-sauce text-[28px] font-bold leading-none text-black md:text-[30px]">
                 {formatPrice(product.price, product.mode)}
               </p>
 
@@ -122,7 +122,7 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
                 <ProductInfoTabs product={product} />
               </div>
 
-              <div className="mt-7 border-t border-[#edf0f5] pt-5 font-poppins text-[13px] leading-relaxed text-black">
+              <div className="mt-7 border-t border-[#edf0f5] pt-5 font-open-sauce text-[13px] leading-relaxed text-black">
                 <h2 className="mb-3 text-[20px] font-semibold leading-tight">Deskripsi</h2>
                 <p className="whitespace-pre-line">{product.description || `${product.title} kondisi bekas siap pakai kembali. Mohon chat dulu untuk memastikan kondisi unit agar lebih aman.`}</p>
                 <div className="mt-5 rounded-lg border border-[#17458f]/15 bg-[#eef6ff] p-3 text-[12px] text-[#4b5563]">
@@ -133,14 +133,14 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
               </div>
 
               <section id="lokasi" className="mt-7 scroll-mt-[210px] border-t border-[#edf0f5] pt-5" aria-labelledby="listing-location-heading">
-                <h2 id="listing-location-heading" className="font-poppins text-[18px] font-semibold text-black">Perkiraan Area</h2>
+                <h2 id="listing-location-heading" className="font-open-sauce text-[18px] font-semibold text-black">Perkiraan Area</h2>
                 <div className="mt-3 grid gap-3 rounded-lg border border-[#d8deea] bg-white p-3 md:grid-cols-[minmax(0,220px)_1fr]">
                   {product.latitude && product.longitude ? (
                     <ListingMap latitude={product.latitude} longitude={product.longitude} locationLabel={publicLocation} />
                   ) : (
                     <MapPlaceholder />
                   )}
-                  <div className="font-poppins">
+                  <div className="font-open-sauce">
                     <p className="text-[14px] font-semibold text-black">{publicLocation}</p>
                     <p className="mt-1 text-[12px] leading-relaxed text-[#6b7280]">
                       Lokasi publik hanya menampilkan area kota/kabupaten. Alamat detail dibagikan langsung oleh pemilik saat chat, pengiriman, atau penjemputan.
@@ -155,14 +155,14 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
             <section id="rekomendasi" className="mt-10 scroll-mt-[210px] border-t border-[#e5e7eb] pt-8" aria-labelledby="recommendations-heading">
               <div className="flex flex-wrap items-end justify-between gap-3">
                 <div>
-                  <p className="font-poppins text-[12px] font-semibold uppercase tracking-[0.08em] text-[#17458f]">Kategori {product.category}</p>
-                  <h2 id="recommendations-heading" className="mt-1 font-poppins text-[22px] font-semibold text-black">
+                  <p className="font-open-sauce text-[12px] font-semibold uppercase tracking-[0.08em] text-[#17458f]">Kategori {product.category}</p>
+                  <h2 id="recommendations-heading" className="mt-1 font-open-sauce text-[22px] font-semibold text-black">
                     Barang serupa
                   </h2>
                 </div>
                 <Link
                   href={`/products?category=${encodeURIComponent(product.category)}`}
-                  className="inline-flex h-9 items-center gap-2 rounded-lg border border-[#cbd5e1] px-3 font-poppins text-[12px] font-semibold text-[#17458f] hover:bg-[#eef6ff]"
+                  className="inline-flex h-9 items-center gap-2 rounded-lg border border-[#cbd5e1] px-3 font-open-sauce text-[12px] font-semibold text-[#17458f] hover:bg-[#eef6ff]"
                 >
                   Lihat semua
                   <Icon icon="lucide:arrow-right" width={14} height={14} aria-hidden="true" />

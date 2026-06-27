@@ -137,7 +137,7 @@ export function ConfirmDialog({
 
   return (
     <div
-      className="modal-backdrop-enter fixed inset-0 z-[10050] flex items-end justify-center bg-[var(--color-overlay)] p-3 font-poppins sm:items-center sm:p-6"
+      className="modal-backdrop-enter fixed inset-0 z-[10050] flex items-end justify-center bg-[var(--color-overlay)] p-3 font-open-sauce sm:items-center sm:p-6"
       onMouseDown={(event) => {
         if (event.target === event.currentTarget && !isPending) onCancel();
       }}

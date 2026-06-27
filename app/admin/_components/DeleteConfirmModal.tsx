@@ -58,12 +58,12 @@ export default function DeleteConfirmModal({
                     </div>
 
                     {/* Title */}
-                    <h3 className="text-center font-poppins text-[17px] font-bold text-gray-900">
+                    <h3 className="text-center font-open-sauce text-[17px] font-bold text-gray-900">
                         {title}
                     </h3>
                     
                     {/* Description */}
-                    <div className="mt-1.5 text-center font-poppins text-[12.5px] text-gray-500 leading-relaxed">
+                    <div className="mt-1.5 text-center font-open-sauce text-[12.5px] text-gray-500 leading-relaxed">
                         {description}
                     </div>
 
@@ -75,7 +75,7 @@ export default function DeleteConfirmModal({
                     )}
 
                     {error && (
-                        <p className="mt-3 rounded-lg bg-red-50 px-3 py-2 font-poppins text-[12px] text-red-600">
+                        <p className="mt-3 rounded-lg bg-red-50 px-3 py-2 font-open-sauce text-[12px] text-red-600">
                             {error}
                         </p>
                     )}
@@ -85,14 +85,14 @@ export default function DeleteConfirmModal({
                         <button
                             onClick={onClose}
                             disabled={isPending}
-                            className="flex-1 rounded-xl border border-gray-200 py-2.5 font-poppins text-[13px] font-semibold text-gray-600 transition-colors hover:bg-gray-50 disabled:opacity-50"
+                            className="flex-1 rounded-xl border border-gray-200 py-2.5 font-open-sauce text-[13px] font-semibold text-gray-600 transition-colors hover:bg-gray-50 disabled:opacity-50"
                         >
                             Batal
                         </button>
                         <button
                             onClick={handleConfirm}
                             disabled={isPending}
-                            className="flex-1 flex items-center justify-center gap-1.5 rounded-xl bg-red-600 py-2.5 font-poppins text-[13px] font-semibold text-white transition-colors hover:bg-red-700 disabled:opacity-60"
+                            className="flex-1 flex items-center justify-center gap-1.5 rounded-xl bg-red-600 py-2.5 font-open-sauce text-[13px] font-semibold text-white transition-colors hover:bg-red-700 disabled:opacity-60"
                         >
                             {isPending ? (
                                 <Icon icon="lucide:loader-2" className="animate-spin" width={14} height={14} />

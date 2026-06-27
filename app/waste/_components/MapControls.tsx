@@ -20,7 +20,7 @@ export default function MapControls({
       <button
         type="button"
         onClick={onLocate}
-        className="flex h-11 items-center gap-2 rounded-lg border border-[#d8deea] bg-white px-3.5 font-poppins text-sm font-semibold text-[#4b5563] shadow-[0_6px_12px_rgba(15,23,42,0.12)] transition hover:border-[#9eb8df] hover:text-[#17458f] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#17458f] focus-visible:ring-offset-2 active:translate-y-px"
+        className="flex h-11 items-center gap-2 rounded-lg border border-[#d8deea] bg-white px-3.5 font-open-sauce text-sm font-semibold text-[#4b5563] shadow-[0_6px_12px_rgba(15,23,42,0.12)] transition hover:border-[#9eb8df] hover:text-[#17458f] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#17458f] focus-visible:ring-offset-2 active:translate-y-px"
       >
         <Icon
           icon={isLocating ? "lucide:loader-2" : "lucide:locate-fixed"}
