@@ -8,7 +8,7 @@ import type { MessageAttachment } from "../_hooks/useConversation";
 import { ConversationList } from "./ConversationList";
 import { ThreadView } from "./ThreadView";
 
-const hiddenPathPrefixes = ["/login", "/register", "/forgot-password", "/unauthorized", "/account", "/admin", "/dashboard"];
+const hiddenPathPrefixes = ["/login", "/register", "/forgot-password", "/unauthorized", "/account", "/admin", "/dashboard", "/waste"];
 
 export default function FloatingChat({ currentUserId }: { currentUserId: string | null }) {
   const pathname = usePathname();
