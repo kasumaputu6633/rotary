@@ -3,39 +3,6 @@ import Link from "next/link";
 import { listingCategoryGroups } from "@/lib/listing-taxonomy";
 import { getPublicListingCategoryCounts } from "@/lib/listings";
 
-const categoryIconStyles = [
-  {
-    iconBg: "bg-[#ecfdf5]",
-    iconText: "text-[#169b61]",
-    iconRing: "ring-[#b7efce]",
-  },
-  {
-    iconBg: "bg-[#eef6ff]",
-    iconText: "text-[#17458f]",
-    iconRing: "ring-[#bdd9ff]",
-  },
-  {
-    iconBg: "bg-[#fff7df]",
-    iconText: "text-[#c77800]",
-    iconRing: "ring-[#f6d47a]",
-  },
-  {
-    iconBg: "bg-[#fff0f5]",
-    iconText: "text-[#c63f6d]",
-    iconRing: "ring-[#efb3c7]",
-  },
-  {
-    iconBg: "bg-[#edfff9]",
-    iconText: "text-[#078876]",
-    iconRing: "ring-[#a8eadb]",
-  },
-  {
-    iconBg: "bg-[#f7f2ff]",
-    iconText: "text-[#6547ad]",
-    iconRing: "ring-[#cbb9f3]",
-  },
-];
-
 const categoryImages: Record<string, string> = {
   "Rumah Tangga": "/illustrations/categories/rumah-tangga.png",
   "Elektronik": "/illustrations/categories/elektronik.png",
@@ -52,8 +19,8 @@ export default async function HomeCategoryGrid() {
   return (
     <section className="bg-white py-12 md:py-16" aria-labelledby="home-categories-heading">
       <div className="mx-auto max-w-[1728px] px-8 lg:px-40">
-        <div className="ds-split-layout">
-          <div className="ds-split-header mb-8 lg:mb-0">
+        <div className="category-section">
+          <div className="category-section-header mb-8 lg:mb-0">
             <div>
               <span className="inline-flex items-center gap-1.5 font-open-sauce text-[11px] font-semibold uppercase tracking-[0.08em] text-[#17458f]">
                 <Icon icon="lucide:layout-grid" width={13} height={13} aria-hidden="true" />
@@ -83,22 +50,22 @@ export default async function HomeCategoryGrid() {
             </div>
           </div>
 
-          <div className="ds-v3-grid">
+          <div className="category-grid">
             {listingCategoryGroups.map((category) => {
               const imageUrl = categoryImages[category.name];
               return (
                 <Link
                   key={category.name}
                   href={`/products?category=${encodeURIComponent(category.name)}`}
-                  className="ds-v3-card group ds-v3-featured-card"
+                  className="category-card group"
                 >
-                  <div className="ds-v3-card-img-container">
+                  <div className="category-card-img-container">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={imageUrl} alt={category.name} className="ds-v3-card-img" />
+                    <img src={imageUrl} alt={category.name} className="category-card-img" />
                   </div>
-                  <div className="ds-v3-card-content font-open-sauce">
-                    <h3 className="ds-v3-title-text text-gray-800">{category.name}</h3>
-                    <span className="ds-v3-count-text text-gray-400">{categoryCountMap.get(category.name) ?? 0} listing</span>
+                  <div className="category-card-content font-open-sauce">
+                    <h3 className="category-card-title">{category.name}</h3>
+                    <span className="category-card-count">{categoryCountMap.get(category.name) ?? 0} listing</span>
                   </div>
                 </Link>
               );

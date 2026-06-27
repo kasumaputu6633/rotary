@@ -7,12 +7,6 @@ import NavbarAuthButtons from "./NavbarAuthButtons";
 import NavbarChatButton from "./NavbarChatButton";
 import NavbarNotificationButton from "./NavbarNotificationButton";
 
-const topLinks = [
-  { label: "Marketplace", href: "/products" },
-  { label: "Donasi", href: "/products?mode=donation" },
-  { label: "Lokasi Penampung", href: "/waste" },
-];
-
 const navLinks = [
   { label: "Marketplace", href: "/products" },
   { label: "Donasi", href: "/products?mode=donation" },
@@ -40,7 +34,7 @@ export default async function Navbar() {
             </div>
 
             <nav className="flex items-center gap-7" aria-label="Navigasi tambahan">
-              {topLinks.map((link) => (
+              {navLinks.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
