@@ -232,6 +232,13 @@
       "when": 1782827149788,
       "tag": "0032_fine_red_skull",
       "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "7",
+      "when": 1782846393375,
+      "tag": "0033_hesitant_firebird",
+      "breakpoints": true
     }
   ]
 }

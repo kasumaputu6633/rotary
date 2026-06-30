@@ -22,8 +22,11 @@ export const otpTypeEnum = pgEnum("otp_type", [
   "email_verify",
   "two_factor",
 ]);
-export const roleEnum = pgEnum("role", ["user", "admin"]);
-export const twoFactorMethodEnum = pgEnum("two_factor_method", ["email", "whatsapp"]);
+export const roleEnum = pgEnum("role", ["user", "admin", "super_admin"]);
+export const twoFactorMethodEnum = pgEnum("two_factor_method", [
+  "email",
+  "whatsapp",
+]);
 export const listingModeEnum = pgEnum("listing_mode", ["sale", "donation"]);
 export const listingStatusEnum = pgEnum("listing_status", [
   "draft",
@@ -42,32 +45,36 @@ export const dealStatusEnum = pgEnum("deal_status", [
   "completed",
   "cancelled",
 ]);
-export const contactPreferenceEnum = pgEnum("contact_preference", ["in_app", "whatsapp"]);
+export const contactPreferenceEnum = pgEnum("contact_preference", [
+  "in_app",
+  "whatsapp",
+]);
 
-export const users = pgTable(
-  "users",
-  {
-    id: uuid("id").primaryKey().defaultRandom(),
-    fullName: varchar("full_name", { length: 255 }),
-    shopName: varchar("shop_name", { length: 80 }),
-    email: varchar("email", { length: 255 }).unique(),
-    phone: varchar("phone", { length: 20 }).unique(),
-    passwordHash: text("password_hash"),
-    bio: text("bio"),
-    avatarUrl: text("avatar_url"),
-    avatarObjectKey: text("avatar_object_key"),
-    role: roleEnum("role").notNull().default("user"),
-    isVerified: boolean("is_verified").notNull().default(false),
-    emailVerifiedAt: timestamp("email_verified_at"),
-    phoneVerifiedAt: timestamp("phone_verified_at"),
-    whatsappContactEnabled: boolean("whatsapp_contact_enabled").notNull().default(false),
-    twoFactorEnabled: boolean("two_factor_enabled").notNull().default(false),
-    twoFactorMethod: twoFactorMethodEnum("two_factor_method").notNull().default("email"),
-    lastSeenAt: timestamp("last_seen_at"),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
-    updatedAt: timestamp("updated_at").notNull().defaultNow(),
-  },
-);
+export const users = pgTable("users", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  fullName: varchar("full_name", { length: 255 }),
+  shopName: varchar("shop_name", { length: 80 }),
+  email: varchar("email", { length: 255 }).unique(),
+  phone: varchar("phone", { length: 20 }).unique(),
+  passwordHash: text("password_hash"),
+  bio: text("bio"),
+  avatarUrl: text("avatar_url"),
+  avatarObjectKey: text("avatar_object_key"),
+  role: roleEnum("role").notNull().default("user"),
+  isVerified: boolean("is_verified").notNull().default(false),
+  emailVerifiedAt: timestamp("email_verified_at"),
+  phoneVerifiedAt: timestamp("phone_verified_at"),
+  whatsappContactEnabled: boolean("whatsapp_contact_enabled")
+    .notNull()
+    .default(false),
+  twoFactorEnabled: boolean("two_factor_enabled").notNull().default(false),
+  twoFactorMethod: twoFactorMethodEnum("two_factor_method")
+    .notNull()
+    .default("email"),
+  lastSeenAt: timestamp("last_seen_at"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
 
 export const otpCodes = pgTable(
   "otp_codes",
@@ -82,8 +89,15 @@ export const otpCodes = pgTable(
     createdAt: timestamp("created_at").notNull().defaultNow(),
   },
   (table) => [
-    index("otp_codes_contact_type_created_idx").on(table.contact, table.type, table.createdAt),
-    check("otp_codes_attempts_check", sql`${table.attempts} >= 0 AND ${table.attempts} <= 5`),
+    index("otp_codes_contact_type_created_idx").on(
+      table.contact,
+      table.type,
+      table.createdAt,
+    ),
+    check(
+      "otp_codes_attempts_check",
+      sql`${table.attempts} >= 0 AND ${table.attempts} <= 5`,
+    ),
   ],
 );
 
@@ -99,9 +113,7 @@ export const passwordResetTokens = pgTable(
     used: boolean("used").notNull().default(false),
     createdAt: timestamp("created_at").notNull().defaultNow(),
   },
-  (table) => [
-    index("password_reset_tokens_user_id_idx").on(table.userId),
-  ],
+  (table) => [index("password_reset_tokens_user_id_idx").on(table.userId)],
 );
 
 export const userDevices = pgTable(
@@ -111,7 +123,9 @@ export const userDevices = pgTable(
     userId: uuid("user_id")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
-    deviceTokenHash: varchar("device_token_hash", { length: 64 }).notNull().unique(),
+    deviceTokenHash: varchar("device_token_hash", { length: 64 })
+      .notNull()
+      .unique(),
     deviceName: varchar("device_name", { length: 120 }).notNull(),
     userAgent: text("user_agent"),
     ipAddress: varchar("ip_address", { length: 64 }),
@@ -133,8 +147,9 @@ export const accountSessions = pgTable(
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
     tokenHash: varchar("token_hash", { length: 64 }).notNull().unique(),
-    deviceId: uuid("device_id")
-      .references(() => userDevices.id, { onDelete: "set null" }),
+    deviceId: uuid("device_id").references(() => userDevices.id, {
+      onDelete: "set null",
+    }),
     userAgent: text("user_agent"),
     ipAddress: varchar("ip_address", { length: 64 }),
     lastActiveAt: timestamp("last_active_at").notNull().defaultNow(),
@@ -167,8 +182,14 @@ export const loginActivities = pgTable(
     createdAt: timestamp("created_at").notNull().defaultNow(),
   },
   (table) => [
-    index("login_activities_user_created_idx").on(table.userId, table.createdAt),
-    check("login_activities_status_check", sql`${table.status} IN ('success', 'failed', 'info')`),
+    index("login_activities_user_created_idx").on(
+      table.userId,
+      table.createdAt,
+    ),
+    check(
+      "login_activities_status_check",
+      sql`${table.status} IN ('success', 'failed', 'info')`,
+    ),
   ],
 );
 
@@ -183,11 +204,8 @@ export const userRecoveryCodes = pgTable(
     usedAt: timestamp("used_at"),
     createdAt: timestamp("created_at").notNull().defaultNow(),
   },
-  (table) => [
-    index("user_recovery_codes_user_id_idx").on(table.userId),
-  ],
+  (table) => [index("user_recovery_codes_user_id_idx").on(table.userId)],
 );
-
 
 export const listings = pgTable(
   "listings",
@@ -211,7 +229,9 @@ export const listings = pgTable(
     longitude: doublePrecision("longitude"),
     handoverOptions: text("handover_options").array(),
     status: listingStatusEnum("status").notNull().default("draft"),
-    contactPreference: contactPreferenceEnum("contact_preference").notNull().default("in_app"),
+    contactPreference: contactPreferenceEnum("contact_preference")
+      .notNull()
+      .default("in_app"),
     viewCount: integer("view_count").notNull().default(0),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
@@ -220,9 +240,7 @@ export const listings = pgTable(
     completedAt: timestamp("completed_at"),
     verificationSentAt: timestamp("verification_sent_at"),
   },
-  (table) => [
-    index("listings_seller_id_idx").on(table.sellerId),
-  ],
+  (table) => [index("listings_seller_id_idx").on(table.sellerId)],
 );
 
 export const listingImages = pgTable(
@@ -237,9 +255,7 @@ export const listingImages = pgTable(
     sortOrder: integer("sort_order").notNull().default(0),
     createdAt: timestamp("created_at").notNull().defaultNow(),
   },
-  (table) => [
-    index("listing_images_listing_id_idx").on(table.listingId),
-  ],
+  (table) => [index("listing_images_listing_id_idx").on(table.listingId)],
 );
 
 export const favoriteListings = pgTable(
@@ -256,7 +272,10 @@ export const favoriteListings = pgTable(
   },
   (table) => [
     index("favorite_listings_listing_id_idx").on(table.listingId),
-    uniqueIndex("favorite_listings_user_listing_unique").on(table.userId, table.listingId),
+    uniqueIndex("favorite_listings_user_listing_unique").on(
+      table.userId,
+      table.listingId,
+    ),
   ],
 );
 
