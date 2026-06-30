@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import { Icon } from "@iconify/react";
 
 export default function HomeWasteHighlight() {
   return (
@@ -31,8 +32,15 @@ export default function HomeWasteHighlight() {
               <span className="text-gray-500">dan lainnya</span>
             </div>
 
-            <Link href="/waste" className="inline-flex items-center gap-2 bg-[#17458f] hover:bg-[#123a78] text-white px-5 py-2.5 rounded-lg font-semibold text-[13px] transition-colors">
-              Cari Lokasi Terdekat &rarr;
+            <Link href="/waste" className="group inline-flex items-center gap-2 bg-[#17458f] hover:bg-[#123a78] text-white px-5 py-2.5 rounded-lg font-semibold text-[13px] transition-colors">
+              Cari Lokasi Terdekat
+              <Icon
+                icon="lucide:arrow-right"
+                width={14}
+                height={14}
+                aria-hidden="true"
+                className="transition-transform duration-200 group-hover:translate-x-0.5"
+              />
             </Link>
           </div>
 
