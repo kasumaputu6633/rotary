@@ -6,7 +6,7 @@ import AdminRowActions from "../../_components/AdminRowActions";
 
 export interface WasteLocation {
     id: string;
-    type: "tps" | "vendor";
+    type: string;
     namaUsaha: string;
     namaPic?: string | null;
     emailKontak?: string | null;
@@ -178,17 +178,16 @@ export default function LocationCard({
                 </div>
             </div>
 
-            {/* Center : Badge */}
             <div className="flex justify-center px-4">
-                {type === "tps" ? (
-                    <span className="inline-flex items-center rounded-full bg-[#0B2545] px-4 py-1 text-[10px] font-bold text-white uppercase tracking-wider shadow-sm">
-                        TPS
-                    </span>
-                ) : (
-                    <span className="inline-flex items-center rounded-full bg-[#E53E3E] px-4 py-1 text-[10px] font-bold text-white uppercase tracking-wider shadow-sm">
-                        Vendor
-                    </span>
-                )}
+                <span
+                    className={`inline-flex items-center rounded-full px-4 py-1 text-[10px] font-bold text-white uppercase tracking-wider shadow-sm ${
+                        type === "tps" ? "bg-[#0B2545]" :
+                        type === "vendor" ? "bg-[#E53E3E]" :
+                        "bg-[#5543a9]"
+                    }`}
+                >
+                    {type.split(/[_\s-]+/).map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ")}
+                </span>
             </div>
             {/* Waste Types */}
             <div className="grid grid-cols-4 gap-2 px-6 min-w-[340px]">

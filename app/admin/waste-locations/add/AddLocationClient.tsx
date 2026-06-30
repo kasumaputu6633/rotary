@@ -40,7 +40,7 @@ function LivePreview({
     name, type, address, operatingHours, phone, email, website, latitude, longitude,
     selectedWasteTypes, previewUrl,
 }: {
-    name: string; type: "tps" | "vendor"; address: string;
+    name: string; type: string; address: string;
     operatingHours: any; phone: string; email: string; website: string; latitude: string; longitude: string;
     selectedWasteTypes: string[]; previewUrl: string | null;
 }) {
@@ -105,9 +105,11 @@ function LivePreview({
                                     )}
                                 </div>
                                 <span className={`shrink-0 rounded-full px-2.5 py-0.5 font-open-sauce text-[9px] font-bold text-white uppercase select-none ${
-                                    type === "tps" ? "bg-[#0B2545]" : "bg-[#E53E3E]"
+                                    type === "tps" ? "bg-[#0B2545]" :
+                                    type === "vendor" ? "bg-[#E53E3E]" :
+                                    "bg-[#5543a9]"
                                 }`}>
-                                    {type}
+                                    {type.split(/[_\s-]+/).map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ")}
                                 </span>
                             </div>
 
@@ -188,7 +190,7 @@ export default function AddLocationClient() {
     const router = useRouter();
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    const [type, setType]                             = useState<"tps" | "vendor">("tps");
+    const [type, setType]                             = useState<string>("tps");
     const [name, setName]                             = useState("");
     const [email, setEmail]                           = useState("");
     const [phone, setPhone]                           = useState("");
@@ -197,6 +199,7 @@ export default function AddLocationClient() {
     const [latitude, setLatitude]                     = useState("");
     const [longitude, setLongitude]                   = useState("");
     const [selectedWasteTypes, setSelectedWasteTypes] = useState<string[]>([]);
+    const [customWasteInput, setCustomWasteInput]     = useState("");
     
     // Operating hours state
     const [selectedDays, setSelectedDays] = useState<string[]>(["monday", "tuesday", "wednesday", "thursday", "friday"]);
@@ -246,6 +249,17 @@ export default function AddLocationClient() {
 
     const toggleWasteType = (key: string) =>
         setSelectedWasteTypes((p) => p.includes(key) ? p.filter((t) => t !== key) : [...p, key]);
+
+    const addCustomWasteType = () => {
+        const trimmed = customWasteInput.trim();
+        if (!trimmed) return;
+        // Capitalize first letter
+        const normalized = trimmed.charAt(0).toUpperCase() + trimmed.slice(1);
+        if (!selectedWasteTypes.includes(normalized)) {
+            setSelectedWasteTypes((p) => [...p, normalized]);
+        }
+        setCustomWasteInput("");
+    };
 
     // ── Submit ─────────────────────────────────────────────────────────────
     const handleSubmit = async (e: React.FormEvent) => {
@@ -396,43 +410,45 @@ export default function AddLocationClient() {
                                 onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFileSelect(f); }} />
                         </div>
 
-                        {/* ── 2. Tipe Lokasi (Radio Buttons) ─────────────── */}
+                        {/* ── 2. Tipe Lokasi ─────────────────────────────── */}
                         <div className="px-6 py-5 space-y-3">
                             <p className="font-open-sauce text-[13px] font-bold text-gray-700">Tipe Lokasi <span className="text-red-500">*</span></p>
-                            <div className="flex flex-col sm:flex-row gap-4">
-                                <label className={`flex-1 flex items-center justify-between p-3.5 rounded-xl border-2 cursor-pointer transition select-none ${
-                                    type === "tps" 
-                                        ? "border-[#0B2545] bg-[#0B2545]/5 text-[#0B2545] font-bold" 
-                                        : "border-gray-200 bg-white text-gray-600 hover:border-gray-300"
-                                }`}>
-                                    <div className="flex items-center gap-2.5">
-                                        <input type="radio" name="type" value="tps" checked={type === "tps"} onChange={() => setType("tps")} className="hidden" />
-                                        <div className={`h-4 w-4 rounded-full border-2 flex items-center justify-center ${type === "tps" ? "border-[#0B2545]" : "border-gray-300"}`}>
-                                            {type === "tps" && <div className="h-2 w-2 rounded-full bg-[#0B2545]" />}
-                                        </div>
-                                        <span className="font-open-sauce text-[13px]">TPS (Tempat Pembuangan Sementara)</span>
-                                    </div>
-                                </label>
-                                
-                                <label className={`flex-1 flex items-center justify-between p-3.5 rounded-xl border-2 cursor-pointer transition select-none ${
-                                    type === "vendor" 
-                                        ? "border-[#E53E3E] bg-[#E53E3E]/5 text-[#E53E3E] font-bold" 
-                                        : "border-gray-200 bg-white text-gray-600 hover:border-gray-300"
-                                }`}>
-                                    <div className="flex items-center gap-2.5">
-                                        <input type="radio" name="type" value="vendor" checked={type === "vendor"} onChange={() => setType("vendor")} className="hidden" />
-                                        <div className={`h-4 w-4 rounded-full border-2 flex items-center justify-center ${type === "vendor" ? "border-[#E53E3E]" : "border-gray-300"}`}>
-                                            {type === "vendor" && <div className="h-2 w-2 rounded-full bg-[#E53E3E]" />}
-                                        </div>
-                                        <span className="font-open-sauce text-[13px]">Vendor / Pusat Daur Ulang</span>
-                                    </div>
-                                </label>
+                            {/* Quick-select preset */}
+                            <div className="flex flex-wrap gap-2">
+                                {["tps", "vendor", "bank_sampah", "komunitas", "dropbox"].map((preset) => (
+                                    <button
+                                        key={preset}
+                                        type="button"
+                                        onClick={() => setType(preset)}
+                                        className={`rounded-lg px-3.5 py-1.5 font-open-sauce text-[12px] font-semibold transition border-2 ${
+                                            type === preset
+                                                ? "border-[#0B2545] bg-[#0B2545] text-white"
+                                                : "border-gray-200 bg-white text-gray-600 hover:border-[#0B2545] hover:text-[#0B2545]"
+                                        }`}
+                                    >
+                                        {preset.split(/[_\s-]+/).map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ")}
+                                    </button>
+                                ))}
                             </div>
+                            {/* Manual input untuk tipe custom */}
+                            <div className="relative">
+                                <input
+                                    type="text"
+                                    name="type"
+                                    value={type}
+                                    onChange={(e) => setType(e.target.value.toLowerCase().replace(/\s+/g, "_"))}
+                                    placeholder="tps / vendor / bank_sampah / ..."
+                                    className="w-full rounded-xl border-2 border-gray-200 bg-white py-3 px-4 font-open-sauce text-[13px] text-gray-800 outline-none transition focus:border-[#0B2545] focus:ring-2 focus:ring-[#0B2545]/10"
+                                    required
+                                />
+                            </div>
+                            <p className="font-open-sauce text-[11px] text-gray-400">Pilih preset di atas atau ketik manual. Gunakan huruf kecil dan garis bawah, contoh: <code>bank_sampah</code></p>
                         </div>
 
                         {/* ── 3. Jenis Sampah ────────────────────────────── */}
                         <div className="px-6 py-5 space-y-3">
                             <p className="font-open-sauce text-[13px] font-bold text-gray-700">Jenis Sampah Yang Diterima <span className="text-red-500">*</span></p>
+                            {/* Preset chips */}
                             <div className="flex flex-wrap gap-2">
                                 {WASTE_TYPES.map((t) => {
                                     const sel = selectedWasteTypes.includes(t.key);
@@ -449,7 +465,46 @@ export default function AddLocationClient() {
                                         </button>
                                     );
                                 })}
+                                {/* Custom types yang sudah ditambahkan */}
+                                {selectedWasteTypes
+                                    .filter((t) => !WASTE_TYPES.find((w) => w.key === t))
+                                    .map((custom) => (
+                                        <button
+                                            key={custom}
+                                            type="button"
+                                            onClick={() => toggleWasteType(custom)}
+                                            className="inline-flex items-center gap-2 rounded-xl border border-[#f7a81b] bg-[#f7a81b] px-3.5 py-2 font-open-sauce text-[12.5px] font-semibold text-white shadow-sm shadow-[#f7a81b]/20 transition-all select-none"
+                                        >
+                                            <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded border-2 border-white bg-white">
+                                                <Icon icon="lucide:check" width={10} height={10} className="text-[#f7a81b]" />
+                                            </span>
+                                            {custom}
+                                            <Icon icon="lucide:x" width={11} height={11} className="ml-0.5 opacity-80" />
+                                        </button>
+                                    ))
+                                }
                             </div>
+                            {/* Input tambah jenis sampah custom */}
+                            <div className="flex gap-2">
+                                <input
+                                    type="text"
+                                    value={customWasteInput}
+                                    onChange={(e) => setCustomWasteInput(e.target.value)}
+                                    onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addCustomWasteType(); } }}
+                                    placeholder="Tambah jenis lain, misal: Baterai, Minyak Jelantah..."
+                                    className="flex-1 rounded-xl border border-gray-200 bg-white px-4 py-2 font-open-sauce text-[12.5px] text-gray-800 placeholder-gray-400 outline-none transition focus:border-[#f7a81b] focus:ring-2 focus:ring-[#f7a81b]/10"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={addCustomWasteType}
+                                    disabled={!customWasteInput.trim()}
+                                    className="flex items-center gap-1.5 rounded-xl border border-[#f7a81b] bg-[#f7a81b] px-4 py-2 font-open-sauce text-[12.5px] font-semibold text-white transition hover:bg-[#e89a14] disabled:cursor-not-allowed disabled:opacity-40"
+                                >
+                                    <Icon icon="lucide:plus" width={14} height={14} />
+                                    Tambah
+                                </button>
+                            </div>
+                            <p className="font-open-sauce text-[11px] text-gray-400">Klik chip yang aktif (kuning) untuk menghapusnya dari pilihan.</p>
                         </div>
 
                         {/* ── 4. Informasi Lokasi ────────────────────────── */}

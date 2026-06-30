@@ -114,7 +114,10 @@ export default function LocationDetailSheet({ location, onClose, isCollapsed, on
 
   const isVendor = location.type === "vendor";
   const title = location.namaUsaha;
-  const category = isVendor ? "Vendor" : "TPS";
+  const category = location.type
+    .split(/[_\s-]+/)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(" ");
   
   // Ambil gambar dari DB atau pakai default image
   const coverImage = location.imageUrl || "https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?q=80&w=2070&auto=format&fit=crop";

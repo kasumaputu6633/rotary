@@ -76,7 +76,7 @@ export default function LocationModal({
 }: LocationModalProps) {
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    const [type, setType]                             = useState<"tps" | "vendor">("tps");
+    const [type, setType]                             = useState<string>("tps");
     const [name, setName]                             = useState("");
     const [email, setEmail]                           = useState("");
     const [phone, setPhone]                           = useState("");
@@ -85,6 +85,7 @@ export default function LocationModal({
     const [latitude, setLatitude]                     = useState("");
     const [longitude, setLongitude]                   = useState("");
     const [selectedWasteTypes, setSelectedWasteTypes] = useState<string[]>([]);
+    const [customWasteInput, setCustomWasteInput]     = useState("");
     
     // Operating hours state
     const [selectedDays, setSelectedDays] = useState<string[]>(["monday", "tuesday", "wednesday", "thursday", "friday"]);
@@ -180,6 +181,16 @@ export default function LocationModal({
                 ? prev.filter((t) => t !== typeKey)
                 : [...prev, typeKey]
         );
+    }
+
+    function addCustomWasteType() {
+        const trimmed = customWasteInput.trim();
+        if (!trimmed) return;
+        const normalized = trimmed.charAt(0).toUpperCase() + trimmed.slice(1);
+        if (!selectedWasteTypes.includes(normalized)) {
+            setSelectedWasteTypes((prev) => [...prev, normalized]);
+        }
+        setCustomWasteInput("");
     }
 
     async function handleSubmit(e: React.FormEvent) {
@@ -323,36 +334,39 @@ export default function LocationModal({
                             onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFileSelect(f); }} />
                     </div>
 
-                    {/* Radio Tipe Lokasi */}
+                    {/* Tipe Lokasi */}
                     <div className="space-y-1.5">
                         <label className="block font-open-sauce text-[12px] font-bold text-gray-500 uppercase tracking-wider">
                             Tipe Lokasi <span className="text-red-500">*</span>
                         </label>
-                        <div className="flex gap-4">
-                            <label className={`flex-1 flex items-center gap-2 p-2.5 rounded-xl border cursor-pointer transition select-none ${
-                                type === "tps" 
-                                    ? "border-[#0B2545] bg-[#0B2545]/5 text-[#0B2545] font-bold" 
-                                    : "border-gray-200 bg-white text-gray-600"
-                            }`}>
-                                <input type="radio" name="modal-type" value="tps" checked={type === "tps"} onChange={() => setType("tps")} className="hidden" />
-                                <div className={`h-4.5 w-4.5 rounded-full border flex items-center justify-center ${type === "tps" ? "border-[#0B2545]" : "border-gray-300"}`}>
-                                    {type === "tps" && <div className="h-2 w-2 rounded-full bg-[#0B2545]" />}
-                                </div>
-                                <span className="font-open-sauce text-[12px]">TPS</span>
-                            </label>
-                            
-                            <label className={`flex-1 flex items-center gap-2 p-2.5 rounded-xl border cursor-pointer transition select-none ${
-                                type === "vendor" 
-                                    ? "border-[#E53E3E] bg-[#E53E3E]/5 text-[#E53E3E] font-bold" 
-                                    : "border-gray-200 bg-white text-gray-600"
-                            }`}>
-                                <input type="radio" name="modal-type" value="vendor" checked={type === "vendor"} onChange={() => setType("vendor")} className="hidden" />
-                                <div className={`h-4.5 w-4.5 rounded-full border flex items-center justify-center ${type === "vendor" ? "border-[#E53E3E]" : "border-gray-300"}`}>
-                                    {type === "vendor" && <div className="h-2 w-2 rounded-full bg-[#E53E3E]" />}
-                                </div>
-                                <span className="font-open-sauce text-[12px]">Vendor</span>
-                            </label>
+                        {/* Quick-select preset */}
+                        <div className="flex gap-2 flex-wrap mb-2">
+                            {["tps", "vendor", "bank_sampah", "komunitas", "dropbox"].map((preset) => (
+                                <button
+                                    key={preset}
+                                    type="button"
+                                    onClick={() => setType(preset)}
+                                    className={`rounded-lg px-3 py-1 font-open-sauce text-[11px] font-semibold transition border ${
+                                        type === preset
+                                            ? "border-[#0B2545] bg-[#0B2545] text-white"
+                                            : "border-gray-200 bg-white text-gray-600 hover:border-[#0B2545] hover:text-[#0B2545]"
+                                    }`}
+                                >
+                                    {preset.split(/[_\s-]+/).map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ")}
+                                </button>
+                            ))}
                         </div>
+                        {/* Manual input untuk tipe custom */}
+                        <input
+                            type="text"
+                            name="type"
+                            value={type}
+                            onChange={(e) => setType(e.target.value.toLowerCase().replace(/\s+/g, "_"))}
+                            placeholder="tps / vendor / bank_sampah / ..."
+                            className="w-full rounded-xl border border-gray-200 bg-white py-2 px-4 font-open-sauce text-[13px] text-gray-800 outline-none transition focus:border-[#0B2545] focus:ring-2 focus:ring-[#0B2545]/10"
+                            required
+                        />
+                        <p className="font-open-sauce text-[11px] text-gray-400">Gunakan huruf kecil dan garis bawah, contoh: <code>bank_sampah</code></p>
                     </div>
 
                     {/* Name */}
@@ -461,6 +475,7 @@ export default function LocationModal({
                         <label className="block font-open-sauce text-[12px] font-bold text-gray-500 uppercase tracking-wider">
                             Jenis Sampah yang Diterima <span className="text-red-500">*</span>
                         </label>
+                        {/* Preset chips */}
                         <div className="flex flex-wrap gap-1.5">
                             {wasteTypes.map((typeKey) => {
                                 const isSelected = selectedWasteTypes.includes(typeKey);
@@ -484,7 +499,44 @@ export default function LocationModal({
                                     </button>
                                 );
                             })}
+                            {/* Custom types yang sudah ditambahkan */}
+                            {selectedWasteTypes
+                                .filter((t) => !wasteTypes.includes(t))
+                                .map((custom) => (
+                                    <button
+                                        key={custom}
+                                        type="button"
+                                        onClick={() => handleToggleWasteType(custom)}
+                                        className="inline-flex items-center gap-1.5 border rounded-xl px-3 py-1.5 font-open-sauce text-[12px] font-semibold bg-[#17458f] text-white border-[#17458f] shadow-sm transition select-none"
+                                    >
+                                        <Icon icon="lucide:check" width={12} height={12} />
+                                        {custom}
+                                        <Icon icon="lucide:x" width={10} height={10} className="opacity-70" />
+                                    </button>
+                                ))
+                            }
                         </div>
+                        {/* Input tambah jenis sampah custom */}
+                        <div className="flex gap-2 pt-1">
+                            <input
+                                type="text"
+                                value={customWasteInput}
+                                onChange={(e) => setCustomWasteInput(e.target.value)}
+                                onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addCustomWasteType(); } }}
+                                placeholder="Tambah jenis lain, misal: Baterai, Minyak Jelantah..."
+                                className="flex-1 rounded-xl border border-gray-200 bg-white px-3.5 py-1.5 font-open-sauce text-[12px] text-gray-800 placeholder-gray-400 outline-none transition focus:border-[#17458f] focus:ring-2 focus:ring-[#17458f]/10"
+                            />
+                            <button
+                                type="button"
+                                onClick={addCustomWasteType}
+                                disabled={!customWasteInput.trim()}
+                                className="flex items-center gap-1 rounded-xl border border-[#17458f] bg-[#17458f] px-3.5 py-1.5 font-open-sauce text-[12px] font-semibold text-white transition hover:bg-[#123a79] disabled:cursor-not-allowed disabled:opacity-40"
+                            >
+                                <Icon icon="lucide:plus" width={13} height={13} />
+                                Tambah
+                            </button>
+                        </div>
+                        <p className="font-open-sauce text-[11px] text-gray-400">Klik chip aktif untuk menghapus dari pilihan.</p>
                     </div>
 
                     {/* Jam Operasional */}

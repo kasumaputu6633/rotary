@@ -25,7 +25,7 @@ export async function getWasteLocationsAdmin() {
 export async function createWasteLocationAction(formData: FormData) {
   await requireRole("admin");
 
-  const type = formData.get("type") as "tps" | "vendor";
+  const type = formData.get("type") as string;
   const namaUsaha = formData.get("namaUsaha") as string;
   const emailKontak = formData.get("emailKontak") as string;
   const teleponKontak = formData.get("teleponKontak") as string;
@@ -91,7 +91,7 @@ export async function createWasteLocationAction(formData: FormData) {
 export async function updateWasteLocationAction(id: string, formData: FormData) {
   await requireRole("admin");
 
-  const type = formData.get("type") as "tps" | "vendor";
+  const type = formData.get("type") as string;
   const namaUsaha = formData.get("namaUsaha") as string;
   const emailKontak = formData.get("emailKontak") as string;
   const teleponKontak = formData.get("teleponKontak") as string;

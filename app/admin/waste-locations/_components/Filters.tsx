@@ -10,6 +10,7 @@ interface FiltersProps {
     selectedWasteType: string;
     setSelectedWasteType: (type: string) => void;
     wasteTypes: string[];
+    locationTypes: string[];
 }
 
 export default function Filters({
@@ -20,6 +21,7 @@ export default function Filters({
     selectedWasteType,
     setSelectedWasteType,
     wasteTypes,
+    locationTypes,
 }: FiltersProps) {
     return (
         <div className="flex flex-wrap items-center gap-3">
@@ -60,8 +62,11 @@ export default function Filters({
                         className="appearance-none rounded-xl border border-gray-200 bg-white py-2 pl-4 pr-10 font-open-sauce text-[13px] font-medium text-gray-700 outline-none transition hover:border-gray-300 focus:border-[#f7a81b] focus:ring-2 focus:ring-[#f7a81b]/10"
                     >
                         <option value="">Semua Tipe Lokasi</option>
-                        <option value="tps">TPS</option>
-                        <option value="vendor">Vendor</option>
+                        {locationTypes.map((t) => (
+                            <option key={t} value={t}>
+                                {t.split(/[_\s-]+/).map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ")}
+                            </option>
+                        ))}
                     </select>
 
                     <Icon

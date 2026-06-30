@@ -225,6 +225,13 @@
       "when": 1782500178863,
       "tag": "0031_curved_blonde_phantom",
       "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "7",
+      "when": 1782827149788,
+      "tag": "0032_fine_red_skull",
+      "breakpoints": true
     }
   ]
 }

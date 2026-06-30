@@ -53,7 +53,13 @@ function getMaterialStyles(material: string) {
 }
 
 function getLocationTypeLabel(type: WasteLocation["type"]) {
-  return type === "vendor" ? "Partner Penampung" : "Tempat Penampung";
+  if (type === "vendor") return "Partner Penampung";
+  if (type === "tps") return "Tempat Penampung";
+  // Handle tipe dinamis baru dari admin (e.g. "bank_sampah" → "Bank Sampah")
+  return type
+    .split(/[_\s-]+/)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(" ");
 }
 
 function hasMapCoordinate(location: WasteLocation) {

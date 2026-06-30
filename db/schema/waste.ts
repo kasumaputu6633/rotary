@@ -5,9 +5,7 @@ import {
   text,
   boolean,
   timestamp,
-  pgEnum,
   doublePrecision,
-  integer,
   jsonb,
   index,
   uniqueIndex
@@ -15,11 +13,10 @@ import {
 
 import { users } from "./auth";
 
-export const wasteLocationTypeEnum = pgEnum("waste_location_type", ["tps", "vendor"]);
-
 export const wasteLocations = pgTable("waste_locations", {
   id: uuid("id").primaryKey().defaultRandom(),
-  type: wasteLocationTypeEnum("type").notNull().default("tps"),
+  // varchar agar admin bisa menambah tipe baru (bank_sampah, dropbox, komunitas, dll.) tanpa migrasi DDL
+  type: varchar("type", { length: 50 }).notNull().default("tps"),
   namaUsaha: varchar("nama_usaha", { length: 255 }).notNull(),
   namaPic: varchar("nama_pic", { length: 255 }),
   emailKontak: varchar("email_kontak", { length: 255 }),

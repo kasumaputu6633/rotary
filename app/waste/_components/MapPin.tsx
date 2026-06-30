@@ -9,8 +9,9 @@ interface MapPinProps {
 
 export default function MapPin({ type, isSelected, onClick }: MapPinProps) {
   const isTps = type === "tps";
-  const bgColor = isTps ? "bg-[#17458f]" : "bg-[#2f7d49]";
-  const icon = isTps ? "lucide:warehouse" : "lucide:recycle";
+  const isVendor = type === "vendor";
+  const bgColor = isTps ? "bg-[#17458f]" : isVendor ? "bg-[#2f7d49]" : "bg-[#5543a9]";
+  const icon = isTps ? "lucide:warehouse" : isVendor ? "lucide:recycle" : "lucide:building-2";
   const pinSize = isSelected ? "h-10 w-10" : isTps ? "h-8 w-8" : "h-7 w-7";
   const iconSize = isSelected ? "h-5 w-5" : isTps ? "h-4 w-4" : "h-3.5 w-3.5";
 

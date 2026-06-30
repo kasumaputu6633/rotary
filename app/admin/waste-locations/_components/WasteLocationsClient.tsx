@@ -50,6 +50,11 @@ export default function WasteLocationsClient({ initialLocations }: WasteLocation
         });
     }, [locations, searchQuery, selectedType, selectedWasteType]);
 
+    // Derive unique location types from actual data
+    const locationTypes = useMemo(() => {
+        return Array.from(new Set(locations.map((loc) => loc.type).filter(Boolean)));
+    }, [locations]);
+
     // Pagination slice
     const paginatedLocations = useMemo(() => {
         const start = (currentPage - 1) * PAGE_SIZE;
@@ -133,6 +138,7 @@ export default function WasteLocationsClient({ initialLocations }: WasteLocation
                     selectedWasteType={selectedWasteType}
                     setSelectedWasteType={setSelectedWasteType}
                     wasteTypes={WASTE_TYPES}
+                    locationTypes={locationTypes}
                 />
             </div>
 
