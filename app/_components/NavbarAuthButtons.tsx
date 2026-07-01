@@ -153,7 +153,7 @@ export default function NavbarAuthButtons({
             {/* Dropdown container */}
             {showDropdown && isPositioned && (
               <div
-                className="fixed z-[9999] w-64 overflow-hidden rounded-lg border border-gray-200 bg-white animate-[dropdownSlideIn_180ms_cubic-bezier(0.2,0.8,0.2,1)_both]"
+                className="fixed z-9999 w-64 overflow-hidden rounded-lg border border-gray-200 bg-white animate-[dropdownSlideIn_180ms_cubic-bezier(0.2,0.8,0.2,1)_both]"
                 role="menu"
                 style={{
                   top: `${dropdownPosition.top}px`,

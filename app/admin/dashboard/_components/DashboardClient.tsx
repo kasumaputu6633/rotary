@@ -3,6 +3,15 @@
 import { useState } from "react";
 import { Icon } from "@iconify/react";
 import Link from "next/link";
+import {
+  Area,
+  AreaChart,
+  CartesianGrid,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 import type { AdminDashboardData, DashboardActivity } from "../actions";
 
 // Hitung pertumbuhan persentase bulan ini terhadap bulan lalu.
@@ -107,22 +116,35 @@ function StatCard({
   );
 }
 
-function TrendChart({ trend }: { trend: AdminDashboardData["trend"] }) {
-  const counts = trend.map((t) => t.count);
-  const max = Math.max(1, ...counts);
-  const totalWeek = counts.reduce((a, b) => a + b, 0);
+function ChartTooltip({
+  active,
+  payload,
+  label,
+}: {
+  active?: boolean;
+  payload?: { value: number }[];
+  label?: string;
+}) {
+  if (!active || !payload || payload.length === 0) return null;
+  return (
+    <div className="rounded-lg border border-gray-100 bg-white px-3 py-2 shadow-lg">
+      <p className="font-open-sauce text-[10px] font-semibold uppercase tracking-wider text-gray-400">
+        {label}
+      </p>
+      <p className="font-open-sauce text-sm font-bold text-[#f7a81b]">
+        {payload[0].value} listing
+      </p>
+    </div>
+  );
+}
 
-  // Bangun titik untuk polyline pada viewBox 500x200 (40px padding atas/bawah).
-  const stepX = trend.length > 1 ? 500 / (trend.length - 1) : 0;
-  const points = trend.map((t, i) => {
-    const x = i * stepX;
-    const y = 170 - (t.count / max) * 130;
-    return { x, y, ...t };
-  });
-  const linePath = points
-    .map((p, i) => `${i === 0 ? "M" : "L"} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`)
-    .join(" ");
-  const areaPath = `${linePath} L 500 200 L 0 200 Z`;
+function TrendChart({ trend }: { trend: AdminDashboardData["trend"] }) {
+  const totalWeek = trend.reduce((a, b) => a + b.count, 0);
+  const chartData = trend.map((t) => ({
+    day: t.day,
+    count: t.count,
+    label: DAY_LABELS[new Date(t.day + "T00:00:00").getDay()],
+  }));
 
   return (
     <div className="lg:col-span-2 rounded-2xl border border-white bg-white p-6 shadow-sm">
@@ -137,78 +159,48 @@ function TrendChart({ trend }: { trend: AdminDashboardData["trend"] }) {
         </div>
       </div>
 
-      <div className="relative h-64 w-full flex flex-col justify-end">
-        <svg
-          viewBox="0 0 500 200"
-          className="w-full h-full text-[#f7a81b] overflow-visible"
-          preserveAspectRatio="none"
-        >
-          <defs>
-            <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#f7a81b" stopOpacity="0.25" />
-              <stop offset="100%" stopColor="#f7a81b" stopOpacity="0.0" />
-            </linearGradient>
-          </defs>
-          <line
-            x1="0"
-            y1="40"
-            x2="500"
-            y2="40"
-            stroke="#f1f5f9"
-            strokeDasharray="4 4"
-          />
-          <line
-            x1="0"
-            y1="105"
-            x2="500"
-            y2="105"
-            stroke="#f1f5f9"
-            strokeDasharray="4 4"
-          />
-          <line
-            x1="0"
-            y1="170"
-            x2="500"
-            y2="170"
-            stroke="#f1f5f9"
-            strokeDasharray="4 4"
-          />
-
-          {trend.length > 0 && (
-            <>
-              <path d={areaPath} fill="url(#chartGradient)" />
-              <path
-                d={linePath}
-                fill="none"
-                stroke="#f7a81b"
-                strokeWidth="3.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              {points.map((p) => (
-                <circle
-                  key={p.day}
-                  cx={p.x}
-                  cy={p.y}
-                  r="4.5"
-                  fill="#f7a81b"
-                  stroke="white"
-                  strokeWidth="2"
-                  className="drop-shadow-md"
-                >
-                  <title>{`${p.count} listing`}</title>
-                </circle>
-              ))}
-            </>
-          )}
-        </svg>
-
-        <div className="flex justify-between items-center px-1 pt-3 border-t border-gray-100 font-open-sauce text-[10px] font-semibold text-gray-400">
-          {trend.map((t) => {
-            const label = DAY_LABELS[new Date(t.day + "T00:00:00").getDay()];
-            return <span key={t.day}>{label}</span>;
-          })}
-        </div>
+      <div className="h-64 w-full">
+        <ResponsiveContainer width="100%" height="100%">
+          <AreaChart
+            data={chartData}
+            margin={{ top: 10, right: 12, left: 0, bottom: 0 }}
+          >
+            <defs>
+              <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#f7a81b" stopOpacity={0.28} />
+                <stop offset="100%" stopColor="#f7a81b" stopOpacity={0} />
+              </linearGradient>
+            </defs>
+            <CartesianGrid strokeDasharray="4 4" stroke="#f1f5f9" vertical={false} />
+            <XAxis
+              dataKey="label"
+              axisLine={false}
+              tickLine={false}
+              tick={{ fontSize: 10, fill: "#9ca3af", fontWeight: 600 }}
+              dy={8}
+            />
+            <YAxis
+              allowDecimals={false}
+              axisLine={false}
+              tickLine={false}
+              width="auto"
+              tick={{ fontSize: 10, fill: "#9ca3af" }}
+            />
+            <Tooltip
+              content={<ChartTooltip />}
+              cursor={{ stroke: "#f7a81b", strokeDasharray: "4 4" }}
+            />
+            <Area
+              type="monotone"
+              dataKey="count"
+              stroke="#f7a81b"
+              strokeWidth={3}
+              fill="url(#chartGradient)"
+              dot={{ r: 4, fill: "#17458f", stroke: "white", strokeWidth: 2 }}
+              activeDot={{ r: 6, fill: "#17458f", stroke: "white", strokeWidth: 2 }}
+            />
+          </AreaChart>
+        </ResponsiveContainer>
       </div>
     </div>
   );
