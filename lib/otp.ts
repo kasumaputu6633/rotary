@@ -3,6 +3,7 @@ import { db } from "@/db";
 import { otpCodes } from "@/db/schema";
 import { sendOtpEmail, type OtpEmailType } from "@/lib/email";
 import { normalizeAuthContact } from "@/lib/auth-contact";
+import { getRequestContext } from "@/lib/auth-session";
 import { sendWhatsAppOtp, type WhatsAppOtpPurpose, WahaError } from "@/lib/waha";
 import { and, count, desc, eq, gt, gte } from "drizzle-orm";
 
@@ -150,7 +151,12 @@ export async function sendOtp({
 
   try {
     if (isEmail(contact)) {
-      await sendOtpEmail(contact, code, type as OtpEmailType, name);
+      const { ipAddress, deviceName, userAgent } = await getRequestContext();
+      await sendOtpEmail(contact, code, type as OtpEmailType, name, {
+        expiryMinutes: Math.round(OTP_EXPIRY_MS / 60000),
+        ipAddress,
+        client: userAgent ? deviceName : null,
+      });
     } else {
       await sendWhatsAppOtp(contact, code, type as WhatsAppOtpPurpose, name);
     }
