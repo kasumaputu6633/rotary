@@ -50,9 +50,11 @@ export default function WasteLocationsClient({ initialLocations }: WasteLocation
         });
     }, [locations, searchQuery, selectedType, selectedWasteType]);
 
-    // Derive unique location types from actual data
+    // Derive unique location types from actual data + presets
     const locationTypes = useMemo(() => {
-        return Array.from(new Set(locations.map((loc) => loc.type).filter(Boolean)));
+        const presets = ["tps", "vendor", "bank_sampah", "komunitas", "dropbox"];
+        const dynamicTypes = locations.map((loc) => loc.type).filter(Boolean);
+        return Array.from(new Set([...presets, ...dynamicTypes]));
     }, [locations]);
 
     // Pagination slice

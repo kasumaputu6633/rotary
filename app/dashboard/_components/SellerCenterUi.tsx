@@ -21,6 +21,7 @@ const statusTone: Record<ListingStatus, keyof typeof badgeToneClass> = {
   completed: "success",
   draft: "accent",
   inactive: "neutral",
+  blocked: "danger",
 };
 
 export function PageHeader({
@@ -42,15 +43,15 @@ export function PageHeader({
     <section className="grid gap-4 border-b border-[var(--seller-rule)] pb-5 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
       <div className="min-w-0">
         <div className="flex items-center gap-2 text-[12px] font-semibold text-[var(--seller-muted)]">
-          <span className="flex h-7 w-7 items-center justify-center rounded-[8px] bg-[var(--seller-accent-soft)] text-[var(--seller-brand)]">
+          <span className="flex h-7 w-7 items-center justify-center rounded-[8px] bg-(--seller-accent-soft) text-[var(--seller-brand)]">
             <Icon icon={icon} width={15} height={15} aria-hidden="true" />
           </span>
           <span>{kicker}</span>
         </div>
-        <h1 className="mt-3 min-w-0 text-[30px] font-semibold leading-[1.08] text-[var(--seller-ink)] [overflow-wrap:anywhere] md:text-[36px]">
+        <h1 className="mt-3 min-w-0 text-[30px] font-semibold leading-[1.08] text-(--seller-ink) [overflow-wrap:anywhere] md:text-[36px]">
           {title}
         </h1>
-        <p className="mt-2 max-w-3xl text-[13px] leading-relaxed text-[var(--seller-muted)] md:text-[14px]">{description}</p>
+        <p className="mt-2 max-w-3xl text-[13px] leading-relaxed text-(--seller-muted) md:text-[14px]">{description}</p>
         {meta ? <div className="mt-4 flex flex-wrap gap-2">{meta}</div> : null}
       </div>
       {actions ? <div className="flex flex-wrap gap-2 lg:justify-end">{actions}</div> : null}
@@ -211,9 +212,8 @@ export function ListingThumb({
 }) {
   return (
     <div
-      className={`flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-[8px] border border-[var(--seller-rule)] ${
-        muted ? "bg-[var(--seller-paper-2)] text-[var(--seller-muted)]" : "bg-[var(--seller-brand-soft)] text-[var(--seller-brand)]"
-      }`}
+      className={`flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-[8px] border border-[var(--seller-rule)] ${muted ? "bg-[var(--seller-paper-2)] text-[var(--seller-muted)]" : "bg-[var(--seller-brand-soft)] text-[var(--seller-brand)]"
+        }`}
     >
       {imageUrl ? (
         // eslint-disable-next-line @next/next/no-img-element

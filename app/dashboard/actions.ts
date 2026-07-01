@@ -252,6 +252,7 @@ export async function setListingStatusAction(listingId: string, status: ListingS
     reserved: ["active", "completed"],
     completed: ["active"],
     inactive: ["active"],
+    blocked: [],
   };
 
   if (!allowedTransitions[existing.status].includes(status)) {

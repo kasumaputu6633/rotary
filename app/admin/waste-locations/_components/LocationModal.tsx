@@ -68,7 +68,7 @@ export default function LocationModal({
 }: LocationModalProps) {
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    const [type, setType]                             = useState<"tps" | "vendor">("tps");
+    const [type, setType]                             = useState<string>("tps");
     const [name, setName]                             = useState("");
     const [namaPic, setNamaPic]                       = useState("");
     const [email, setEmail]                           = useState("");
@@ -335,36 +335,39 @@ export default function LocationModal({
                             onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFileSelect(f); }} />
                     </div>
 
-                    {/* Tipe Lokasi — hanya tps & vendor sesuai database */}
-                    <div className="space-y-1.5">
-                        <label className="block font-open-sauce text-[12px] font-bold text-gray-500 uppercase tracking-wider">
-                            Tipe Lokasi <span className="text-red-500">*</span>
-                        </label>
-                        <div className="flex gap-3">
-                            <label className={`flex-1 flex items-center gap-2 p-2.5 rounded-xl border cursor-pointer transition select-none ${
-                                type === "tps"
-                                    ? "border-[#0B2545] bg-[#0B2545]/5 text-[#0B2545] font-bold"
-                                    : "border-gray-200 bg-white text-gray-600"
-                            }`}>
-                                <input type="radio" name="modal-type" value="tps" checked={type === "tps"} onChange={() => setType("tps")} className="hidden" />
-                                <div className={`h-4 w-4 rounded-full border flex items-center justify-center ${type === "tps" ? "border-[#0B2545]" : "border-gray-300"}`}>
-                                    {type === "tps" && <div className="h-2 w-2 rounded-full bg-[#0B2545]" />}
-                                </div>
-                                <span className="font-open-sauce text-[12px]">TPS</span>
-                            </label>
-
-                            <label className={`flex-1 flex items-center gap-2 p-2.5 rounded-xl border cursor-pointer transition select-none ${
-                                type === "vendor"
-                                    ? "border-[#E53E3E] bg-[#E53E3E]/5 text-[#E53E3E] font-bold"
-                                    : "border-gray-200 bg-white text-gray-600"
-                            }`}>
-                                <input type="radio" name="modal-type" value="vendor" checked={type === "vendor"} onChange={() => setType("vendor")} className="hidden" />
-                                <div className={`h-4 w-4 rounded-full border flex items-center justify-center ${type === "vendor" ? "border-[#E53E3E]" : "border-gray-300"}`}>
-                                    {type === "vendor" && <div className="h-2 w-2 rounded-full bg-[#E53E3E]" />}
-                                </div>
-                                <span className="font-open-sauce text-[12px]">Vendor</span>
-                            </label>
+                    {/* ── 2. Tipe Lokasi ─────────────────────────────── */}
+                    <div className="space-y-2">
+                        <p className="font-open-sauce text-[13px] font-bold text-gray-700">Tipe Lokasi <span className="text-red-500">*</span></p>
+                        {/* Quick-select preset */}
+                        <div className="flex flex-wrap gap-2">
+                            {["tps", "vendor", "bank_sampah", "komunitas", "dropbox"].map((preset) => (
+                                <button
+                                    key={preset}
+                                    type="button"
+                                    onClick={() => setType(preset)}
+                                    className={`rounded-lg px-3.5 py-1.5 font-open-sauce text-[12px] font-semibold transition border-2 ${
+                                        type === preset
+                                            ? "border-[#0B2545] bg-[#0B2545] text-white"
+                                            : "border-gray-200 bg-white text-gray-600 hover:border-[#0B2545] hover:text-[#0B2545]"
+                                    }`}
+                                >
+                                    {preset.split(/[_\s-]+/).map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ")}
+                                </button>
+                            ))}
                         </div>
+                        {/* Manual input untuk tipe custom */}
+                        <div className="relative mt-2">
+                            <input
+                                type="text"
+                                name="type"
+                                value={type}
+                                onChange={(e) => setType(e.target.value.toLowerCase().replace(/\s+/g, "_"))}
+                                placeholder="tps / vendor / bank_sampah / ..."
+                                className="w-full rounded-xl border-2 border-gray-200 bg-white py-3 px-4 font-open-sauce text-[13px] text-gray-800 outline-none transition focus:border-[#0B2545] focus:ring-2 focus:ring-[#0B2545]/10"
+                                required
+                            />
+                        </div>
+                        <p className="font-open-sauce text-[11px] text-gray-400">Pilih preset di atas atau ketik manual. Gunakan huruf kecil dan garis bawah, contoh: <code>bank_sampah</code></p>
                     </div>
 
                     {/* Name */}

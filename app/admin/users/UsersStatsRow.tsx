@@ -14,7 +14,7 @@ function StatCard({ label, value, icon, iconBg, iconColor }: StatCardProps) {
     return (
         <div className="flex items-center gap-3.5 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm transition-shadow hover:shadow-md">
             <div
-                className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br ${iconBg}`}
+                className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-linear-to-br ${iconBg}`}
             >
                 <Icon icon={icon} width={20} height={20} className={iconColor} />
             </div>

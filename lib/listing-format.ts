@@ -1,4 +1,4 @@
-export type ListingStatus = "draft" | "active" | "reserved" | "completed" | "inactive";
+export type ListingStatus = "draft" | "active" | "reserved" | "completed" | "inactive" | "blocked";
 export type ListingMode = "sale" | "donation";
 export type ContactPreference = "in_app" | "whatsapp";
 
@@ -55,6 +55,7 @@ export function formatListingStatus(status: ListingStatus, mode?: ListingMode) {
     return "Selesai";
   }
   if (status === "inactive") return "Nonaktif";
+  if (status === "blocked") return "Diblokir Admin";
   return "Draft";
 }
 

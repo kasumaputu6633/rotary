@@ -34,6 +34,7 @@ export const listingStatusEnum = pgEnum("listing_status", [
   "reserved",
   "completed",
   "inactive",
+  "blocked",
 ]);
 export const dealStageEnum = pgEnum("deal_stage", [
   "negotiating",

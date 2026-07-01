@@ -239,6 +239,13 @@
       "when": 1782846393375,
       "tag": "0033_hesitant_firebird",
       "breakpoints": true
+    },
+    {
+      "idx": 34,
+      "version": "7",
+      "when": 1782893724813,
+      "tag": "0034_typical_talon",
+      "breakpoints": true
     }
   ]
 }
