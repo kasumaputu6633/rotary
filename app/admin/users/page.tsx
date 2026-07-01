@@ -1,5 +1,5 @@
 import { requireRole } from "@/lib/auth";
-import { getAdminUsers } from "./actions";
+import { getAdminUsers, getUsersStats } from "./actions";
 import UsersTable from "./UsersTable";
 import UsersStatsRow from "./UsersStatsRow";
 import { Icon } from "@iconify/react";
@@ -12,7 +12,6 @@ export const metadata = {
 interface PageProps {
   searchParams: Promise<{
     search?: string;
-    role?: string;
     page?: string;
   }>;
 }
@@ -24,23 +23,13 @@ export default async function AdminUsersPage({ searchParams }: PageProps) {
 
   const params = await searchParams;
   const search = params.search ?? "";
-  const role =
-    params.role === "user" ||
-    params.role === "admin" ||
-    params.role === "super_admin"
-      ? params.role
-      : undefined;
   const page = Math.max(1, Number(params.page) || 1);
 
-  // Fetch paginated users for the table + global stats simultaneously
-  const [tableData, allData] = await Promise.all([
-    getAdminUsers({ search, role, page, pageSize: PAGE_SIZE }),
-    getAdminUsers({ pageSize: 99999 }),
+  // Tabel user biasa + statistik global secara paralel.
+  const [tableData, stats] = await Promise.all([
+    getAdminUsers({ search, page, pageSize: PAGE_SIZE }),
+    getUsersStats(),
   ]);
-
-  const globalAdmins = allData.users.filter((u) => u.role === "admin").length;
-  const globalUsers = allData.users.filter((u) => u.role === "user").length;
-  const globalVerified = allData.users.filter((u) => u.isVerified).length;
 
   return (
     <div className="mx-auto max-w-7xl space-y-6">
@@ -63,17 +52,17 @@ export default async function AdminUsersPage({ searchParams }: PageProps) {
             Users Overview
           </h1>
           <p className="mt-0.5 font-open-sauce text-sm text-gray-500">
-            Kelola semua anggota, peran, dan data pengguna platform.
+            Kelola data dan verifikasi pengguna platform.
           </p>
         </div>
       </div>
 
       {/* Stats */}
       <UsersStatsRow
-        total={allData.total}
-        totalRegularUsers={globalUsers}
-        totalAdmins={globalAdmins}
-        totalVerified={globalVerified}
+        total={stats.total}
+        totalVerified={stats.verified}
+        totalUnverified={stats.unverified}
+        totalListings={stats.totalListings}
       />
 
       {/* Table Card */}
@@ -84,7 +73,6 @@ export default async function AdminUsersPage({ searchParams }: PageProps) {
           page={page}
           pageSize={PAGE_SIZE}
           search={search}
-          role={params.role ?? ""}
         />
       </div>
     </div>

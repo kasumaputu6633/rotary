@@ -32,42 +32,42 @@ function StatCard({ label, value, icon, iconBg, iconColor }: StatCardProps) {
 
 export default function UsersStatsRow({
     total,
-    totalRegularUsers,
-    totalAdmins,
     totalVerified,
+    totalUnverified,
+    totalListings,
 }: {
     total: number;
-    totalRegularUsers: number;
-    totalAdmins: number;
     totalVerified: number;
+    totalUnverified: number;
+    totalListings: number;
 }) {
     return (
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
             <StatCard
-                label="Total Pengguna"
+                label="Total User"
                 value={total}
                 icon="lucide:users"
                 iconBg="from-[#17458f] to-[#1a5cbf]"
                 iconColor="text-white"
             />
             <StatCard
-                label="User Biasa"
-                value={totalRegularUsers}
-                icon="lucide:user"
-                iconBg="from-[#f7a81b] to-[#e89a14]"
-                iconColor="text-white"
-            />
-            <StatCard
-                label="Admin"
-                value={totalAdmins}
-                icon="lucide:shield-check"
+                label="Terverifikasi"
+                value={totalVerified}
+                icon="lucide:badge-check"
                 iconBg="from-emerald-500 to-emerald-600"
                 iconColor="text-white"
             />
             <StatCard
-                label="Terverifikasi"
-                value={totalVerified}
-                icon="lucide:badge-check"
+                label="Belum Terverifikasi"
+                value={totalUnverified}
+                icon="lucide:user-round-x"
+                iconBg="from-amber-500 to-orange-500"
+                iconColor="text-white"
+            />
+            <StatCard
+                label="Total Listing"
+                value={totalListings}
+                icon="lucide:clipboard-list"
                 iconBg="from-violet-500 to-violet-600"
                 iconColor="text-white"
             />

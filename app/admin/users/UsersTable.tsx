@@ -4,7 +4,7 @@ import { useState, useTransition, useCallback } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { Icon } from "@iconify/react";
 import Image from "next/image";
-import { deleteUser, type UserRow } from "./actions";
+import { deleteUser, updateUser, type UserRow } from "./actions";
 
 // ─── Helpers ───────────────────────────────────────────────────────────────
 
@@ -25,23 +25,186 @@ function formatDate(date: Date) {
   }).format(new Date(date));
 }
 
-const ROLE_CONFIG = {
-  super_admin: {
-    label: "Super Admin",
-    className: "bg-[#f7a81b]/15 text-[#b9760a] border-[#f7a81b]/30",
-    icon: "lucide:crown",
-  },
-  admin: {
-    label: "Admin",
-    className: "bg-[#17458f]/10 text-[#17458f] border-[#17458f]/20",
-    icon: "lucide:shield-check",
-  },
-  user: {
-    label: "User",
-    className: "bg-gray-100 text-gray-600 border-gray-200",
-    icon: "lucide:user",
-  },
-} as const;
+const inputCls =
+  "w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 font-open-sauce text-[13px] text-gray-800 placeholder-gray-400 outline-none transition focus:border-[#f7a81b] focus:ring-2 focus:ring-[#f7a81b]/10 hover:border-gray-300";
+
+// ─── Edit Modal ───────────────────────────────────────────────────────────
+
+function EditModal({
+  user,
+  onClose,
+  onSuccess,
+}: {
+  user: UserRow;
+  onClose: () => void;
+  onSuccess: () => void;
+}) {
+  const [fullName, setFullName] = useState(user.fullName ?? "");
+  const [shopName, setShopName] = useState(user.shopName ?? "");
+  const [email, setEmail] = useState(user.email ?? "");
+  const [phone, setPhone] = useState(user.phone ?? "");
+  const [isVerified, setIsVerified] = useState(user.isVerified);
+  const [isPending, startTransition] = useTransition();
+  const [error, setError] = useState<string | null>(null);
+
+  function handleSave() {
+    setError(null);
+    startTransition(async () => {
+      const result = await updateUser(user.id, {
+        fullName,
+        shopName,
+        email,
+        phone,
+        isVerified,
+      });
+      if (result.success) {
+        onSuccess();
+      } else {
+        setError(result.error ?? "Terjadi kesalahan.");
+      }
+    });
+  }
+
+  return (
+    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+      <div
+        className="absolute inset-0 bg-black/50 backdrop-blur-[3px]"
+        onClick={onClose}
+      />
+      <div
+        className="relative w-full max-w-[460px] rounded-2xl bg-white shadow-[0_24px_60px_rgba(0,0,0,0.18)] animate-in zoom-in-95 fade-in duration-200"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="h-1.5 w-full rounded-t-2xl bg-gradient-to-r from-[#f7a81b] to-[#e89a14]" />
+
+        <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4">
+          <h3 className="font-open-sauce text-base font-bold text-gray-900">
+            Edit Pengguna
+          </h3>
+          <button
+            onClick={onClose}
+            className="rounded-lg p-1 text-gray-400 transition hover:bg-gray-50 hover:text-gray-600"
+          >
+            <Icon icon="lucide:x" width={18} height={18} />
+          </button>
+        </div>
+
+        <div className="grid gap-3.5 px-6 py-5">
+          <div className="space-y-1.5">
+            <label className="block font-open-sauce text-[12px] font-semibold text-gray-500">
+              Nama Lengkap
+            </label>
+            <input
+              type="text"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              placeholder="Nama lengkap"
+              className={inputCls}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <label className="block font-open-sauce text-[12px] font-semibold text-gray-500">
+              Nama Toko
+            </label>
+            <input
+              type="text"
+              value={shopName}
+              onChange={(e) => setShopName(e.target.value)}
+              placeholder="Nama toko"
+              className={inputCls}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <label className="block font-open-sauce text-[12px] font-semibold text-gray-500">
+              Email
+            </label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="email@contoh.com"
+              className={inputCls}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <label className="block font-open-sauce text-[12px] font-semibold text-gray-500">
+              No. Telepon
+            </label>
+            <input
+              type="text"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="+62 812-3456-7890"
+              className={inputCls}
+            />
+          </div>
+
+          {/* Verifikasi toggle */}
+          <button
+            type="button"
+            onClick={() => setIsVerified((v) => !v)}
+            className="mt-1 flex items-center justify-between rounded-xl border border-gray-200 px-4 py-3 text-left transition hover:border-gray-300"
+          >
+            <div>
+              <p className="font-open-sauce text-[13px] font-semibold text-gray-800">
+                Status Verifikasi
+              </p>
+              <p className="font-open-sauce text-[11px] text-gray-400">
+                {isVerified ? "Akun terverifikasi" : "Akun belum terverifikasi"}
+              </p>
+            </div>
+            <span
+              className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors ${
+                isVerified ? "bg-emerald-500" : "bg-gray-300"
+              }`}
+            >
+              <span
+                className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform ${
+                  isVerified ? "translate-x-5" : "translate-x-0.5"
+                }`}
+              />
+            </span>
+          </button>
+
+          {error && (
+            <p className="rounded-lg bg-red-50 px-3 py-2 font-open-sauce text-[12px] text-red-600">
+              {error}
+            </p>
+          )}
+        </div>
+
+        <div className="flex items-center justify-end gap-2.5 border-t border-gray-100 bg-gray-50/50 px-6 py-4">
+          <button
+            onClick={onClose}
+            disabled={isPending}
+            className="rounded-xl border border-gray-200 bg-white px-4 py-2.5 font-open-sauce text-[13px] font-semibold text-gray-600 transition hover:bg-gray-50 disabled:opacity-50"
+          >
+            Batal
+          </button>
+          <button
+            onClick={handleSave}
+            disabled={isPending}
+            className="flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-[#f7a81b] to-[#e89a14] px-5 py-2.5 font-open-sauce text-[13px] font-bold text-white shadow-md shadow-[#f7a81b]/20 transition hover:opacity-95 disabled:opacity-60"
+          >
+            {isPending ? (
+              <Icon
+                icon="lucide:loader-2"
+                className="animate-spin"
+                width={14}
+                height={14}
+              />
+            ) : (
+              <>
+                <Icon icon="lucide:save" width={14} height={14} />
+                Simpan
+              </>
+            )}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 // ─── Delete Modal ───────────────────────────────────────────────────────────
 
@@ -209,47 +372,6 @@ function SearchBar({ defaultValue }: { defaultValue: string }) {
   );
 }
 
-// ─── Role Filter ─────────────────────────────────────────────────────────────
-
-function RoleFilter({ current }: { current: string }) {
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-
-  function setRole(role: string) {
-    const params = new URLSearchParams(searchParams.toString());
-    if (role) params.set("role", role);
-    else params.delete("role");
-    params.delete("page");
-    router.push(`${pathname}?${params.toString()}`);
-  }
-
-  const options = [
-    { value: "", label: "Semua" },
-    { value: "user", label: "User" },
-    { value: "admin", label: "Admin" },
-    { value: "super_admin", label: "Super Admin" },
-  ];
-
-  return (
-    <div className="flex items-center gap-1.5 rounded-xl border border-gray-200 bg-white p-1">
-      {options.map((opt) => (
-        <button
-          key={opt.value}
-          onClick={() => setRole(opt.value)}
-          className={`rounded-lg px-3.5 py-1.5 font-open-sauce text-[12px] font-semibold transition-all ${
-            current === opt.value
-              ? "bg-[#17458f] text-white shadow-sm"
-              : "text-gray-500 hover:text-gray-800"
-          }`}
-        >
-          {opt.label}
-        </button>
-      ))}
-    </div>
-  );
-}
-
 // ─── Pagination ──────────────────────────────────────────────────────────────
 
 function Pagination({
@@ -329,22 +451,22 @@ export default function UsersTable({
   page,
   pageSize,
   search,
-  role,
 }: {
   users: UserRow[];
   total: number;
   page: number;
   pageSize: number;
   search: string;
-  role: string;
 }) {
   const router = useRouter();
   const [deleteTarget, setDeleteTarget] = useState<UserRow | null>(null);
+  const [editTarget, setEditTarget] = useState<UserRow | null>(null);
 
   const totalPages = Math.ceil(total / pageSize);
 
-  const handleDeleteSuccess = useCallback(() => {
+  const handleSuccess = useCallback(() => {
     setDeleteTarget(null);
+    setEditTarget(null);
     router.refresh();
   }, [router]);
 
@@ -352,10 +474,7 @@ export default function UsersTable({
     <>
       {/* Toolbar */}
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <div className="flex flex-wrap items-center gap-3">
-          <SearchBar defaultValue={search} />
-          <RoleFilter current={role} />
-        </div>
+        <SearchBar defaultValue={search} />
         <p className="font-open-sauce text-[12px] text-gray-400">
           {total} pengguna ditemukan
         </p>
@@ -374,7 +493,7 @@ export default function UsersTable({
                   Nama Toko
                 </th>
                 <th className="px-5 py-3.5 text-left font-open-sauce text-[11px] font-bold uppercase tracking-wider text-gray-500">
-                  Role
+                  Status
                 </th>
                 <th className="px-5 py-3.5 text-left font-open-sauce text-[11px] font-bold uppercase tracking-wider text-gray-500">
                   No. Telepon
@@ -411,7 +530,6 @@ export default function UsersTable({
                 </tr>
               ) : (
                 users.map((user) => {
-                  const roleConf = ROLE_CONFIG[user.role];
                   const initials = getInitials(
                     user.fullName || user.email || "?",
                   );
@@ -458,14 +576,19 @@ export default function UsersTable({
                         </span>
                       </td>
 
-                      {/* Role Badge */}
+                      {/* Status Badge */}
                       <td className="px-5 py-3.5">
-                        <span
-                          className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 font-open-sauce text-[11px] font-semibold ${roleConf.className}`}
-                        >
-                          <Icon icon={roleConf.icon} width={11} height={11} />
-                          {roleConf.label}
-                        </span>
+                        {user.isVerified ? (
+                          <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 font-open-sauce text-[11px] font-semibold text-emerald-600">
+                            <Icon icon="lucide:badge-check" width={11} height={11} />
+                            Terverifikasi
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-gray-100 px-2.5 py-1 font-open-sauce text-[11px] font-semibold text-gray-500">
+                            <Icon icon="lucide:clock" width={11} height={11} />
+                            Belum
+                          </span>
+                        )}
                       </td>
 
                       {/* Phone */}
@@ -501,6 +624,17 @@ export default function UsersTable({
                       <td className="px-5 py-3.5">
                         <div className="flex items-center justify-center gap-1">
                           <button
+                            onClick={() => setEditTarget(user)}
+                            title="Edit pengguna"
+                            className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-[#17458f]/10 hover:text-[#17458f]"
+                          >
+                            <Icon
+                              icon="lucide:pencil"
+                              width={15}
+                              height={15}
+                            />
+                          </button>
+                          <button
                             onClick={() => setDeleteTarget(user)}
                             title="Hapus pengguna"
                             className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500"
@@ -533,12 +667,21 @@ export default function UsersTable({
         )}
       </div>
 
+      {/* Edit Modal */}
+      {editTarget && (
+        <EditModal
+          user={editTarget}
+          onClose={() => setEditTarget(null)}
+          onSuccess={handleSuccess}
+        />
+      )}
+
       {/* Delete Modal */}
       {deleteTarget && (
         <DeleteModal
           user={deleteTarget}
           onClose={() => setDeleteTarget(null)}
-          onSuccess={handleDeleteSuccess}
+          onSuccess={handleSuccess}
         />
       )}
     </>

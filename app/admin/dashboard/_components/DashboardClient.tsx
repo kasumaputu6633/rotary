@@ -391,7 +391,7 @@ export default function DashboardClient({
               Belum ada aktivitas.
             </p>
           ) : (
-            <div className="divide-y divide-gray-100">
+            <div className="max-h-[180px] overflow-y-auto pr-1 scrollbar-thin divide-y divide-gray-100">
               {data.activities.map((act) => {
                 const conf = ACTIVITY_CONFIG[act.type];
                 return (

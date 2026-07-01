@@ -217,7 +217,7 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
     })),
   ]
     .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
-    .slice(0, 6);
+    .slice(0, 10);
 
   return {
     users: { total: u.total, thisMonth: u.this_month, lastMonth: u.last_month },
