@@ -4,6 +4,9 @@ import Image from "next/image";
 import { Icon } from "@iconify/react";
 import AdminRowActions from "../../_components/AdminRowActions";
 
+export type DaySchedule = { open?: string; close?: string; isClosed?: boolean };
+export type OperatingHours = Record<string, DaySchedule>;
+
 export interface WasteLocation {
     id: string;
     type: string;
@@ -16,7 +19,7 @@ export interface WasteLocation {
     latitude?: number | null;
     longitude?: number | null;
     jenisSampahDiterima?: string[] | null;
-    operatingHours?: any;
+    operatingHours?: OperatingHours | null;
     imageUrl?: string | null;
     isActive?: boolean;
     createdAt?: Date;
@@ -29,10 +32,12 @@ interface LocationCardProps {
     onDelete: (id: string) => void;
 }
 
-export function formatOperatingHours(hours: any): string {
+export function formatOperatingHours(hours: unknown): string {
     if (!hours) return "-";
     if (typeof hours === "string") return hours;
     if (typeof hours !== "object") return "-";
+
+    const h = hours as OperatingHours;
 
     const dayNamesIndo = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"];
     const dayKeys = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
@@ -42,7 +47,7 @@ export function formatOperatingHours(hours: any): string {
     for (let i = 0; i < 7; i++) {
         const key = dayKeys[i];
         const name = dayNamesIndo[i];
-        const sched = hours[key];
+        const sched = h[key];
 
         let timeStr = "Tutup";
         if (sched && !sched.isClosed && sched.open && sched.close) {

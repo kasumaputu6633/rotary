@@ -8,6 +8,7 @@ import type { ReactNode } from "react";
 const navigation = [
   { href: "/account/settings", icon: "lucide:settings-2", label: "Pengaturan akun" },
   { href: "/account/favorites", icon: "lucide:heart", label: "Favorit" },
+  { href: "/account/saved", icon: "lucide:bookmark", label: "Lokasi tersimpan" },
   { href: "/account/notifications", icon: "lucide:bell-ring", label: "Notifikasi" },
 ];
 

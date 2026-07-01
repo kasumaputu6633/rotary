@@ -26,7 +26,7 @@ export const wasteLocations = pgTable("waste_locations", {
   latitude: doublePrecision("latitude"),
   longitude: doublePrecision("longitude"),
   jenisSampahDiterima: text("jenis_sampah_diterima").array(),
-  operatingHours: jsonb("operating_hours"),
+  operatingHours: jsonb("operating_hours").$type<Record<string, { open?: string; close?: string; isClosed?: boolean }>>(),
   imageUrl: text("image_url"),
   isActive: boolean("is_active").notNull().default(true),
   createdAt: timestamp("created_at").notNull().defaultNow(),

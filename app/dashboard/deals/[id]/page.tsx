@@ -94,14 +94,31 @@ export default async function SellerDealDetailPage({ params }: Props) {
                   <dd className="font-semibold text-[var(--seller-ink)]">{deal.counterpartyName || "Belum dicatat"}</dd>
                 </div>
                 <div className="grid grid-cols-[110px_minmax(0,1fr)] gap-3 py-2.5">
+                  <dt className="text-[var(--seller-muted)]">Kontak</dt>
+                  <dd className="font-semibold text-[var(--seller-ink)]">{deal.counterpartyContact || "Belum dicatat"}</dd>
+                </div>
+                <div className="grid grid-cols-[110px_minmax(0,1fr)] gap-3 py-2.5">
                   <dt className="text-[var(--seller-muted)]">Penyerahan</dt>
                   <dd className="font-semibold text-[var(--seller-ink)]">{formatHandoverMethod(deal.handoverMethod)}</dd>
                 </div>
+                {deal.handoverLocation && (
+                  <div className="grid grid-cols-[110px_minmax(0,1fr)] gap-3 py-2.5">
+                    <dt className="text-[var(--seller-muted)]">Lokasi</dt>
+                    <dd className="font-semibold leading-relaxed text-[var(--seller-ink)]">{deal.handoverLocation}</dd>
+                  </div>
+                )}
                 <div className="grid grid-cols-[110px_minmax(0,1fr)] gap-3 py-2.5">
                   <dt className="text-[var(--seller-muted)]">Jadwal</dt>
                   <dd className="font-semibold leading-relaxed text-[var(--seller-ink)]">{formatDealSchedule(deal.scheduledAt)}</dd>
                 </div>
               </dl>
+
+              {deal.sellerNote && (
+                <div className="rounded-[8px] border border-[var(--seller-rule)] bg-[var(--seller-brand-soft)] p-3">
+                  <p className="text-[11px] font-semibold uppercase tracking-wide text-[var(--seller-muted)]">Catatan penjual</p>
+                  <p className="mt-1.5 whitespace-pre-line text-[12px] leading-relaxed text-[var(--seller-ink)]">{deal.sellerNote}</p>
+                </div>
+              )}
 
               {deal.listingStatus === "active" || deal.listingStatus === "reserved" ? (
                 <Link

@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { Icon } from "@iconify/react";
 import Image from "next/image";
-import { type WasteLocation } from "./LocationCard";
+import { type WasteLocation, type OperatingHours } from "./LocationCard";
 import { updateWasteLocationAction } from "../actions";
+import { LocationSearchInputLazy } from "./LocationSearchInputLazy";
 
 interface LocationModalProps {
     isOpen: boolean;
@@ -28,28 +29,19 @@ const DAY_LABELS_ID: Record<string, string> = {
 const inputCls =
     "w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 font-open-sauce text-[13px] text-gray-800 placeholder-gray-400 outline-none transition focus:border-[#f7a81b] focus:ring-2 focus:ring-[#f7a81b]/10 hover:border-gray-300";
 
-const DEFAULT_HOURS = {
-    monday: { open: "08:00", close: "17:00", isClosed: false },
-    tuesday: { open: "08:00", close: "17:00", isClosed: false },
-    wednesday: { open: "08:00", close: "17:00", isClosed: false },
-    thursday: { open: "08:00", close: "17:00", isClosed: false },
-    friday: { open: "08:00", close: "17:00", isClosed: false },
-    saturday: { open: "08:00", close: "15:00", isClosed: false },
-    sunday: { open: "08:00", close: "17:00", isClosed: true }
-};
-
-function parseOperatingHours(hours: any) {
+function parseOperatingHours(hours: unknown) {
     if (!hours || typeof hours !== "object") {
         return { selectedDays: ["monday", "tuesday", "wednesday", "thursday", "friday"], open: "08:00", close: "17:00" };
     }
 
+    const h = hours as OperatingHours;
     const selectedDays: string[] = [];
     let open = "08:00";
     let close = "17:00";
     let foundFirst = false;
 
     for (const day of DAY_KEYS) {
-        const sched = hours[day];
+        const sched = h[day];
         if (sched && !sched.isClosed) {
             selectedDays.push(day);
             if (!foundFirst && sched.open && sched.close) {
@@ -76,8 +68,9 @@ export default function LocationModal({
 }: LocationModalProps) {
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    const [type, setType]                             = useState<string>("tps");
+    const [type, setType]                             = useState<"tps" | "vendor">("tps");
     const [name, setName]                             = useState("");
+    const [namaPic, setNamaPic]                       = useState("");
     const [email, setEmail]                           = useState("");
     const [phone, setPhone]                           = useState("");
     const [address, setAddress]                       = useState("");
@@ -93,7 +86,7 @@ export default function LocationModal({
     const [closeTime, setCloseTime] = useState("17:00");
 
     const operatingHours = useMemo(() => {
-        const hours: any = {};
+        const hours: OperatingHours = {};
         for (const day of DAY_KEYS) {
             hours[day] = {
                 open: openTime,
@@ -109,11 +102,18 @@ export default function LocationModal({
     const [error, setError]                           = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting]             = useState(false);
 
-    // Initialize/Reset form based on edit mode
-    useEffect(() => {
+    // Snapshot (locationToEdit, isOpen) terakhir yang sudah disinkronkan ke form.
+    const [syncedFor, setSyncedFor] = useState<{ loc: WasteLocation | null | undefined; open: boolean }>({ loc: undefined, open: false });
+
+    // Init/reset form saat modal dibuka atau target edit berganti.
+    // Dilakukan di fase render (pola resmi React) alih-alih di effect,
+    // agar tidak memicu cascading render dari setState-in-effect.
+    if (syncedFor.loc !== locationToEdit || syncedFor.open !== isOpen) {
+        setSyncedFor({ loc: locationToEdit, open: isOpen });
         if (locationToEdit && isOpen) {
-            setType(locationToEdit.type || "tps");
+            setType(locationToEdit.type === "vendor" ? "vendor" : "tps");
             setName(locationToEdit.namaUsaha || "");
+            setNamaPic(locationToEdit.namaPic || "");
             setEmail(locationToEdit.emailKontak || "");
             setPhone(locationToEdit.teleponKontak || "");
             setAddress(locationToEdit.alamat || "");
@@ -121,7 +121,7 @@ export default function LocationModal({
             setLatitude(locationToEdit.latitude !== undefined && locationToEdit.latitude !== null ? String(locationToEdit.latitude) : "");
             setLongitude(locationToEdit.longitude !== undefined && locationToEdit.longitude !== null ? String(locationToEdit.longitude) : "");
             setSelectedWasteTypes(locationToEdit.jenisSampahDiterima || []);
-            
+
             const parsedHours = parseOperatingHours(locationToEdit.operatingHours);
             setSelectedDays(parsedHours.selectedDays);
             setOpenTime(parsedHours.open);
@@ -131,6 +131,7 @@ export default function LocationModal({
             setImageFile(null);
         } else {
             setName("");
+            setNamaPic("");
             setEmail("");
             setPhone("");
             setAddress("");
@@ -145,7 +146,7 @@ export default function LocationModal({
             setImageFile(null);
         }
         setError(null);
-    }, [locationToEdit, isOpen]);
+    }
 
     // Cleanup object URLs on unmount
     useEffect(() => {
@@ -203,15 +204,13 @@ export default function LocationModal({
         if (!name.trim())             return setError("Nama lokasi harus diisi.");
         if (!phone.trim())            return setError("Nomor telepon harus diisi.");
         if (!address.trim())          return setError("Alamat detail harus diisi.");
-        if (!latitude.trim())         return setError("Latitude harus diisi.");
-        if (!longitude.trim())        return setError("Longitude harus diisi.");
         if (selectedWasteTypes.length === 0) {
             return setError("Pilih minimal satu jenis sampah yang diterima.");
         }
 
-        // Coordinate checks
-        if (isNaN(parseFloat(latitude))) return setError("Latitude harus berupa angka.");
-        if (isNaN(parseFloat(longitude))) return setError("Longitude harus berupa angka.");
+        // Koordinat opsional: terisi otomatis dari pencarian alamat, atau diisi manual.
+        if (latitude.trim() && isNaN(parseFloat(latitude))) return setError("Latitude harus berupa angka.");
+        if (longitude.trim() && isNaN(parseFloat(longitude))) return setError("Longitude harus berupa angka.");
 
         if (!locationToEdit?.id) return;
 
@@ -220,6 +219,7 @@ export default function LocationModal({
             const formData = new FormData();
             formData.append("type", type);
             formData.append("namaUsaha", name.trim());
+            formData.append("namaPic", namaPic.trim());
             formData.append("emailKontak", email.trim());
             formData.append("teleponKontak", phone.trim());
             formData.append("alamat", address.trim());
@@ -242,12 +242,13 @@ export default function LocationModal({
                 ...locationToEdit,
                 type,
                 namaUsaha: name.trim(),
+                namaPic: namaPic.trim() || null,
                 emailKontak: email.trim() || null,
                 teleponKontak: phone.trim(),
                 alamat: address.trim(),
                 website: website.trim() || null,
-                latitude: parseFloat(latitude.trim()),
-                longitude: parseFloat(longitude.trim()),
+                latitude: latitude.trim() ? parseFloat(latitude.trim()) : null,
+                longitude: longitude.trim() ? parseFloat(longitude.trim()) : null,
                 jenisSampahDiterima: selectedWasteTypes,
                 operatingHours,
                 imageUrl: imageFile ? previewUrl : locationToEdit.imageUrl,
@@ -255,9 +256,9 @@ export default function LocationModal({
 
             onSave(updatedLoc);
             onClose();
-        } catch (err: any) {
+        } catch (err) {
             console.error(err);
-            setError(err.message || "Gagal memperbarui data lokasi.");
+            setError(err instanceof Error ? err.message : "Gagal memperbarui data lokasi.");
         } finally {
             setIsSubmitting(false);
         }
@@ -334,39 +335,36 @@ export default function LocationModal({
                             onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFileSelect(f); }} />
                     </div>
 
-                    {/* Tipe Lokasi */}
+                    {/* Tipe Lokasi — hanya tps & vendor sesuai database */}
                     <div className="space-y-1.5">
                         <label className="block font-open-sauce text-[12px] font-bold text-gray-500 uppercase tracking-wider">
                             Tipe Lokasi <span className="text-red-500">*</span>
                         </label>
-                        {/* Quick-select preset */}
-                        <div className="flex gap-2 flex-wrap mb-2">
-                            {["tps", "vendor", "bank_sampah", "komunitas", "dropbox"].map((preset) => (
-                                <button
-                                    key={preset}
-                                    type="button"
-                                    onClick={() => setType(preset)}
-                                    className={`rounded-lg px-3 py-1 font-open-sauce text-[11px] font-semibold transition border ${
-                                        type === preset
-                                            ? "border-[#0B2545] bg-[#0B2545] text-white"
-                                            : "border-gray-200 bg-white text-gray-600 hover:border-[#0B2545] hover:text-[#0B2545]"
-                                    }`}
-                                >
-                                    {preset.split(/[_\s-]+/).map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ")}
-                                </button>
-                            ))}
+                        <div className="flex gap-3">
+                            <label className={`flex-1 flex items-center gap-2 p-2.5 rounded-xl border cursor-pointer transition select-none ${
+                                type === "tps"
+                                    ? "border-[#0B2545] bg-[#0B2545]/5 text-[#0B2545] font-bold"
+                                    : "border-gray-200 bg-white text-gray-600"
+                            }`}>
+                                <input type="radio" name="modal-type" value="tps" checked={type === "tps"} onChange={() => setType("tps")} className="hidden" />
+                                <div className={`h-4 w-4 rounded-full border flex items-center justify-center ${type === "tps" ? "border-[#0B2545]" : "border-gray-300"}`}>
+                                    {type === "tps" && <div className="h-2 w-2 rounded-full bg-[#0B2545]" />}
+                                </div>
+                                <span className="font-open-sauce text-[12px]">TPS</span>
+                            </label>
+
+                            <label className={`flex-1 flex items-center gap-2 p-2.5 rounded-xl border cursor-pointer transition select-none ${
+                                type === "vendor"
+                                    ? "border-[#E53E3E] bg-[#E53E3E]/5 text-[#E53E3E] font-bold"
+                                    : "border-gray-200 bg-white text-gray-600"
+                            }`}>
+                                <input type="radio" name="modal-type" value="vendor" checked={type === "vendor"} onChange={() => setType("vendor")} className="hidden" />
+                                <div className={`h-4 w-4 rounded-full border flex items-center justify-center ${type === "vendor" ? "border-[#E53E3E]" : "border-gray-300"}`}>
+                                    {type === "vendor" && <div className="h-2 w-2 rounded-full bg-[#E53E3E]" />}
+                                </div>
+                                <span className="font-open-sauce text-[12px]">Vendor</span>
+                            </label>
                         </div>
-                        {/* Manual input untuk tipe custom */}
-                        <input
-                            type="text"
-                            name="type"
-                            value={type}
-                            onChange={(e) => setType(e.target.value.toLowerCase().replace(/\s+/g, "_"))}
-                            placeholder="tps / vendor / bank_sampah / ..."
-                            className="w-full rounded-xl border border-gray-200 bg-white py-2 px-4 font-open-sauce text-[13px] text-gray-800 outline-none transition focus:border-[#0B2545] focus:ring-2 focus:ring-[#0B2545]/10"
-                            required
-                        />
-                        <p className="font-open-sauce text-[11px] text-gray-400">Gunakan huruf kecil dan garis bawah, contoh: <code>bank_sampah</code></p>
                     </div>
 
                     {/* Name */}
@@ -381,6 +379,20 @@ export default function LocationModal({
                             placeholder="Misal: Mang Adi Recycle"
                             className={inputCls}
                             required
+                        />
+                    </div>
+
+                    {/* PIC */}
+                    <div className="space-y-1.5">
+                        <label className="block font-open-sauce text-[12px] font-bold text-gray-500 uppercase tracking-wider">
+                            Nama PIC / Penanggung Jawab
+                        </label>
+                        <input
+                            type="text"
+                            value={namaPic}
+                            onChange={(e) => setNamaPic(e.target.value)}
+                            placeholder="Misal: Pak Adi"
+                            className={inputCls}
                         />
                     </div>
 
@@ -413,61 +425,68 @@ export default function LocationModal({
                         </div>
                     </div>
 
-                    {/* Latitude, Longitude, Website */}
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    {/* Website */}
+                    <div className="space-y-1.5">
+                        <label className="block font-open-sauce text-[12px] font-bold text-gray-500 uppercase tracking-wider">
+                            Website
+                        </label>
+                        <input
+                            type="text"
+                            value={website}
+                            onChange={(e) => setWebsite(e.target.value)}
+                            placeholder="daurulang.com"
+                            className={inputCls}
+                        />
+                    </div>
+
+                    {/* Address Detail (search → auto-fill koordinat) */}
+                    <div className="space-y-1.5">
+                        <label className="block font-open-sauce text-[12px] font-bold text-gray-500 uppercase tracking-wider">
+                            Alamat Lengkap <span className="text-red-500">*</span>
+                        </label>
+                        <LocationSearchInputLazy
+                            value={address}
+                            onAddressChange={setAddress}
+                            onCoordinatesChange={({ lat, lng }) => {
+                                setLatitude(String(lat));
+                                setLongitude(String(lng));
+                            }}
+                            className={inputCls}
+                            placeholder="Ketik nama tempat atau alamat, lalu pilih dari saran..."
+                            required
+                        />
+                        <p className="flex items-center gap-1.5 font-open-sauce text-[11px] text-gray-400">
+                            <Icon icon="lucide:info" width={12} height={12} className="shrink-0" />
+                            Pilih alamat dari saran agar koordinat terisi otomatis.
+                        </p>
+                    </div>
+
+                    {/* Latitude, Longitude (opsional) */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="space-y-1.5">
                             <label className="block font-open-sauce text-[12px] font-bold text-gray-500 uppercase tracking-wider">
-                                Latitude <span className="text-red-500">*</span>
+                                Latitude <span className="font-normal normal-case text-gray-400">(opsional)</span>
                             </label>
                             <input
                                 type="text"
                                 value={latitude}
                                 onChange={(e) => setLatitude(e.target.value)}
-                                placeholder="-8.6500"
+                                placeholder="Otomatis dari alamat"
                                 className={inputCls}
-                                required
                             />
                         </div>
                         <div className="space-y-1.5">
                             <label className="block font-open-sauce text-[12px] font-bold text-gray-500 uppercase tracking-wider">
-                                Longitude <span className="text-red-500">*</span>
+                                Longitude <span className="font-normal normal-case text-gray-400">(opsional)</span>
                             </label>
                             <input
                                 type="text"
                                 value={longitude}
                                 onChange={(e) => setLongitude(e.target.value)}
-                                placeholder="115.2166"
-                                className={inputCls}
-                                required
-                            />
-                        </div>
-                        <div className="space-y-1.5 sm:col-span-1">
-                            <label className="block font-open-sauce text-[12px] font-bold text-gray-500 uppercase tracking-wider">
-                                Website
-                            </label>
-                            <input
-                                type="text"
-                                value={website}
-                                onChange={(e) => setWebsite(e.target.value)}
-                                placeholder="daurulang.com"
+                                placeholder="Otomatis dari alamat"
                                 className={inputCls}
                             />
                         </div>
-                    </div>
-
-                    {/* Address Detail */}
-                    <div className="space-y-1.5">
-                        <label className="block font-open-sauce text-[12px] font-bold text-gray-500 uppercase tracking-wider">
-                            Alamat Lengkap <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                            type="text"
-                            value={address}
-                            onChange={(e) => setAddress(e.target.value)}
-                            placeholder="Tuliskan alamat jalan, RT/RW, kode pos..."
-                            className={inputCls}
-                            required
-                        />
                     </div>
 
                     {/* Waste Types accepted */}
@@ -573,13 +592,13 @@ export default function LocationModal({
                                 <div className="space-y-1.5">
                                     <label className="block font-open-sauce text-[11px] font-semibold text-gray-500">Jam Buka</label>
                                     <input type="time" value={openTime} onChange={(e) => setOpenTime(e.target.value)}
-                                        onClick={(e) => (e.currentTarget as any).showPicker?.()}
+                                        onClick={(e) => e.currentTarget.showPicker?.()}
                                         className={inputCls} />
                                 </div>
                                 <div className="space-y-1.5">
                                     <label className="block font-open-sauce text-[11px] font-semibold text-gray-500">Jam Tutup</label>
                                     <input type="time" value={closeTime} onChange={(e) => setCloseTime(e.target.value)}
-                                        onClick={(e) => (e.currentTarget as any).showPicker?.()}
+                                        onClick={(e) => e.currentTarget.showPicker?.()}
                                         className={inputCls} />
                                 </div>
                             </div>

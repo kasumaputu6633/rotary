@@ -6,6 +6,7 @@ import { wasteLocations } from "@/db/schema";
 import { eq, desc } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { uploadWasteLocationImage } from "@/lib/r2";
+import { geocodeLocationText } from "@/lib/mapbox";
 
 /**
  * Fetches all active waste locations for the admin panel, sorted by latest created.
@@ -27,15 +28,16 @@ export async function createWasteLocationAction(formData: FormData) {
 
   const type = formData.get("type") as string;
   const namaUsaha = formData.get("namaUsaha") as string;
+  const namaPic = formData.get("namaPic") as string;
   const emailKontak = formData.get("emailKontak") as string;
   const teleponKontak = formData.get("teleponKontak") as string;
   const alamat = formData.get("alamat") as string;
   const website = formData.get("website") as string;
   const latitudeStr = formData.get("latitude") as string;
   const longitudeStr = formData.get("longitude") as string;
-  
-  const jenisSampahRaw = formData.get("jenisSampahDiterima") as string; 
-  const operatingHoursRaw = formData.get("operatingHours") as string; 
+
+  const jenisSampahRaw = formData.get("jenisSampahDiterima") as string;
+  const operatingHoursRaw = formData.get("operatingHours") as string;
   const imageFile = formData.get("image") as File | null;
 
   // Validate required fields
@@ -43,13 +45,21 @@ export async function createWasteLocationAction(formData: FormData) {
   if (!type) throw new Error("Tipe lokasi harus diisi.");
   if (!teleponKontak?.trim()) throw new Error("Kontak harus diisi.");
   if (!alamat?.trim()) throw new Error("Alamat harus diisi.");
-  if (!latitudeStr) throw new Error("Latitude harus diisi.");
-  if (!longitudeStr) throw new Error("Longitude harus diisi.");
 
-  const latitude = parseFloat(latitudeStr);
-  const longitude = parseFloat(longitudeStr);
-  if (isNaN(latitude)) throw new Error("Latitude harus berupa angka.");
-  if (isNaN(longitude)) throw new Error("Longitude harus berupa angka.");
+  // Koordinat opsional: terisi otomatis dari pencarian alamat di client,
+  // atau di-geocode dari alamat di server bila tidak diisi.
+  let latitude: number | null = latitudeStr?.trim() ? parseFloat(latitudeStr) : null;
+  let longitude: number | null = longitudeStr?.trim() ? parseFloat(longitudeStr) : null;
+  if (latitude !== null && isNaN(latitude)) throw new Error("Latitude harus berupa angka.");
+  if (longitude !== null && isNaN(longitude)) throw new Error("Longitude harus berupa angka.");
+
+  if ((latitude === null || longitude === null) && alamat) {
+    const coords = await geocodeLocationText(alamat);
+    if (coords) {
+      latitude = coords.lat;
+      longitude = coords.lng;
+    }
+  }
 
   const jenisSampahDiterima = jenisSampahRaw ? JSON.parse(jenisSampahRaw) : [];
   if (!jenisSampahDiterima.length) throw new Error("Pilih minimal satu jenis sampah.");
@@ -69,6 +79,7 @@ export async function createWasteLocationAction(formData: FormData) {
   await db.insert(wasteLocations).values({
     type,
     namaUsaha,
+    namaPic: namaPic || null,
     emailKontak: emailKontak || null,
     teleponKontak,
     alamat,
@@ -93,16 +104,17 @@ export async function updateWasteLocationAction(id: string, formData: FormData) 
 
   const type = formData.get("type") as string;
   const namaUsaha = formData.get("namaUsaha") as string;
+  const namaPic = formData.get("namaPic") as string;
   const emailKontak = formData.get("emailKontak") as string;
   const teleponKontak = formData.get("teleponKontak") as string;
   const alamat = formData.get("alamat") as string;
   const website = formData.get("website") as string;
   const latitudeStr = formData.get("latitude") as string;
   const longitudeStr = formData.get("longitude") as string;
-  
-  const jenisSampahRaw = formData.get("jenisSampahDiterima") as string; 
-  const operatingHoursRaw = formData.get("operatingHours") as string; 
-  
+
+  const jenisSampahRaw = formData.get("jenisSampahDiterima") as string;
+  const operatingHoursRaw = formData.get("operatingHours") as string;
+
   const imageFile = formData.get("image") as File | null;
   const currentImageUrl = formData.get("currentImageUrl") as string;
 
@@ -111,13 +123,21 @@ export async function updateWasteLocationAction(id: string, formData: FormData) 
   if (!type) throw new Error("Tipe lokasi harus diisi.");
   if (!teleponKontak?.trim()) throw new Error("Kontak harus diisi.");
   if (!alamat?.trim()) throw new Error("Alamat harus diisi.");
-  if (!latitudeStr) throw new Error("Latitude harus diisi.");
-  if (!longitudeStr) throw new Error("Longitude harus diisi.");
 
-  const latitude = parseFloat(latitudeStr);
-  const longitude = parseFloat(longitudeStr);
-  if (isNaN(latitude)) throw new Error("Latitude harus berupa angka.");
-  if (isNaN(longitude)) throw new Error("Longitude harus berupa angka.");
+  // Koordinat opsional: terisi otomatis dari pencarian alamat di client,
+  // atau di-geocode dari alamat di server bila tidak diisi.
+  let latitude: number | null = latitudeStr?.trim() ? parseFloat(latitudeStr) : null;
+  let longitude: number | null = longitudeStr?.trim() ? parseFloat(longitudeStr) : null;
+  if (latitude !== null && isNaN(latitude)) throw new Error("Latitude harus berupa angka.");
+  if (longitude !== null && isNaN(longitude)) throw new Error("Longitude harus berupa angka.");
+
+  if ((latitude === null || longitude === null) && alamat) {
+    const coords = await geocodeLocationText(alamat);
+    if (coords) {
+      latitude = coords.lat;
+      longitude = coords.lng;
+    }
+  }
 
   const jenisSampahDiterima = jenisSampahRaw ? JSON.parse(jenisSampahRaw) : [];
   if (!jenisSampahDiterima.length) throw new Error("Pilih minimal satu jenis sampah.");
@@ -140,6 +160,7 @@ export async function updateWasteLocationAction(id: string, formData: FormData) 
     .set({
       type,
       namaUsaha,
+      namaPic: namaPic || null,
       emailKontak: emailKontak || null,
       teleponKontak,
       alamat,

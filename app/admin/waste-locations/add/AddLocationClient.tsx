@@ -6,7 +6,8 @@ import { Icon } from "@iconify/react";
 import Image from "next/image";
 import Link from "next/link";
 import { createWasteLocationAction } from "../actions";
-import { formatOperatingHours } from "../_components/LocationCard";
+import { formatOperatingHours, type OperatingHours } from "../_components/LocationCard";
+import { LocationSearchInputLazy } from "../_components/LocationSearchInputLazy";
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
@@ -38,11 +39,11 @@ const DAY_LABELS_ID: Record<string, string> = {
 
 function LivePreview({
     name, type, address, operatingHours, phone, email, website, latitude, longitude,
-    selectedWasteTypes, previewUrl,
+    selectedWasteTypes, previewUrl, namaPic,
 }: {
-    name: string; type: string; address: string;
-    operatingHours: any; phone: string; email: string; website: string; latitude: string; longitude: string;
-    selectedWasteTypes: string[]; previewUrl: string | null;
+    name: string; type: "tps" | "vendor"; address: string;
+    operatingHours: OperatingHours; phone: string; email: string; website: string; latitude: string; longitude: string;
+    selectedWasteTypes: string[]; previewUrl: string | null; namaPic: string;
 }) {
     const isEmpty = !name && !address && !phone && selectedWasteTypes.length === 0 && !previewUrl;
 
@@ -105,11 +106,9 @@ function LivePreview({
                                     )}
                                 </div>
                                 <span className={`shrink-0 rounded-full px-2.5 py-0.5 font-open-sauce text-[9px] font-bold text-white uppercase select-none ${
-                                    type === "tps" ? "bg-[#0B2545]" :
-                                    type === "vendor" ? "bg-[#E53E3E]" :
-                                    "bg-[#5543a9]"
+                                    type === "tps" ? "bg-[#0B2545]" : "bg-[#E53E3E]"
                                 }`}>
-                                    {type.split(/[_\s-]+/).map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ")}
+                                    {type}
                                 </span>
                             </div>
 
@@ -118,6 +117,12 @@ function LivePreview({
 
                             {/* Info rows */}
                             <div className="space-y-2">
+                                {namaPic && (
+                                    <div className="flex items-start gap-2.5">
+                                        <Icon icon="lucide:user-round" width={13} height={13} className="mt-0.5 shrink-0 text-gray-400" />
+                                        <span className="font-open-sauce text-[11px] text-gray-600">{namaPic}</span>
+                                    </div>
+                                )}
                                 {formattedHours && formattedHours !== "-" && (
                                     <div className="flex items-start gap-2.5">
                                         <Icon icon="lucide:clock" width={13} height={13} className="mt-0.5 shrink-0 text-gray-400" />
@@ -190,8 +195,9 @@ export default function AddLocationClient() {
     const router = useRouter();
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    const [type, setType]                             = useState<string>("tps");
+    const [type, setType]                             = useState<"tps" | "vendor">("tps");
     const [name, setName]                             = useState("");
+    const [namaPic, setNamaPic]                       = useState("");
     const [email, setEmail]                           = useState("");
     const [phone, setPhone]                           = useState("");
     const [address, setAddress]                       = useState("");
@@ -200,14 +206,14 @@ export default function AddLocationClient() {
     const [longitude, setLongitude]                   = useState("");
     const [selectedWasteTypes, setSelectedWasteTypes] = useState<string[]>([]);
     const [customWasteInput, setCustomWasteInput]     = useState("");
-    
+
     // Operating hours state
     const [selectedDays, setSelectedDays] = useState<string[]>(["monday", "tuesday", "wednesday", "thursday", "friday"]);
     const [openTime, setOpenTime] = useState("08:00");
     const [closeTime, setCloseTime] = useState("17:00");
 
     const operatingHours = useMemo(() => {
-        const hours: any = {};
+        const hours: OperatingHours = {};
         for (const day of DAY_KEYS) {
             hours[day] = {
                 open: openTime,
@@ -273,18 +279,18 @@ export default function AddLocationClient() {
         if (!name.trim())             return setError("Nama lokasi harus diisi.");
         if (!phone.trim())            return setError("Kontak harus diisi.");
         if (!address.trim())          return setError("Alamat harus diisi.");
-        if (!latitude.trim())         return setError("Latitude harus diisi.");
-        if (!longitude.trim())        return setError("Longitude harus diisi.");
 
-        // Coordinate checks
-        if (isNaN(parseFloat(latitude))) return setError("Latitude harus berupa angka.");
-        if (isNaN(parseFloat(longitude))) return setError("Longitude harus berupa angka.");
+        // Koordinat opsional: terisi otomatis dari pencarian alamat, atau diisi manual.
+        // Jika diisi manual, pastikan berupa angka yang valid.
+        if (latitude.trim() && isNaN(parseFloat(latitude))) return setError("Latitude harus berupa angka.");
+        if (longitude.trim() && isNaN(parseFloat(longitude))) return setError("Longitude harus berupa angka.");
 
         setIsSubmitting(true);
         try {
             const formData = new FormData();
             formData.append("type", type);
             formData.append("namaUsaha", name.trim());
+            formData.append("namaPic", namaPic.trim());
             formData.append("emailKontak", email.trim());
             formData.append("teleponKontak", phone.trim());
             formData.append("alamat", address.trim());
@@ -302,9 +308,9 @@ export default function AddLocationClient() {
                 router.push("/admin/waste-locations");
                 router.refresh();
             }, 1200);
-        } catch (err: any) {
+        } catch (err) {
             console.error(err);
-            setError(err.message || "Gagal menyimpan data lokasi ke database.");
+            setError(err instanceof Error ? err.message : "Gagal menyimpan data lokasi ke database.");
         } finally {
             setIsSubmitting(false);
         }
@@ -413,36 +419,36 @@ export default function AddLocationClient() {
                         {/* ── 2. Tipe Lokasi ─────────────────────────────── */}
                         <div className="px-6 py-5 space-y-3">
                             <p className="font-open-sauce text-[13px] font-bold text-gray-700">Tipe Lokasi <span className="text-red-500">*</span></p>
-                            {/* Quick-select preset */}
-                            <div className="flex flex-wrap gap-2">
-                                {["tps", "vendor", "bank_sampah", "komunitas", "dropbox"].map((preset) => (
-                                    <button
-                                        key={preset}
-                                        type="button"
-                                        onClick={() => setType(preset)}
-                                        className={`rounded-lg px-3.5 py-1.5 font-open-sauce text-[12px] font-semibold transition border-2 ${
-                                            type === preset
-                                                ? "border-[#0B2545] bg-[#0B2545] text-white"
-                                                : "border-gray-200 bg-white text-gray-600 hover:border-[#0B2545] hover:text-[#0B2545]"
-                                        }`}
-                                    >
-                                        {preset.split(/[_\s-]+/).map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ")}
-                                    </button>
-                                ))}
+                            {/* Pilihan tipe: hanya tps & vendor sesuai database */}
+                            <div className="flex flex-col sm:flex-row gap-4">
+                                <label className={`flex-1 flex items-center justify-between p-3.5 rounded-xl border-2 cursor-pointer transition select-none ${
+                                    type === "tps"
+                                        ? "border-[#0B2545] bg-[#0B2545]/5 text-[#0B2545] font-bold"
+                                        : "border-gray-200 bg-white text-gray-600 hover:border-gray-300"
+                                }`}>
+                                    <div className="flex items-center gap-2.5">
+                                        <input type="radio" name="type" value="tps" checked={type === "tps"} onChange={() => setType("tps")} className="hidden" />
+                                        <div className={`h-4 w-4 rounded-full border-2 flex items-center justify-center ${type === "tps" ? "border-[#0B2545]" : "border-gray-300"}`}>
+                                            {type === "tps" && <div className="h-2 w-2 rounded-full bg-[#0B2545]" />}
+                                        </div>
+                                        <span className="font-open-sauce text-[13px]">TPS (Tempat Pembuangan Sementara)</span>
+                                    </div>
+                                </label>
+
+                                <label className={`flex-1 flex items-center justify-between p-3.5 rounded-xl border-2 cursor-pointer transition select-none ${
+                                    type === "vendor"
+                                        ? "border-[#E53E3E] bg-[#E53E3E]/5 text-[#E53E3E] font-bold"
+                                        : "border-gray-200 bg-white text-gray-600 hover:border-gray-300"
+                                }`}>
+                                    <div className="flex items-center gap-2.5">
+                                        <input type="radio" name="type" value="vendor" checked={type === "vendor"} onChange={() => setType("vendor")} className="hidden" />
+                                        <div className={`h-4 w-4 rounded-full border-2 flex items-center justify-center ${type === "vendor" ? "border-[#E53E3E]" : "border-gray-300"}`}>
+                                            {type === "vendor" && <div className="h-2 w-2 rounded-full bg-[#E53E3E]" />}
+                                        </div>
+                                        <span className="font-open-sauce text-[13px]">Vendor / Pusat Daur Ulang</span>
+                                    </div>
+                                </label>
                             </div>
-                            {/* Manual input untuk tipe custom */}
-                            <div className="relative">
-                                <input
-                                    type="text"
-                                    name="type"
-                                    value={type}
-                                    onChange={(e) => setType(e.target.value.toLowerCase().replace(/\s+/g, "_"))}
-                                    placeholder="tps / vendor / bank_sampah / ..."
-                                    className="w-full rounded-xl border-2 border-gray-200 bg-white py-3 px-4 font-open-sauce text-[13px] text-gray-800 outline-none transition focus:border-[#0B2545] focus:ring-2 focus:ring-[#0B2545]/10"
-                                    required
-                                />
-                            </div>
-                            <p className="font-open-sauce text-[11px] text-gray-400">Pilih preset di atas atau ketik manual. Gunakan huruf kecil dan garis bawah, contoh: <code>bank_sampah</code></p>
                         </div>
 
                         {/* ── 3. Jenis Sampah ────────────────────────────── */}
@@ -518,6 +524,11 @@ export default function AddLocationClient() {
                                         placeholder="Misal: Mang Adi Recycle" className={inputCls} required />
                                 </div>
                                 <div className="space-y-1.5">
+                                    <label className="block font-open-sauce text-[12px] font-semibold text-gray-500">Nama PIC / Penanggung Jawab</label>
+                                    <input type="text" value={namaPic} onChange={(e) => setNamaPic(e.target.value)}
+                                        placeholder="Misal: Pak Adi" className={inputCls} />
+                                </div>
+                                <div className="space-y-1.5">
                                     <label className="block font-open-sauce text-[12px] font-semibold text-gray-500">Email Kontak</label>
                                     <input type="email" value={email} onChange={(e) => setEmail(e.target.value)}
                                         placeholder="Misal: kontak@daurulang.com" className={inputCls} />
@@ -532,22 +543,38 @@ export default function AddLocationClient() {
                                     <input type="url" value={website} onChange={(e) => setWebsite(e.target.value)}
                                         placeholder="https://www.laporansampah.com" className={inputCls} />
                                 </div>
-                                <div className="space-y-1.5">
-                                    <label className="block font-open-sauce text-[12px] font-semibold text-gray-500">Latitude <span className="text-red-500">*</span></label>
-                                    <input type="text" value={latitude} onChange={(e) => setLatitude(e.target.value)}
-                                        placeholder="Contoh: -8.6500" className={inputCls} required />
-                                </div>
-                                <div className="space-y-1.5">
-                                    <label className="block font-open-sauce text-[12px] font-semibold text-gray-500">Longitude <span className="text-red-500">*</span></label>
-                                    <input type="text" value={longitude} onChange={(e) => setLongitude(e.target.value)}
-                                        placeholder="Contoh: 115.2166" className={inputCls} required />
-                                </div>
                             </div>
 
                             <div className="space-y-1.5">
                                 <label className="block font-open-sauce text-[12px] font-semibold text-gray-500">Alamat Lengkap <span className="text-red-500">*</span></label>
-                                <input type="text" value={address} onChange={(e) => setAddress(e.target.value)}
-                                    placeholder="Jalan, nomor, desa, kecamatan, kode pos..." className={inputCls} required />
+                                <LocationSearchInputLazy
+                                    value={address}
+                                    onAddressChange={setAddress}
+                                    onCoordinatesChange={({ lat, lng }) => {
+                                        setLatitude(String(lat));
+                                        setLongitude(String(lng));
+                                    }}
+                                    className={inputCls}
+                                    placeholder="Ketik nama tempat atau alamat, lalu pilih dari saran..."
+                                    required
+                                />
+                                <p className="flex items-center gap-1.5 font-open-sauce text-[11px] text-gray-400">
+                                    <Icon icon="lucide:info" width={12} height={12} className="shrink-0" />
+                                    Pilih alamat dari saran agar koordinat terisi otomatis. Isi manual di bawah jika lokasi tidak ditemukan.
+                                </p>
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div className="space-y-1.5">
+                                    <label className="block font-open-sauce text-[12px] font-semibold text-gray-500">Latitude <span className="font-normal text-gray-400">(opsional)</span></label>
+                                    <input type="text" value={latitude} onChange={(e) => setLatitude(e.target.value)}
+                                        placeholder="Otomatis dari alamat, mis. -8.6500" className={inputCls} />
+                                </div>
+                                <div className="space-y-1.5">
+                                    <label className="block font-open-sauce text-[12px] font-semibold text-gray-500">Longitude <span className="font-normal text-gray-400">(opsional)</span></label>
+                                    <input type="text" value={longitude} onChange={(e) => setLongitude(e.target.value)}
+                                        placeholder="Otomatis dari alamat, mis. 115.2166" className={inputCls} />
+                                </div>
                             </div>
 
                             {/* Jam Operasional */}
@@ -582,13 +609,13 @@ export default function AddLocationClient() {
                                         <div className="space-y-1.5">
                                             <label className="block font-open-sauce text-[11px] font-semibold text-gray-500">Jam Buka</label>
                                             <input type="time" value={openTime} onChange={(e) => setOpenTime(e.target.value)}
-                                                onClick={(e) => (e.currentTarget as any).showPicker?.()}
+                                                onClick={(e) => e.currentTarget.showPicker?.()}
                                                 className={inputCls} />
                                         </div>
                                         <div className="space-y-1.5">
                                             <label className="block font-open-sauce text-[11px] font-semibold text-gray-500">Jam Tutup</label>
                                             <input type="time" value={closeTime} onChange={(e) => setCloseTime(e.target.value)}
-                                                onClick={(e) => (e.currentTarget as any).showPicker?.()}
+                                                onClick={(e) => e.currentTarget.showPicker?.()}
                                                 className={inputCls} />
                                         </div>
                                     </div>
@@ -628,6 +655,7 @@ export default function AddLocationClient() {
                     longitude={longitude}
                     selectedWasteTypes={selectedWasteTypes}
                     previewUrl={previewUrl}
+                    namaPic={namaPic}
                 />
             </div>
         </div>

@@ -1,12 +1,16 @@
 "use client";
 
 import { Icon } from "@iconify/react";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import MapContainer from "./MapContainer";
 import type { WasteLocation } from "../actions";
+import { recordRecentWasteLocationAction, toggleSavedWasteLocationAction } from "../actions";
 
 interface WasteMapClientProps {
   initialLocations: WasteLocation[];
+  initialSavedIds: string[];
+  isAuthenticated: boolean;
 }
 
 const DEFAULT_MATERIALS = [
@@ -118,6 +122,11 @@ function buildWhatsAppUrl(phone: string) {
   let digits = phone.replace(/\D/g, "");
   if (digits.startsWith("0")) digits = `62${digits.slice(1)}`;
   return `https://wa.me/${digits}`;
+}
+
+function normalizeWebsiteUrl(website: string) {
+  const trimmed = website.trim();
+  return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
 }
 
 function LocationImage({ location, className }: { location: WasteLocation; className: string }) {
@@ -294,6 +303,38 @@ function LocationDetailCard({
                   {location.teleponKontak}
                   <Icon icon="mdi:whatsapp" width={18} height={18} className="text-[#25d366]" />
                 </a>
+                {location.namaPic && (
+                  <p className="mt-1 flex items-center gap-2 text-[#5f6370]">
+                    <Icon icon="lucide:user-round" width={16} height={16} className="text-[#17458f]" />
+                    {location.namaPic}
+                  </p>
+                )}
+              </div>
+            )}
+            {location.emailKontak && (
+              <div>
+                <p className="font-semibold text-[#171717]">Email</p>
+                <a
+                  href={`mailto:${location.emailKontak}`}
+                  className="mt-1 inline-flex items-center gap-2 break-all text-[#4b5563] transition hover:text-[#17458f] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#17458f] focus-visible:ring-offset-2"
+                >
+                  <Icon icon="lucide:mail" width={16} height={16} className="text-[#17458f]" />
+                  {location.emailKontak}
+                </a>
+              </div>
+            )}
+            {location.website && (
+              <div>
+                <p className="font-semibold text-[#171717]">Website</p>
+                <a
+                  href={normalizeWebsiteUrl(location.website)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-1 inline-flex items-center gap-2 break-all text-[#4b5563] transition hover:text-[#17458f] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#17458f] focus-visible:ring-offset-2"
+                >
+                  <Icon icon="lucide:globe" width={16} height={16} className="text-[#17458f]" />
+                  {location.website}
+                </a>
               </div>
             )}
           </div>
@@ -354,27 +395,19 @@ function LocationDetailCard({
   );
 }
 
-export default function WasteMapClient({ initialLocations }: WasteMapClientProps) {
+export default function WasteMapClient({
+  initialLocations,
+  initialSavedIds,
+  isAuthenticated,
+}: WasteMapClientProps) {
+  const router = useRouter();
   const [query, setQuery] = useState("");
   const [activeMaterial, setActiveMaterial] = useState("Semua");
   const [activeLocationId, setActiveLocationId] = useState<string | null>(null);
   const [recenterRequestKey, setRecenterRequestKey] = useState(0);
-  const [savedIds, setSavedIds] = useState<string[]>(() => {
-    if (typeof window === "undefined") return [];
-
-    try {
-      const saved = window.localStorage.getItem("rotary-saved-waste-locations");
-      const parsed = saved ? JSON.parse(saved) : [];
-      return Array.isArray(parsed) ? parsed.filter((id) => typeof id === "string") : [];
-    } catch {
-      return [];
-    }
-  });
+  const [savedIds, setSavedIds] = useState<string[]>(initialSavedIds);
   const [shareNotice, setShareNotice] = useState<string | null>(null);
-
-  useEffect(() => {
-    window.localStorage.setItem("rotary-saved-waste-locations", JSON.stringify(savedIds));
-  }, [savedIds]);
+  const [, startTransition] = useTransition();
 
   const materialOptions = useMemo(() => {
     const materialSet = new Set(DEFAULT_MATERIALS);
@@ -417,12 +450,42 @@ export default function WasteMapClient({ initialLocations }: WasteMapClientProps
     ? filteredLocations.find((location) => location.id === activeLocationId) ?? null
     : null;
 
+  const handleSelectLocation = (locationId: string) => {
+    setActiveLocationId(locationId);
+    if (isAuthenticated) {
+      startTransition(() => {
+        recordRecentWasteLocationAction(locationId).catch(() => {});
+      });
+    }
+  };
+
   const toggleSaved = (locationId: string) => {
+    if (!isAuthenticated) {
+      router.push(`/login?redirect=${encodeURIComponent("/waste")}`);
+      return;
+    }
+
+    const wasSaved = savedIds.includes(locationId);
+    // Optimistic update; reconcile with the server result.
     setSavedIds((current) =>
-      current.includes(locationId)
-        ? current.filter((id) => id !== locationId)
-        : [...current, locationId],
+      wasSaved ? current.filter((id) => id !== locationId) : [...current, locationId],
     );
+
+    startTransition(() => {
+      toggleSavedWasteLocationAction(locationId)
+        .then((isSaved) => {
+          setSavedIds((current) => {
+            const without = current.filter((id) => id !== locationId);
+            return isSaved ? [...without, locationId] : without;
+          });
+        })
+        .catch(() => {
+          // Revert on failure.
+          setSavedIds((current) =>
+            wasSaved ? [...current, locationId] : current.filter((id) => id !== locationId),
+          );
+        });
+    });
   };
 
   const handleShare = async (location: WasteLocation) => {
@@ -538,7 +601,7 @@ export default function WasteMapClient({ initialLocations }: WasteMapClientProps
                 key={location.id}
                 location={location}
                 isActive={activeLocationId === location.id}
-                onSelect={setActiveLocationId}
+                onSelect={handleSelectLocation}
               />
             ))
           ) : (
@@ -560,7 +623,7 @@ export default function WasteMapClient({ initialLocations }: WasteMapClientProps
       <div className="relative min-h-[620px] bg-[#dfe9ef] lg:h-[calc(100dvh-133px)] lg:min-h-0">
         <MapContainer
           locations={filteredLocations}
-          onMarkerClick={setActiveLocationId}
+          onMarkerClick={handleSelectLocation}
           activeLocationId={activeLocationId}
           recenterRequestKey={recenterRequestKey}
         />
