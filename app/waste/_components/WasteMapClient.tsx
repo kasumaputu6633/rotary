@@ -258,8 +258,14 @@ function LocationDetailCard({
   return (
     <aside
       aria-label="Detail lokasi penampung"
-      className="absolute inset-x-3 bottom-3 z-20 rounded-xl bg-white p-4 shadow-[0_12px_28px_rgba(15,23,42,0.18)] md:inset-x-auto md:bottom-6 md:left-1/2 md:w-[calc(100%-4rem)] md:max-w-4xl md:-translate-x-1/2 md:p-5"
+      className="absolute inset-x-0 bottom-0 z-20 max-h-[80%] overflow-y-auto rounded-t-2xl bg-white p-4 pt-2.5 shadow-[0_-8px_28px_rgba(15,23,42,0.18)] md:inset-x-auto md:bottom-6 md:left-1/2 md:max-h-none md:w-[calc(100%-4rem)] md:max-w-4xl md:-translate-x-1/2 md:overflow-visible md:rounded-xl md:p-5 md:pt-5 md:shadow-[0_12px_28px_rgba(15,23,42,0.18)]"
     >
+      {/* Grab handle — penanda bottom sheet, hanya di mobile. */}
+      <div
+        className="mx-auto mb-3 h-1 w-10 rounded-full bg-[#d8deea] md:hidden"
+        aria-hidden="true"
+      />
+
       <button
         type="button"
         onClick={onClose}
@@ -418,6 +424,8 @@ export default function WasteMapClient({
   const [recenterRequestKey, setRecenterRequestKey] = useState(0);
   const [savedIds, setSavedIds] = useState<string[]>(initialSavedIds);
   const [viewMode, setViewMode] = useState<ViewMode>("all");
+  const [mobileView, setMobileView] = useState<"list" | "map">("list");
+  const [mapResizeKey, setMapResizeKey] = useState(0);
   const [shareNotice, setShareNotice] = useState<string | null>(null);
   const [showFilter, setShowFilter] = useState(false);
   const filterRef = useRef<HTMLDivElement>(null);
@@ -519,8 +527,18 @@ export default function WasteMapClient({
     ? filteredLocations.find((location) => location.id === activeLocationId) ?? null
     : null;
 
+  // Beralih ke tampilan peta di mobile sekaligus memicu resize canvas Mapbox
+  // (peta sebelumnya display:none → canvas 0x0). Dipanggil dari event handler,
+  // bukan effect, agar tidak memicu cascading render.
+  const showMobileMap = () => {
+    setMobileView("map");
+    setMapResizeKey((key) => key + 1);
+  };
+
   const handleSelectLocation = (locationId: string) => {
     setActiveLocationId(locationId);
+    // Di mobile, pilih kartu langsung memunculkan peta + detail sheet-nya.
+    showMobileMap();
     if (isAuthenticated) {
       startTransition(() => {
         recordRecentWasteLocationAction(locationId).catch(() => {});
@@ -580,7 +598,7 @@ export default function WasteMapClient({
 
   return (
     <section className="mx-auto grid min-h-[calc(100dvh-149px)] max-w-[1920px] overflow-hidden border-t border-gray-200 bg-white lg:min-h-[calc(100dvh-133px)] lg:grid-cols-[410px_minmax(0,1fr)] xl:grid-cols-[450px_minmax(0,1fr)]">
-      <aside className="relative z-20 flex max-h-none flex-col border-b border-[#d8deea] bg-white lg:h-[calc(100dvh-133px)] lg:border-b-0 lg:border-r">
+      <aside className={`relative z-20 h-[calc(100dvh-149px)] flex-col border-b border-[#d8deea] bg-white lg:flex lg:h-[calc(100dvh-133px)] lg:border-b-0 lg:border-r ${mobileView === "map" ? "hidden" : "flex"}`}>
         <div className="border-b border-[#e6eaf0] bg-white px-5 py-5 md:px-6">
           <div className="mb-4">
             <p className="inline-flex items-center gap-2 font-open-sauce text-xs font-semibold text-[#17458f]">
@@ -785,15 +803,37 @@ export default function WasteMapClient({
             </div>
           )}
         </div>
+
+        {/* Toggle ke peta (mobile). Mengambang di bawah daftar. */}
+        <button
+          type="button"
+          onClick={showMobileMap}
+          className="absolute bottom-5 left-1/2 z-20 inline-flex -translate-x-1/2 items-center gap-2 rounded-full bg-[#17458f] px-5 py-3 font-open-sauce text-[13px] font-semibold text-white shadow-[0_10px_24px_rgba(23,69,143,0.32)] transition hover:bg-[#123a79] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#17458f] focus-visible:ring-offset-2 lg:hidden"
+        >
+          <Icon icon="lucide:map" width={16} height={16} aria-hidden="true" />
+          Lihat Peta
+        </button>
       </aside>
 
-      <div className="relative min-h-[620px] bg-[#dfe9ef] lg:h-[calc(100dvh-133px)] lg:min-h-0">
+      <div className={`relative h-[calc(100dvh-149px)] bg-[#dfe9ef] lg:block lg:h-[calc(100dvh-133px)] ${mobileView === "map" ? "block" : "hidden"}`}>
         <MapContainer
           locations={filteredLocations}
           onMarkerClick={handleSelectLocation}
           activeLocationId={activeLocationId}
           recenterRequestKey={recenterRequestKey}
+          resizeKey={mapResizeKey}
         />
+
+        {/* Toggle kembali ke daftar (mobile). Di kiri-atas agar tidak bentrok
+            dengan kontrol peta (kanan-atas) dan detail sheet (bawah). */}
+        <button
+          type="button"
+          onClick={() => setMobileView("list")}
+          className="absolute left-3 top-3 z-20 inline-flex items-center gap-1.5 rounded-full border border-[#d8deea] bg-white px-3.5 py-2 font-open-sauce text-[13px] font-semibold text-[#17458f] shadow-[0_6px_16px_rgba(15,23,42,0.16)] transition hover:bg-[#f7fbff] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#17458f] lg:hidden"
+        >
+          <Icon icon="lucide:list" width={16} height={16} aria-hidden="true" />
+          Daftar
+        </button>
 
         {filteredLocations.length === 0 && (
           <div className="pointer-events-none absolute left-1/2 top-6 z-10 w-[calc(100%-32px)] max-w-md -translate-x-1/2 rounded-lg bg-white px-4 py-3 text-center shadow-[0_8px_12px_rgba(15,23,42,0.12)]">

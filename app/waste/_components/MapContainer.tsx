@@ -17,6 +17,7 @@ interface MapContainerProps {
   onMarkerClick: (locationId: string) => void;
   activeLocationId: string | null;
   recenterRequestKey?: number;
+  resizeKey?: number;
 }
 
 type LocationGeoJsonProperties = {
@@ -31,6 +32,7 @@ export default function MapContainer({
   onMarkerClick,
   activeLocationId,
   recenterRequestKey = 0,
+  resizeKey = 0,
 }: MapContainerProps) {
   const mapRef = useRef<MapRef>(null);
 
@@ -78,6 +80,16 @@ export default function MapContainer({
   useEffect(() => {
     focusActiveLocation();
   }, [focusActiveLocation, recenterRequestKey]);
+
+  // Peta yang di-display:none punya canvas 0x0; paksa resize saat kembali tampil
+  // (mis. toggle Daftar/Peta di mobile) agar tidak tampil kelabu.
+  useEffect(() => {
+    if (resizeKey === 0) return;
+    const map = mapRef.current?.getMap();
+    if (!map) return;
+    map.resize();
+    updateBounds();
+  }, [resizeKey]);
 
   const supercluster = useMemo(() => {
     const cluster = new Supercluster({
