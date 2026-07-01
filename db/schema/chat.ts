@@ -25,8 +25,8 @@ export const conversations = pgTable(
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
     contactMode: contactPreferenceEnum("contact_mode").notNull().default("in_app"),
-    lastMessageAt: timestamp("last_message_at").notNull().defaultNow(),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
+    lastMessageAt: timestamp("last_message_at", { withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [
     // Satu sesi chat per pasang buyer-seller (tidak peduli produknya)
@@ -54,7 +54,7 @@ export const messages = pgTable(
     replyToMessageId: uuid("reply_to_message_id")
       .references((): AnyPgColumn => messages.id, { onDelete: "set null" }),
     isRead: boolean("is_read").notNull().default(false),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [
     index("messages_conv_created_idx").on(t.conversationId, t.createdAt),

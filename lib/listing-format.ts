@@ -55,7 +55,7 @@ export function formatListingStatus(status: ListingStatus, mode?: ListingMode) {
     return "Selesai";
   }
   if (status === "inactive") return "Nonaktif";
-  if (status === "blocked") return "Diblokir Admin";
+  if (status === "blocked") return "Diblokir";
   return "Draft";
 }
 

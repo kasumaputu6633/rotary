@@ -63,8 +63,8 @@ export const users = pgTable("users", {
   avatarObjectKey: text("avatar_object_key"),
   role: roleEnum("role").notNull().default("user"),
   isVerified: boolean("is_verified").notNull().default(false),
-  emailVerifiedAt: timestamp("email_verified_at"),
-  phoneVerifiedAt: timestamp("phone_verified_at"),
+  emailVerifiedAt: timestamp("email_verified_at", { withTimezone: true }),
+  phoneVerifiedAt: timestamp("phone_verified_at", { withTimezone: true }),
   whatsappContactEnabled: boolean("whatsapp_contact_enabled")
     .notNull()
     .default(false),
@@ -72,9 +72,9 @@ export const users = pgTable("users", {
   twoFactorMethod: twoFactorMethodEnum("two_factor_method")
     .notNull()
     .default("email"),
-  lastSeenAt: timestamp("last_seen_at"),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  lastSeenAt: timestamp("last_seen_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
 export const otpCodes = pgTable(
@@ -84,10 +84,10 @@ export const otpCodes = pgTable(
     contact: varchar("contact", { length: 255 }).notNull(),
     codeHash: varchar("code_hash", { length: 64 }).notNull(),
     type: otpTypeEnum("type").notNull(),
-    expiresAt: timestamp("expires_at").notNull(),
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
     attempts: integer("attempts").notNull().default(0),
     used: boolean("used").notNull().default(false),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [
     index("otp_codes_contact_type_created_idx").on(
@@ -110,9 +110,9 @@ export const passwordResetTokens = pgTable(
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
     token: varchar("token", { length: 64 }).notNull().unique(),
-    expiresAt: timestamp("expires_at").notNull(),
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
     used: boolean("used").notNull().default(false),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [index("password_reset_tokens_user_id_idx").on(table.userId)],
 );
@@ -130,9 +130,9 @@ export const userDevices = pgTable(
     deviceName: varchar("device_name", { length: 120 }).notNull(),
     userAgent: text("user_agent"),
     ipAddress: varchar("ip_address", { length: 64 }),
-    lastUsedAt: timestamp("last_used_at").notNull().defaultNow(),
-    expiresAt: timestamp("expires_at").notNull(),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
+    lastUsedAt: timestamp("last_used_at", { withTimezone: true }).notNull().defaultNow(),
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [
     index("user_devices_user_id_idx").on(table.userId),
@@ -153,10 +153,10 @@ export const accountSessions = pgTable(
     }),
     userAgent: text("user_agent"),
     ipAddress: varchar("ip_address", { length: 64 }),
-    lastActiveAt: timestamp("last_active_at").notNull().defaultNow(),
-    expiresAt: timestamp("expires_at").notNull(),
-    revokedAt: timestamp("revoked_at"),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
+    lastActiveAt: timestamp("last_active_at", { withTimezone: true }).notNull().defaultNow(),
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+    revokedAt: timestamp("revoked_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [
     index("account_sessions_user_id_idx").on(table.userId),
@@ -180,7 +180,7 @@ export const loginActivities = pgTable(
     deviceName: varchar("device_name", { length: 120 }),
     userAgent: text("user_agent"),
     ipAddress: varchar("ip_address", { length: 64 }),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [
     index("login_activities_user_created_idx").on(
@@ -202,8 +202,8 @@ export const userRecoveryCodes = pgTable(
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
     codeHash: varchar("code_hash", { length: 64 }).notNull().unique(),
-    usedAt: timestamp("used_at"),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
+    usedAt: timestamp("used_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [index("user_recovery_codes_user_id_idx").on(table.userId)],
 );
@@ -234,12 +234,12 @@ export const listings = pgTable(
       .notNull()
       .default("in_app"),
     viewCount: integer("view_count").notNull().default(0),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
-    updatedAt: timestamp("updated_at").notNull().defaultNow(),
-    publishedAt: timestamp("published_at"),
-    reservedAt: timestamp("reserved_at"),
-    completedAt: timestamp("completed_at"),
-    verificationSentAt: timestamp("verification_sent_at"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+    publishedAt: timestamp("published_at", { withTimezone: true }),
+    reservedAt: timestamp("reserved_at", { withTimezone: true }),
+    completedAt: timestamp("completed_at", { withTimezone: true }),
+    verificationSentAt: timestamp("verification_sent_at", { withTimezone: true }),
   },
   (table) => [index("listings_seller_id_idx").on(table.sellerId)],
 );
@@ -254,7 +254,7 @@ export const listingImages = pgTable(
     imageUrl: text("image_url").notNull(),
     objectKey: text("object_key").notNull(),
     sortOrder: integer("sort_order").notNull().default(0),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [index("listing_images_listing_id_idx").on(table.listingId)],
 );
@@ -269,7 +269,7 @@ export const favoriteListings = pgTable(
     listingId: uuid("listing_id")
       .notNull()
       .references(() => listings.id, { onDelete: "cascade" }),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [
     index("favorite_listings_listing_id_idx").on(table.listingId),
@@ -297,12 +297,12 @@ export const listingDeals = pgTable(
     agreedPrice: integer("agreed_price"),
     handoverMethod: varchar("handover_method", { length: 80 }),
     handoverLocation: text("handover_location"),
-    scheduledAt: timestamp("scheduled_at"),
+    scheduledAt: timestamp("scheduled_at", { withTimezone: true }),
     sellerNote: text("seller_note"),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
-    updatedAt: timestamp("updated_at").notNull().defaultNow(),
-    completedAt: timestamp("completed_at"),
-    cancelledAt: timestamp("cancelled_at"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+    completedAt: timestamp("completed_at", { withTimezone: true }),
+    cancelledAt: timestamp("cancelled_at", { withTimezone: true }),
   },
   (table) => [
     index("listing_deals_listing_id_idx").on(table.listingId),

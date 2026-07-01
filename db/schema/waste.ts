@@ -29,8 +29,8 @@ export const wasteLocations = pgTable("waste_locations", {
   operatingHours: jsonb("operating_hours").$type<Record<string, { open?: string; close?: string; isClosed?: boolean }>>(),
   imageUrl: text("image_url"),
   isActive: boolean("is_active").notNull().default(true),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
 export const savedWasteLocations = pgTable(
@@ -43,7 +43,7 @@ export const savedWasteLocations = pgTable(
     locationId: uuid("location_id")
       .notNull()
       .references(() => wasteLocations.id, { onDelete: "cascade" }),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [
     index("saved_waste_locations_user_id_idx").on(table.userId),
@@ -62,7 +62,7 @@ export const recentWasteLocations = pgTable(
     locationId: uuid("location_id")
       .notNull()
       .references(() => wasteLocations.id, { onDelete: "cascade" }),
-    viewedAt: timestamp("viewed_at").notNull().defaultNow(),
+    viewedAt: timestamp("viewed_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [
     index("recent_waste_locations_user_id_idx").on(table.userId),

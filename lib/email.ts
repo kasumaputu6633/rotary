@@ -3,7 +3,6 @@ import { Resend } from "resend";
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 const FROM = "Rotary <alerts@heyputu.lol>";
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 const LOGO_URL = "https://heyputu.lol/listings/cf2e6403-b8c2-4b69-a519-978597f993b4/1782908080992-3f8fac25-7b83-46a3-8bb2-f7c28dc40af2-rotary-logo.png";
 
 // Palet warna brand.
