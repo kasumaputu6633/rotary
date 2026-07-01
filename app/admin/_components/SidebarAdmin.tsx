@@ -27,6 +27,11 @@ const menuSections: MenuSection[] = [
         href: "/admin/dashboard",
         icon: "lucide:layout-dashboard",
       },
+      {
+        label: "Beranda Situs",
+        href: "/",
+        icon: "lucide:house",
+      },
     ],
   },
   {
@@ -116,9 +121,8 @@ export default function SidebarAdmin({
       )}
       {/* Sidebar Drawer */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex h-full w-64 flex-col border-r border-[#eef2f6] bg-white transition-transform duration-300 ease-in-out lg:sticky lg:top-16 lg:z-30 lg:h-[calc(100vh-64px)] lg:translate-x-0 ${
-          isOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
+        className={`fixed inset-y-0 left-0 z-50 flex h-full w-64 flex-col border-r border-[#eef2f6] bg-white transition-transform duration-300 ease-in-out lg:sticky lg:top-16 lg:z-30 lg:h-[calc(100vh-64px)] lg:translate-x-0 ${isOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
       >
         <div className="flex-1 overflow-y-auto px-4 py-6 scrollbar-thin">
           <div className="space-y-6">
@@ -140,21 +144,19 @@ export default function SidebarAdmin({
                             onClose();
                           }
                         }}
-                        className={`flex items-center gap-3 rounded-xl px-3 py-2.5 font-open-sauce text-[13px] font-semibold transition-all duration-200 ${
-                          isActive
-                            ? "bg-gradient-to-r from-[#f7a81b] to-[#e89a14] text-white shadow-md shadow-[#f7a81b]/15 translate-x-1"
+                        className={`flex items-center gap-3 rounded-xl px-3 py-2.5 font-open-sauce text-[13px] font-semibold transition-all duration-200 ${isActive
+                            ? "bg-linear-to-r from-[#f7a81b] to-[#e89a14] text-white shadow-md shadow-[#f7a81b]/15 translate-x-1"
                             : "text-gray-600 hover:bg-[#fff9f0] hover:text-[#f7a81b]"
-                        }`}
+                          }`}
                       >
                         <Icon
                           icon={item.icon}
                           width={18}
                           height={18}
-                          className={`shrink-0 transition-colors ${
-                            isActive
+                          className={`shrink-0 transition-colors ${isActive
                               ? "text-white"
                               : "text-gray-400 group-hover:text-[#f7a81b]"
-                          }`}
+                            }`}
                         />
                         <span>{item.label}</span>
                       </Link>
