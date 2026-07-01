@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
 import type { ContactPreference, ListingCardData } from "@/lib/listing-format";
+import ReportListingButton from "./ReportListingButton";
 
 export default function ProductContactActions({
   product,
@@ -179,6 +180,8 @@ export default function ProductContactActions({
           </div>
         </div>
       ) : null}
+
+      <ReportListingButton listingId={product.id} />
     </div>
   );
 }

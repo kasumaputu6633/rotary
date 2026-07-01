@@ -88,11 +88,6 @@ const menuSections: MenuSection[] = [
         href: "/admin/complains",
         icon: "lucide:message-square-warning",
       },
-      {
-        label: "Kasus & Penanganan",
-        href: "/admin/cases",
-        icon: "lucide:briefcase",
-      },
     ],
   },
 ];

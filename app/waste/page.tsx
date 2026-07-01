@@ -2,7 +2,7 @@ import WasteMapClient from "./_components/WasteMapClient";
 import { getWasteLocations } from "./actions";
 import Navbar from "../_components/Navbar";
 import { getCurrentUser } from "@/lib/auth";
-import { getSavedWasteLocationIds } from "@/lib/waste";
+import { getRecentWasteLocationIds, getSavedWasteLocationIds } from "@/lib/waste";
 
 export const metadata = {
   title: "Lokasi Penampung Limbah | Rotary",
@@ -14,7 +14,12 @@ export const metadata = {
 // before rendering the client component, providing instant load times and SEO.
 export default async function WasteMapPage() {
   const [dbLocations, user] = await Promise.all([getWasteLocations(), getCurrentUser()]);
-  const savedIds = user ? await getSavedWasteLocationIds(user.id) : [];
+  const [savedIds, recentIds] = user
+    ? await Promise.all([
+        getSavedWasteLocationIds(user.id),
+        getRecentWasteLocationIds(user.id),
+      ])
+    : [[], []];
 
   return (
     <>
@@ -23,6 +28,7 @@ export default async function WasteMapPage() {
         <WasteMapClient
           initialLocations={dbLocations}
           initialSavedIds={savedIds}
+          initialRecentIds={recentIds}
           isAuthenticated={Boolean(user)}
         />
       </main>

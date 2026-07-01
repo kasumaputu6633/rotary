@@ -11,6 +11,18 @@ export async function getSavedWasteLocationIds(userId: string): Promise<string[]
   return rows.map((row) => row.locationId);
 }
 
+export async function getRecentWasteLocationIds(userId: string, limit = 12): Promise<string[]> {
+  const rows = await db
+    .select({ locationId: recentWasteLocations.locationId })
+    .from(recentWasteLocations)
+    .innerJoin(wasteLocations, eq(wasteLocations.id, recentWasteLocations.locationId))
+    .where(and(eq(recentWasteLocations.userId, userId), eq(wasteLocations.isActive, true)))
+    .orderBy(desc(recentWasteLocations.viewedAt))
+    .limit(limit);
+
+  return rows.map((row) => row.locationId);
+}
+
 export async function getSavedWasteLocations(userId: string) {
   const rows = await db
     .select({ location: wasteLocations })

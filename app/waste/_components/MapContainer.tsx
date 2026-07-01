@@ -222,7 +222,7 @@ export default function MapContainer({
   };
 
   return (
-    <div className="absolute inset-0 overflow-hidden bg-[#dce8ee]">
+    <div className="absolute inset-0 isolate overflow-hidden bg-[#dce8ee]">
       <Map
         ref={mapRef}
         {...viewState}

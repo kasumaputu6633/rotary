@@ -1,9 +1,10 @@
 "use server";
 
 import { db } from "@/db";
-import { recentWasteLocations, savedWasteLocations, wasteLocations } from "@/db/schema";
+import { complaints, recentWasteLocations, savedWasteLocations, wasteLocations } from "@/db/schema";
 import { getCurrentUser, requireAuth } from "@/lib/auth";
-import { and, eq } from "drizzle-orm";
+import { COMPLAINT_CATEGORIES } from "@/lib/moderation-format";
+import { and, eq, inArray } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
 export type WasteLocation = typeof wasteLocations.$inferSelect;
@@ -73,4 +74,61 @@ export async function recordRecentWasteLocationAction(locationId: string): Promi
     });
 
   revalidatePath("/account/saved");
+}
+
+type SubmitResult = { ok: true } | { ok: false; error: string };
+
+export async function submitWasteComplaintAction(input: {
+  locationId: string;
+  category: string;
+  description: string;
+}): Promise<SubmitResult> {
+  const user = await getCurrentUser();
+  if (!user) {
+    return { ok: false, error: "Silakan masuk terlebih dahulu untuk melapor." };
+  }
+
+  const category = input.category?.trim();
+  if (!category || !COMPLAINT_CATEGORIES.includes(category as never)) {
+    return { ok: false, error: "Kategori laporan tidak valid." };
+  }
+
+  const description = input.description?.trim() ?? "";
+  if (description.length > 1000) {
+    return { ok: false, error: "Deskripsi maksimal 1000 karakter." };
+  }
+
+  const location = await db.query.wasteLocations.findFirst({
+    where: eq(wasteLocations.id, input.locationId),
+    columns: { id: true },
+  });
+  if (!location) {
+    return { ok: false, error: "Lokasi limbah tidak ditemukan." };
+  }
+
+  // Cegah spam: satu laporan terbuka per pengguna per lokasi.
+  const existing = await db.query.complaints.findFirst({
+    where: and(
+      eq(complaints.reporterId, user.id),
+      eq(complaints.targetWasteLocationId, input.locationId),
+      inArray(complaints.status, ["new", "reviewing"]),
+    ),
+    columns: { id: true },
+  });
+  if (existing) {
+    return {
+      ok: false,
+      error: "Anda sudah melaporkan lokasi ini dan masih ditinjau.",
+    };
+  }
+
+  await db.insert(complaints).values({
+    reporterId: user.id,
+    targetType: "waste_location",
+    targetWasteLocationId: input.locationId,
+    category,
+    description: description || null,
+  });
+
+  return { ok: true };
 }

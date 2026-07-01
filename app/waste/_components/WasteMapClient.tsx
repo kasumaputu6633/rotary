@@ -1,20 +1,23 @@
 "use client";
 
 import { Icon } from "@iconify/react";
-import { useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import MapContainer from "./MapContainer";
+import ReportWasteLocationButton from "./ReportWasteLocationButton";
 import type { WasteLocation } from "../actions";
 import { recordRecentWasteLocationAction, toggleSavedWasteLocationAction } from "../actions";
 
 interface WasteMapClientProps {
   initialLocations: WasteLocation[];
   initialSavedIds: string[];
+  initialRecentIds: string[];
   isAuthenticated: boolean;
 }
 
+type ViewMode = "all" | "saved" | "recent";
+
 const DEFAULT_MATERIALS = [
-  "Semua",
   "Plastik",
   "Kertas",
   "Logam",
@@ -24,6 +27,12 @@ const DEFAULT_MATERIALS = [
   "Kaca",
   "Residu",
   "Organik",
+];
+
+const VIEW_MODES: { value: ViewMode; label: string; icon: string }[] = [
+  { value: "all", label: "Semua", icon: "lucide:layout-grid" },
+  { value: "saved", label: "Tersimpan", icon: "lucide:bookmark" },
+  { value: "recent", label: "Terakhir", icon: "lucide:history" },
 ];
 
 const DAY_NAMES = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"];
@@ -249,7 +258,7 @@ function LocationDetailCard({
   return (
     <aside
       aria-label="Detail lokasi penampung"
-      className="absolute inset-x-3 bottom-3 z-20 rounded-xl bg-white p-4 shadow-[0_12px_28px_rgba(15,23,42,0.18)] md:inset-x-8 md:bottom-6 md:p-5"
+      className="absolute inset-x-3 bottom-3 z-20 rounded-xl bg-white p-4 shadow-[0_12px_28px_rgba(15,23,42,0.18)] md:inset-x-auto md:bottom-6 md:left-1/2 md:w-[calc(100%-4rem)] md:max-w-4xl md:-translate-x-1/2 md:p-5"
     >
       <button
         type="button"
@@ -388,6 +397,7 @@ function LocationDetailCard({
                 <Icon icon="lucide:share-2" width={17} height={17} />
               </button>
             </div>
+            <ReportWasteLocationButton locationId={location.id} />
           </div>
         </div>
       </div>
@@ -398,15 +408,19 @@ function LocationDetailCard({
 export default function WasteMapClient({
   initialLocations,
   initialSavedIds,
+  initialRecentIds,
   isAuthenticated,
 }: WasteMapClientProps) {
   const router = useRouter();
   const [query, setQuery] = useState("");
-  const [activeMaterial, setActiveMaterial] = useState("Semua");
+  const [activeMaterial, setActiveMaterial] = useState<string[]>([]);
   const [activeLocationId, setActiveLocationId] = useState<string | null>(null);
   const [recenterRequestKey, setRecenterRequestKey] = useState(0);
   const [savedIds, setSavedIds] = useState<string[]>(initialSavedIds);
+  const [viewMode, setViewMode] = useState<ViewMode>("all");
   const [shareNotice, setShareNotice] = useState<string | null>(null);
+  const [showFilter, setShowFilter] = useState(false);
+  const filterRef = useRef<HTMLDivElement>(null);
   const [, startTransition] = useTransition();
 
   const materialOptions = useMemo(() => {
@@ -420,11 +434,41 @@ export default function WasteMapClient({
     return Array.from(materialSet);
   }, [initialLocations]);
 
+  // Tutup popover filter saat klik di luar area-nya.
+  useEffect(() => {
+    if (!showFilter) return;
+
+    function handleClickOutside(event: MouseEvent) {
+      if (filterRef.current && !filterRef.current.contains(event.target as Node)) {
+        setShowFilter(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [showFilter]);
+
+  // Basis lokasi sesuai mode tampilan (semua / tersimpan / terakhir dilihat).
+  // Recent mempertahankan urutan viewedAt dari server.
+  const baseLocations = useMemo(() => {
+    if (viewMode === "saved") {
+      const savedSet = new Set(savedIds);
+      return initialLocations.filter((location) => savedSet.has(location.id));
+    }
+    if (viewMode === "recent") {
+      const byId = new Map(initialLocations.map((location) => [location.id, location]));
+      return initialRecentIds
+        .map((id) => byId.get(id))
+        .filter((location): location is WasteLocation => Boolean(location));
+    }
+    return initialLocations;
+  }, [viewMode, savedIds, initialLocations, initialRecentIds]);
+
   const filteredLocations = useMemo(() => {
     const normalizedQuery = normalizeText(query);
-    const normalizedMaterial = normalizeText(activeMaterial);
+    const normalizedMaterials = activeMaterial.map(normalizeText);
 
-    return initialLocations.filter((location) => {
+    return baseLocations.filter((location) => {
       const materials = location.jenisSampahDiterima ?? [];
       const haystack = [
         location.namaUsaha,
@@ -439,12 +483,37 @@ export default function WasteMapClient({
 
       const matchesQuery = !normalizedQuery || haystack.includes(normalizedQuery);
       const matchesMaterial =
-        normalizedMaterial === "semua" ||
-        materials.some((material) => normalizeText(material).includes(normalizedMaterial));
+        normalizedMaterials.length === 0 ||
+        normalizedMaterials.some((selected) =>
+          materials.some((material) => normalizeText(material).includes(selected)),
+        );
 
       return matchesQuery && matchesMaterial;
     });
-  }, [activeMaterial, initialLocations, query]);
+  }, [activeMaterial, baseLocations, query]);
+
+  const hasActiveFilter = query.trim().length > 0 || activeMaterial.length > 0;
+  const emptyState =
+    !hasActiveFilter && viewMode === "saved"
+      ? {
+          icon: "lucide:bookmark",
+          title: "Belum ada lokasi tersimpan",
+          description:
+            "Tekan tombol Simpan pada detail lokasi di peta untuk menyimpannya di sini.",
+        }
+      : !hasActiveFilter && viewMode === "recent"
+        ? {
+            icon: "lucide:history",
+            title: "Belum ada riwayat",
+            description:
+              "Lokasi yang kamu buka di peta akan muncul di sini secara otomatis.",
+          }
+        : {
+            icon: "lucide:map-pin-off",
+            title: "Belum ada lokasi yang cocok",
+            description:
+              "Coba ubah kata kunci atau pilih material lain. Data lokasi penampung akan muncul setelah admin menambahkannya.",
+          };
 
   const activeLocation = activeLocationId
     ? filteredLocations.find((location) => location.id === activeLocationId) ?? null
@@ -526,10 +595,7 @@ export default function WasteMapClient({
             </p>
           </div>
 
-          <form
-            className="grid grid-cols-[minmax(0,1fr)_82px] gap-2"
-            onSubmit={(event) => event.preventDefault()}
-          >
+          <form onSubmit={(event) => event.preventDefault()}>
             <label className="relative block">
               <Icon
                 icon="lucide:search"
@@ -539,40 +605,140 @@ export default function WasteMapClient({
                 aria-hidden="true"
               />
               <input
-                type="search"
+                type="text"
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
                 placeholder="Cari lokasi atau material..."
-                className="h-11 w-full rounded-lg border border-[#c5cbd6] bg-white pl-10 pr-3 font-open-sauce text-[13px] text-[#171717] outline-none transition placeholder:text-[#5f6370] focus:border-[#17458f] focus:ring-2 focus:ring-[#17458f]/15"
+                className="h-11 w-full rounded-lg border border-[#c5cbd6] bg-white pl-10 pr-10 font-open-sauce text-[13px] text-[#171717] outline-none transition placeholder:text-[#5f6370] focus:border-[#17458f] focus:ring-2 focus:ring-[#17458f]/15"
               />
+              {query ? (
+                <button
+                  type="button"
+                  onClick={() => setQuery("")}
+                  className="absolute right-2.5 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-full text-[#5f6370] transition hover:bg-[#f2f5f9] hover:text-[#171717] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#17458f]"
+                  aria-label="Bersihkan pencarian"
+                >
+                  <Icon icon="lucide:x" width={15} height={15} aria-hidden="true" />
+                </button>
+              ) : null}
             </label>
-            <button
-              type="submit"
-              className="h-11 rounded-lg bg-[#f7a81b] font-open-sauce text-[13px] font-semibold text-[#171717] transition hover:bg-[#e89a14] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#17458f] focus-visible:ring-offset-2 active:translate-y-px"
-            >
-              Filter
-            </button>
           </form>
 
-          <div className="mt-4 flex flex-wrap gap-2">
-            {materialOptions.map((material) => {
-              const isActive = activeMaterial === material;
+          {isAuthenticated ? (
+            <div
+              className="mt-4 flex rounded-lg border border-[#d8deea] bg-[#f2f5f9] p-1"
+              role="tablist"
+              aria-label="Tampilan lokasi"
+            >
+              {VIEW_MODES.map((mode) => {
+                const isActive = viewMode === mode.value;
+                return (
+                  <button
+                    key={mode.value}
+                    type="button"
+                    role="tab"
+                    aria-selected={isActive}
+                    onClick={() => setViewMode(mode.value)}
+                    className={`inline-flex flex-1 items-center justify-center gap-1.5 rounded-md px-2 py-2 font-open-sauce text-xs font-semibold transition ${
+                      isActive
+                        ? "bg-white text-[#17458f] shadow-sm"
+                        : "text-[#5f6370] hover:text-[#17458f]"
+                    }`}
+                  >
+                    <Icon icon={mode.icon} width={14} height={14} aria-hidden="true" />
+                    {mode.label}
+                  </button>
+                );
+              })}
+            </div>
+          ) : null}
 
-              return (
-                <button
-                  key={material}
-                  type="button"
-                  onClick={() => setActiveMaterial(material)}
-                  className={`min-h-11 rounded-lg border px-3.5 py-2 font-open-sauce text-xs font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#17458f] focus-visible:ring-offset-2 ${
-                    isActive
-                      ? "border-[#f7a81b] bg-[#f7a81b] text-[#171717]"
-                      : "border-[#d8deea] bg-white text-[#4b5563] hover:border-[#17458f] hover:text-[#17458f]"
-                  }`}
-                >
-                  {material}
-                </button>
-              );
-            })}
+          <div className="relative mt-4" ref={filterRef}>
+            <button
+              type="button"
+              onClick={() => setShowFilter((prev) => !prev)}
+              aria-expanded={showFilter}
+              aria-haspopup="dialog"
+              className={`inline-flex h-11 items-center gap-2 rounded-lg border px-4 font-open-sauce text-[13px] font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#17458f] focus-visible:ring-offset-2 ${
+                activeMaterial.length > 0
+                  ? "border-[#f7a81b] bg-[#fff7e8] text-[#171717]"
+                  : "border-[#c5cbd6] bg-white text-[#4b5563] hover:border-[#17458f] hover:text-[#17458f]"
+              }`}
+            >
+              <Icon icon="lucide:sliders-horizontal" width={16} height={16} aria-hidden="true" />
+              Filter Material
+              {activeMaterial.length > 0 ? (
+                <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[#f7a81b] px-1.5 text-[11px] font-bold text-white">
+                  {activeMaterial.length}
+                </span>
+              ) : null}
+              <Icon
+                icon="lucide:chevron-down"
+                width={14}
+                height={14}
+                aria-hidden="true"
+                className={`transition-transform ${showFilter ? "rotate-180" : ""}`}
+              />
+            </button>
+
+            {showFilter ? (
+              <div
+                role="dialog"
+                aria-label="Filter material"
+                className="absolute left-0 top-[calc(100%+8px)] z-30 w-full max-w-[360px] rounded-xl border border-[#e6eaf0] bg-white p-3 shadow-[0_18px_44px_rgba(15,23,42,0.16)]"
+              >
+                <div className="mb-2 flex items-center justify-between px-1">
+                  <p className="font-open-sauce text-[13px] font-semibold text-[#171717]">
+                    Material diterima
+                  </p>
+                  {activeMaterial.length > 0 ? (
+                    <button
+                      type="button"
+                      onClick={() => setActiveMaterial([])}
+                      className="font-open-sauce text-xs font-semibold text-[#17458f] transition hover:underline"
+                    >
+                      Bersihkan
+                    </button>
+                  ) : null}
+                </div>
+                <div className="max-h-64 space-y-0.5 overflow-y-auto">
+                  {materialOptions.map((material) => {
+                    const isActive = activeMaterial.includes(material);
+
+                    return (
+                      <button
+                        key={material}
+                        type="button"
+                        onClick={() =>
+                          setActiveMaterial((prev) =>
+                            prev.includes(material)
+                              ? prev.filter((m) => m !== material)
+                              : [...prev, material],
+                          )
+                        }
+                        aria-pressed={isActive}
+                        className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left font-open-sauce text-[13px] transition hover:bg-[#f7fbff] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#17458f]"
+                      >
+                        <span
+                          className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-[5px] border transition ${
+                            isActive
+                              ? "border-[#f7a81b] bg-[#f7a81b] text-white"
+                              : "border-[#c5cbd6] bg-white"
+                          }`}
+                        >
+                          {isActive ? (
+                            <Icon icon="lucide:check" width={12} height={12} aria-hidden="true" />
+                          ) : null}
+                        </span>
+                        <span className={isActive ? "font-semibold text-[#171717]" : "text-[#4b5563]"}>
+                          {material}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            ) : null}
           </div>
         </div>
 
@@ -580,16 +746,17 @@ export default function WasteMapClient({
           <h2 className="font-open-sauce text-[17px] font-semibold text-[#171717]">
             {filteredLocations.length} Lokasi Ditemukan
           </h2>
-          {(query || activeMaterial !== "Semua") && (
+          {(query || activeMaterial.length > 0) && (
             <button
               type="button"
               onClick={() => {
                 setQuery("");
-                setActiveMaterial("Semua");
+                setActiveMaterial([]);
               }}
-              className="rounded-md px-2 py-1 font-open-sauce text-xs font-semibold text-[#17458f] transition hover:bg-[#e8f0fb] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#17458f] focus-visible:ring-offset-2"
+              className="inline-flex items-center gap-1 rounded-md px-2 py-1 font-open-sauce text-xs font-semibold text-[#17458f] transition hover:bg-[#e8f0fb] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#17458f] focus-visible:ring-offset-2"
             >
-              Reset
+              <Icon icon="lucide:x" width={13} height={13} aria-hidden="true" />
+              Reset{activeMaterial.length > 0 ? ` (${activeMaterial.length})` : ""}
             </button>
           )}
         </div>
@@ -607,13 +774,13 @@ export default function WasteMapClient({
           ) : (
             <div className="rounded-xl border border-[#d8deea] bg-[#f8fafc] px-5 py-7 text-center">
               <div className="mx-auto mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-[#e8f0fb] text-[#17458f]">
-                <Icon icon="lucide:map-pin-off" width={22} height={22} />
+                <Icon icon={emptyState.icon} width={22} height={22} />
               </div>
               <h3 className="font-open-sauce text-[17px] font-semibold text-[#171717]">
-                Belum ada lokasi yang cocok
+                {emptyState.title}
               </h3>
               <p className="mx-auto mt-2 max-w-[32ch] font-open-sauce text-[13px] leading-6 text-[#5f6370]">
-                Coba ubah kata kunci atau pilih material lain. Data lokasi penampung akan muncul setelah admin menambahkannya.
+                {emptyState.description}
               </p>
             </div>
           )}

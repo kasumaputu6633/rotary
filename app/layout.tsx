@@ -47,10 +47,9 @@ export default async function RootLayout({
         <DropdownOverlay />
         {children}
         <FloatingChat currentUserId={currentUserId} />
-      {/* impeccable-live-start */}
-<script src="http://localhost:8400/live.js"></script>
-{/* impeccable-live-end */}
-</body>
+        {/* impeccable-live-start */}
+        {/* impeccable-live-end */}
+      </body>
     </html>
   );
 }
