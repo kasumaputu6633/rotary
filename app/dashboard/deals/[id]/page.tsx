@@ -8,7 +8,7 @@ import {
   formatHandoverMethod,
   toDateTimeLocalValue,
 } from "@/lib/deal-format";
-import { getSellerDealById } from "@/lib/deals";
+import { getSellerChatContacts, getSellerDealById } from "@/lib/deals";
 import { formatPrice } from "@/lib/listing-format";
 import {
   Badge,
@@ -34,6 +34,12 @@ export default async function SellerDealDetailPage({ params }: Props) {
   if (!deal) notFound();
 
   const isActive = deal.status === "active";
+
+  // Kontak chat hanya diperlukan saat deal masih bisa diedit; deal tertutup
+  // bersifat read-only sehingga selektornya tidak dipakai.
+  const contacts = isActive
+    ? await getSellerChatContacts(user.id, deal.listingId)
+    : [];
 
   return (
     <div className="grid gap-5">
@@ -66,6 +72,7 @@ export default async function SellerDealDetailPage({ params }: Props) {
       <section className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_330px]">
         <Panel>
           <DealProgressForm
+            contacts={contacts}
             deal={deal}
             listingId={deal.listingId}
             listingMode={deal.listingMode}

@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { requireRole } from "@/lib/auth";
 import { getListingImages, getSellerListingById } from "@/lib/listings";
+import { getActiveCategories } from "@/lib/categories";
 import { updateListingAction } from "@/app/dashboard/actions";
 import { Badge, PageHeader, StatusBadge } from "@/app/dashboard/_components/SellerCenterUi";
 import { ListingForm } from "@/app/dashboard/listings/_components/ListingForm";
@@ -12,12 +13,27 @@ type Props = {
 export default async function EditListingPage({ params }: Props) {
   const { id } = await params;
   const user = await requireRole("user");
-  const [listing, images] = await Promise.all([
+  const [listing, images, activeCategories] = await Promise.all([
     getSellerListingById(id, user.id),
     getListingImages(id),
+    getActiveCategories(),
   ]);
 
   if (!listing) notFound();
+
+  // Kategori listing bisa saja sudah dinonaktifkan/di-rename admin. Sisipkan
+  // kategori saat ini bila hilang dari daftar aktif agar pilihan tidak berubah
+  // diam-diam saat form dibuka.
+  const categories = activeCategories.some((c) => c.name === listing.category)
+    ? activeCategories
+    : [
+        {
+          name: listing.category,
+          icon: "lucide:tag",
+          subcategories: listing.subcategory ? [listing.subcategory] : [],
+        },
+        ...activeCategories,
+      ];
 
   const boundAction = updateListingAction.bind(null, listing.id);
 
@@ -38,6 +54,7 @@ export default async function EditListingPage({ params }: Props) {
 
       <ListingForm
         action={boundAction}
+        categories={categories}
         images={images}
         values={listing}
         submitTitle="Simpan perubahan"

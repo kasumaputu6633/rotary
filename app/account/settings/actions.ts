@@ -9,6 +9,7 @@ import {
 } from "@/db/schema";
 import { requireRole } from "@/lib/auth";
 import { getCurrentAccountSession, recordLoginActivity } from "@/lib/auth-session";
+import { createNotification } from "@/lib/notifications";
 import { normalizeEmail } from "@/lib/auth-contact";
 import { otpErrorMessage, sendOtp, verifyOtp } from "@/lib/otp";
 import { passwordValid } from "@/lib/password";
@@ -70,6 +71,13 @@ export async function changeAccountPasswordAction(
 
     (await cookies()).delete("rotary_device");
     await recordLoginActivity(user.id, "password_changed", { method: "account_settings" });
+    await createNotification({
+      recipientId: user.id,
+      type: "security_password_changed",
+      title: "Kata sandi berhasil diubah",
+      body: "Kata sandi akunmu baru saja diubah. Sesi lain dan perangkat terpercaya telah dikeluarkan. Jika ini bukan kamu, segera amankan akunmu.",
+      href: "/account/settings",
+    });
     revalidatePath("/account/settings");
 
     return {

@@ -1,7 +1,7 @@
 import { db } from "@/db";
 import { conversations, listings, listingImages, users } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth";
-import { and, desc, eq, sql } from "drizzle-orm";
+import { and, desc, eq, or, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -117,11 +117,19 @@ export async function POST(req: NextRequest) {
     .set({ lastSeenAt: new Date() })
     .where(eq(users.id, user.id));
 
-  // Find-or-create berdasarkan pasang buyer-seller (bukan per produk)
+  // Find-or-create berdasarkan pasang buyer-seller (bukan per produk).
+  // Dua arah: satu sesi per pasang orang, tak peduli siapa yang memulai atau
+  // listing siapa yang dibahas. Tanpa ini, (A→B) dan (B→A) jadi dua sesi.
   const existing = await db.query.conversations.findFirst({
-    where: and(
-      eq(conversations.buyerId, user.id),
-      eq(conversations.sellerId, listing.sellerId),
+    where: or(
+      and(
+        eq(conversations.buyerId, user.id),
+        eq(conversations.sellerId, listing.sellerId),
+      ),
+      and(
+        eq(conversations.buyerId, listing.sellerId),
+        eq(conversations.sellerId, user.id),
+      ),
     ),
     columns: { id: true },
   });

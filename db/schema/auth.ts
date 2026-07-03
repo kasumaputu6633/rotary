@@ -290,6 +290,12 @@ export const listingDeals = pgTable(
     sellerId: uuid("seller_id")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
+    // Pembeli sebagai user terdaftar. Nullable: deal bisa diatur dengan pihak
+    // non-user (via WhatsApp), dan counterpartyName/Contact tetap jadi fallback.
+    // set null agar penghapusan akun pembeli tidak menghapus catatan deal penjual.
+    buyerId: uuid("buyer_id").references(() => users.id, {
+      onDelete: "set null",
+    }),
     stage: dealStageEnum("stage").notNull().default("negotiating"),
     status: dealStatusEnum("status").notNull().default("active"),
     counterpartyName: varchar("counterparty_name", { length: 120 }),

@@ -4,6 +4,7 @@ import { Icon } from "@iconify/react";
 import { getCurrentUser } from "@/lib/auth";
 import NavbarSearch from "./NavbarSearch";
 import NavbarAuthButtons from "./NavbarAuthButtons";
+import NavbarCategoryMenu from "./NavbarCategoryMenu";
 import NavbarChatButton from "./NavbarChatButton";
 import NavbarNotificationButton from "./NavbarNotificationButton";
 
@@ -68,12 +69,7 @@ export default async function Navbar() {
               />
             </Link>
 
-            <Link
-              href="/products"
-              className="hidden lg:inline-flex font-open-sauce text-[14px] text-[#333] hover:text-[#17458f] transition-colors whitespace-nowrap"
-            >
-              Kategori
-            </Link>
+            <NavbarCategoryMenu />
 
             <div className="col-span-2 row-start-2 flex items-center md:col-span-1 md:col-start-3 md:row-auto">
               <div className="w-full max-w-[860px]">

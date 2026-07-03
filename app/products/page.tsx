@@ -5,6 +5,7 @@ import Footer from "@/app/_components/Footer";
 import Navbar from "@/app/_components/Navbar";
 import ProductCard from "@/app/_components/ProductCard";
 import { getSessionUserId } from "@/lib/auth";
+import { getActiveCategories } from "@/lib/categories";
 import {
   getPublicListingCategoryCounts,
   getPublicListings,
@@ -75,10 +76,11 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
     userId,
   };
 
-  const [products, totalProducts, categoryCounts] = await Promise.all([
+  const [products, totalProducts, categoryCounts, categories] = await Promise.all([
     getPublicListings(query),
     getPublicListingsCount(query),
     getPublicListingCategoryCounts(),
+    getActiveCategories(),
   ]);
   const totalPages = Math.max(Math.ceil(totalProducts / PAGE_SIZE), 1);
   const current: ProductsFilterState = { q, category, subcategory, mode, minPrice: minPriceInput, maxPrice: maxPriceInput, sort };
@@ -86,6 +88,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
   const start = totalProducts === 0 ? 0 : (page - 1) * PAGE_SIZE + 1;
   const end = Math.min(page * PAGE_SIZE, totalProducts);
   const filterPanelProps = {
+    categories,
     category,
     categoryCountMap,
     categoryCounts,

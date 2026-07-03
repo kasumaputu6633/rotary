@@ -3,6 +3,7 @@
 import { requireRole } from "@/lib/auth";
 import { db } from "@/db";
 import { listingImages, listings, users } from "@/db/schema";
+import { createNotification } from "@/lib/notifications";
 import { and, count, desc, eq, ilike, or, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import type { ListingMode, ListingStatus } from "@/lib/listing-format";
@@ -144,10 +145,28 @@ export async function updateListingStatus(
   await requireRole("admin");
 
   try {
-    await db
+    const [updated] = await db
       .update(listings)
       .set({ status, updatedAt: new Date() })
-      .where(eq(listings.id, id));
+      .where(eq(listings.id, id))
+      .returning({
+        sellerId: listings.sellerId,
+        title: listings.title,
+        slug: listings.slug,
+      });
+
+    // Beri tahu penjual saat listing diblokir — hak mereka tahu alasan &
+    // kesempatan memperbaiki, bukan penindakan diam-diam.
+    if (status === "blocked" && updated) {
+      await createNotification({
+        recipientId: updated.sellerId,
+        type: "listing_blocked",
+        title: "Listing kamu diblokir",
+        body: `"${updated.title}" diblokir oleh admin dan tidak lagi tampil di marketplace. Hubungi dukungan jika ini keliru.`,
+        href: `/dashboard/listings`,
+      });
+    }
+
     revalidatePath("/admin/listings");
     return { success: true };
   } catch (err) {

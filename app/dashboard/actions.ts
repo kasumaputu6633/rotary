@@ -1,11 +1,12 @@
 "use server";
 
 import { db } from "@/db";
-import { listingDeals, listingImages, listings, users } from "@/db/schema";
+import { conversations, listingDeals, listingImages, listings, users } from "@/db/schema";
 import { requireRole, requireSellerReady } from "@/lib/auth";
 import type { DealStage } from "@/lib/deal-format";
 import type { ListingMode, ListingStatus } from "@/lib/listing-format";
 import { createUniqueListingSlug } from "@/lib/listings";
+import { notifyFavoriters } from "@/lib/notifications";
 import { deleteListingImage, uploadListingImage } from "@/lib/r2";
 import { and, desc, eq, inArray } from "drizzle-orm";
 import { geocodeLocationText } from "@/lib/mapbox";
@@ -190,7 +191,7 @@ export async function updateListingAction(listingId: string, formData: FormData)
 
   const existing = await db.query.listings.findFirst({
     where: and(eq(listings.id, listingId), eq(listings.sellerId, user.id)),
-    columns: { id: true, status: true, slug: true },
+    columns: { id: true, status: true, slug: true, price: true, title: true, mode: true },
   });
   if (!existing) throw new Error("Listing tidak ditemukan.");
 
@@ -234,6 +235,30 @@ export async function updateListingAction(listingId: string, formData: FormData)
     await insertListingImages(listingId, user.id, newImages, remainingCount);
   }
 
+  // Beri tahu favoriter jika harga turun — alasan utama orang memfavoritkan
+  // barang. Hanya untuk listing jual yang tetap tampil publik (active/reserved).
+  if (
+    existing.mode === "sale" &&
+    values.mode === "sale" &&
+    typeof existing.price === "number" &&
+    typeof values.price === "number" &&
+    values.price < existing.price &&
+    (status === "active" || status === "reserved")
+  ) {
+    const oldPrice = existing.price.toLocaleString("id-ID");
+    const newPrice = values.price.toLocaleString("id-ID");
+    await notifyFavoriters(
+      listingId,
+      () => ({
+        type: "favorite_price_drop",
+        title: "Harga barang favoritmu turun",
+        body: `"${existing.title}" kini Rp${newPrice} (sebelumnya Rp${oldPrice}).`,
+        href: `/products/${existing.slug}`,
+      }),
+      user.id,
+    );
+  }
+
   revalidateListingPaths(existing.slug);
   redirect(dashboardListingPath(status));
 }
@@ -242,7 +267,7 @@ export async function setListingStatusAction(listingId: string, status: ListingS
   const user = await requireSellerReady();
   const existing = await db.query.listings.findFirst({
     where: and(eq(listings.id, listingId), eq(listings.sellerId, user.id)),
-    columns: { slug: true, status: true },
+    columns: { slug: true, status: true, title: true },
   });
   if (!existing) throw new Error("Listing tidak ditemukan.");
 
@@ -328,6 +353,32 @@ export async function setListingStatusAction(listingId: string, status: ListingS
     }
   });
 
+  // Beri tahu user yang memfavoritkan barang ini saat statusnya berpindah ke
+  // dipesan/terjual — barang unik (umumnya 1 unit), jadi ini info yang menentukan.
+  if (status === "reserved") {
+    await notifyFavoriters(
+      listingId,
+      () => ({
+        type: "favorite_reserved",
+        title: "Barang favoritmu sedang dipesan",
+        body: `"${existing.title}" sedang dalam proses kesepakatan. Barang bisa tersedia lagi jika deal batal.`,
+        href: `/products/${existing.slug}`,
+      }),
+      user.id,
+    );
+  } else if (status === "completed") {
+    await notifyFavoriters(
+      listingId,
+      () => ({
+        type: "favorite_sold",
+        title: "Barang favoritmu sudah terjual",
+        body: `"${existing.title}" telah selesai diserahterimakan. Cari barang serupa lainnya di marketplace.`,
+        href: `/products/${existing.slug}`,
+      }),
+      user.id,
+    );
+  }
+
   revalidateListingPaths(existing.slug);
 }
 
@@ -350,6 +401,7 @@ export async function updateListingDealAction(listingId: string, formData: FormD
   const handoverLocation = getString(formData, "handoverLocation");
   const sellerNote = getString(formData, "sellerNote");
   const scheduledAt = parseScheduledAt(getString(formData, "scheduledAt"));
+  const buyerIdRaw = getString(formData, "buyerId");
 
   const [deal] = await db
     .select({
@@ -379,10 +431,27 @@ export async function updateListingDealAction(listingId: string, formData: FormD
   const agreedPrice = deal.mode === "sale" ? getNumber(formData, "agreedPrice") : null;
   const now = new Date();
 
+  // Validasi buyerId: hanya boleh user yang benar-benar punya sesi chat dengan
+  // penjual. Kalau tidak valid (tampering/stale), lepaskan tautan — deal tetap
+  // tersimpan dengan counterparty teks bebas sebagai fallback.
+  let buyerId: string | null = null;
+  if (buyerIdRaw) {
+    const [contact] = await db
+      .select({ buyerId: conversations.buyerId })
+      .from(conversations)
+      .where(and(
+        eq(conversations.sellerId, user.id),
+        eq(conversations.buyerId, buyerIdRaw),
+      ))
+      .limit(1);
+    buyerId = contact?.buyerId ?? null;
+  }
+
   await db
     .update(listingDeals)
     .set({
       stage,
+      buyerId,
       counterpartyName: counterpartyName || null,
       counterpartyContact: counterpartyContact || null,
       agreedPrice,

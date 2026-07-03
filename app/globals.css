@@ -228,6 +228,12 @@ body {
   animation: floatingChatPanelOut 180ms ease-in both;
 }
 
+/* Sembunyikan floating chat di halaman 404. Marker data-not-found di-render
+   server-side sejak paint pertama, jadi launcher tidak sempat berkedip muncul. */
+body:has([data-not-found]) [data-floating-chat] {
+  display: none;
+}
+
 /* Category grid on the homepage */
 .category-grid {
   display: grid;

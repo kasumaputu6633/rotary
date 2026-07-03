@@ -274,6 +274,41 @@
       "when": 1782926083094,
       "tag": "0038_square_vivisector",
       "breakpoints": true
+    },
+    {
+      "idx": 39,
+      "version": "7",
+      "when": 1783006694600,
+      "tag": "0039_slippery_agent_brand",
+      "breakpoints": true
+    },
+    {
+      "idx": 40,
+      "version": "7",
+      "when": 1783014465448,
+      "tag": "0040_safe_wildside",
+      "breakpoints": true
+    },
+    {
+      "idx": 41,
+      "version": "7",
+      "when": 1783017614675,
+      "tag": "0041_aspiring_night_thrasher",
+      "breakpoints": true
+    },
+    {
+      "idx": 42,
+      "version": "7",
+      "when": 1783020020635,
+      "tag": "0042_unknown_wendell_vaughn",
+      "breakpoints": true
+    },
+    {
+      "idx": 43,
+      "version": "7",
+      "when": 1783092239136,
+      "tag": "0043_abandoned_the_hood",
+      "breakpoints": true
     }
   ]
 }

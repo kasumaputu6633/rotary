@@ -1,6 +1,6 @@
 import { Icon } from "@iconify/react";
 import Link from "next/link";
-import { listingCategoryGroups } from "@/lib/listing-taxonomy";
+import { getActiveCategories } from "@/lib/categories";
 import { getPublicListingCategoryCounts } from "@/lib/listings";
 
 const categoryImages: Record<string, string> = {
@@ -13,7 +13,10 @@ const categoryImages: Record<string, string> = {
 };
 
 export default async function HomeCategoryGrid() {
-  const categoryCounts = await getPublicListingCategoryCounts();
+  const [categories, categoryCounts] = await Promise.all([
+    getActiveCategories(),
+    getPublicListingCategoryCounts(),
+  ]);
   const categoryCountMap = new Map(categoryCounts.map((item) => [item.category, item.count]));
 
   return (
@@ -51,7 +54,7 @@ export default async function HomeCategoryGrid() {
           </div>
 
           <div className="category-grid">
-            {listingCategoryGroups.map((category) => {
+            {categories.map((category) => {
               const imageUrl = categoryImages[category.name];
               return (
                 <Link

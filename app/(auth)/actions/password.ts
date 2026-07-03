@@ -17,6 +17,7 @@ import { ActionResult, DB_ERROR } from "./constants";
 import { userWhereClause } from "./helpers";
 import { passwordValid } from "@/lib/password";
 import { recordLoginActivity } from "@/lib/auth-session";
+import { createNotification } from "@/lib/notifications";
 import { normalizeAuthContact, isEmailContact } from "@/lib/auth-contact";
 import { otpErrorMessage } from "@/lib/otp";
 import {
@@ -202,6 +203,13 @@ export async function resetPasswordAction(token: string, password: string): Prom
     });
 
     await recordLoginActivity(record.userId, "password_reset", { method: "reset_token" });
+    await createNotification({
+      recipientId: record.userId,
+      type: "security_password_changed",
+      title: "Kata sandi berhasil direset",
+      body: "Kata sandi akunmu baru saja direset. Semua sesi dan perangkat terpercaya telah dikeluarkan. Jika ini bukan kamu, segera amankan akunmu.",
+      href: "/account/settings",
+    });
     const cookieStore = await cookies();
     cookieStore.delete("rotary_session");
     cookieStore.delete("rotary_device");

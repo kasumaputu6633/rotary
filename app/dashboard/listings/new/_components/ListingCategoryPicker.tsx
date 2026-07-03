@@ -2,30 +2,37 @@
 
 import { Icon } from "@iconify/react";
 import { useMemo, useState } from "react";
-import { listingCategoryGroups } from "@/lib/listing-taxonomy";
+
+type CategoryGroup = {
+  name: string;
+  icon: string;
+  subcategories: string[];
+};
 
 export function ListingCategoryPicker({
+  categories,
   defaultCategory,
   defaultSubcategory,
 }: {
+  categories: CategoryGroup[];
   defaultCategory?: string;
   defaultSubcategory?: string;
-} = {}) {
+}) {
   const [category, setCategory] = useState(
-    defaultCategory ?? listingCategoryGroups[0]?.name ?? "",
+    defaultCategory ?? categories[0]?.name ?? "",
   );
   const activeCategory = useMemo(
-    () => listingCategoryGroups.find((item) => item.name === category) ?? listingCategoryGroups[0],
-    [category],
+    () => categories.find((item) => item.name === category) ?? categories[0],
+    [categories, category],
   );
   const [subcategory, setSubcategory] = useState(
     defaultSubcategory ?? activeCategory?.subcategories[0] ?? "",
   );
 
   function chooseCategory(nextCategory: string) {
-    const nextGroup = listingCategoryGroups.find((item) => item.name === nextCategory) ?? listingCategoryGroups[0];
-    setCategory(nextGroup.name);
-    setSubcategory(nextGroup.subcategories[0] ?? "");
+    const nextGroup = categories.find((item) => item.name === nextCategory) ?? categories[0];
+    setCategory(nextGroup?.name ?? "");
+    setSubcategory(nextGroup?.subcategories[0] ?? "");
   }
 
   return (
@@ -36,7 +43,7 @@ export function ListingCategoryPicker({
       <div className="rounded-[8px] border border-[var(--seller-rule)] bg-[var(--seller-surface-2)] p-3">
         <p className="px-2 text-[11px] font-semibold uppercase text-[var(--seller-muted)]">Kategori</p>
         <div className="mt-3 grid gap-2">
-          {listingCategoryGroups.map((item) => {
+          {categories.map((item) => {
             const isActive = item.name === category;
 
             return (
@@ -63,7 +70,7 @@ export function ListingCategoryPicker({
         <p className="mt-1 text-[12px] text-[var(--seller-muted)]">Pilih jenis barang yang paling dekat dengan listing kamu.</p>
 
         <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-          {activeCategory.subcategories.map((item) => {
+          {(activeCategory?.subcategories ?? []).map((item) => {
             const isActive = item === subcategory;
 
             return (

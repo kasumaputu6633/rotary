@@ -1,7 +1,5 @@
-import { db } from "@/db";
-import { conversations, messages } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth";
-import { and, eq, sql } from "drizzle-orm";
+import { getChatUnreadSummary } from "@/lib/chat";
 import { NextResponse } from "next/server";
 
 const noStoreHeaders = {
@@ -16,22 +14,10 @@ export async function GET() {
   const user = await getCurrentUser();
   if (!user) return NextResponse.json({ count: 0 });
 
-  const [result] = await db
-    .select({
-      count: sql<number>`count(*)::int`,
-    })
-    .from(messages)
-    .innerJoin(conversations, eq(conversations.id, messages.conversationId))
-    .where(
-      and(
-        sql`(${conversations.buyerId} = ${user.id} OR ${conversations.sellerId} = ${user.id})`,
-        sql`${messages.senderId} != ${user.id}`,
-        eq(messages.isRead, false),
-      ),
-    );
+  const summary = await getChatUnreadSummary(user.id);
 
   return NextResponse.json(
-    { count: result?.count ?? 0 },
+    { count: summary.messageCount },
     {
       headers: noStoreHeaders,
     }

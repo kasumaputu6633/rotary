@@ -2,19 +2,22 @@ import { db } from "@/db";
 import { sql } from "drizzle-orm";
 
 async function deduplicateConversations() {
-  console.log("🔍 Mencari duplikat conversation (buyer_id, seller_id)...");
+  console.log("🔍 Mencari duplikat conversation (pasang orang, tak peduli arah)...");
 
-  // 1. Temukan semua pasang yang duplikat
+  // 1. Temukan semua pasang yang duplikat. Normalisasi dengan least/greatest
+  //    agar (A,B) dan (B,A) dianggap satu pasang yang sama.
   const duplicates: Array<{
-    buyer_id: string;
-    seller_id: string;
+    pair_a: string;
+    pair_b: string;
     count: string;
     ids: string[];
   }> = await db.execute(sql`
-    SELECT buyer_id, seller_id, COUNT(*)::text as count,
+    SELECT least(buyer_id, seller_id)::text as pair_a,
+           greatest(buyer_id, seller_id)::text as pair_b,
+           COUNT(*)::text as count,
            array_agg(id::text ORDER BY last_message_at DESC) as ids
     FROM conversations
-    GROUP BY buyer_id, seller_id
+    GROUP BY least(buyer_id, seller_id), greatest(buyer_id, seller_id)
     HAVING COUNT(*) > 1
   `) as never;
 
@@ -30,7 +33,7 @@ async function deduplicateConversations() {
     const keepId = ids[0]; // Simpan yang paling baru (last_message_at terbesar)
     const deleteIds = ids.slice(1);
 
-    console.log(`\n👤 buyer=${row.buyer_id} seller=${row.seller_id}`);
+    console.log(`\n👥 pasang=${row.pair_a} ↔ ${row.pair_b}`);
     console.log(`   ✅ Pertahankan: ${keepId}`);
     console.log(`   🗑️  Hapus: ${deleteIds.join(", ")}`);
 

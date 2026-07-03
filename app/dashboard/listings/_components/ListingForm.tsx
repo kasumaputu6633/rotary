@@ -43,8 +43,15 @@ type ListingFormImage = {
   sortOrder: number;
 };
 
+type CategoryGroup = {
+  name: string;
+  icon: string;
+  subcategories: string[];
+};
+
 type ListingFormProps = {
   action: (formData: FormData) => void | Promise<void>;
+  categories: CategoryGroup[];
   images?: ListingFormImage[];
   submitDescription: string;
   submitTitle: string;
@@ -77,6 +84,7 @@ function getSubmitLabels(status?: ListingStatus) {
 
 export function ListingForm({
   action,
+  categories,
   images = [],
   submitDescription,
   submitTitle,
@@ -160,6 +168,7 @@ export function ListingForm({
       <div className="grid gap-4">
         <Panel title="Kategori Barang" description="Kategori induk menentukan pilihan subkategori yang tersedia.">
           <ListingCategoryPicker
+            categories={categories}
             defaultCategory={values.category}
             defaultSubcategory={values.subcategory ?? undefined}
           />

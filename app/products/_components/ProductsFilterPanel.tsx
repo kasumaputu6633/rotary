@@ -1,7 +1,12 @@
 import { Icon } from "@iconify/react";
 import Link from "next/link";
-import { listingCategoryGroups } from "@/lib/listing-taxonomy";
 import type { PublicListingSort } from "@/lib/listings";
+
+type CategoryGroup = {
+  name: string;
+  icon: string;
+  subcategories: string[];
+};
 
 export type ProductsFilterState = {
   category: string;
@@ -35,6 +40,7 @@ export function buildProductsHref(current: ProductsFilterState, patch: ProductsF
 }
 
 type ProductsFilterPanelProps = {
+  categories: CategoryGroup[];
   category: string;
   categoryCountMap: Map<string, number>;
   categoryCounts: { category: string; count: number }[];
@@ -48,6 +54,7 @@ type ProductsFilterPanelProps = {
 };
 
 export function ProductsFilterPanel({
+  categories,
   category,
   categoryCountMap,
   categoryCounts,
@@ -59,7 +66,7 @@ export function ProductsFilterPanel({
   sort,
   subcategory,
 }: ProductsFilterPanelProps) {
-  const activeCategory = listingCategoryGroups.find((item) => item.name === category);
+  const activeCategory = categories.find((item) => item.name === category);
 
   return (
     <div className="rounded-lg border border-[#d7dde7] bg-white p-4 shadow-[0_10px_26px_rgba(15,23,42,0.06)]">
@@ -103,7 +110,7 @@ export function ProductsFilterPanel({
             <span>Semua kategori</span>
             <span>{categoryCounts.reduce((sum, item) => sum + item.count, 0)}</span>
           </Link>
-          {listingCategoryGroups.map((item) => {
+          {categories.map((item) => {
             const isActive = category === item.name;
             return (
               <Link

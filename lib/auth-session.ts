@@ -8,6 +8,7 @@ import {
 } from "@/db/schema";
 import { and, eq, gt, isNull, lt, ne } from "drizzle-orm";
 import { cookies, headers } from "next/headers";
+import { createNotification } from "@/lib/notifications";
 
 const SESSION_COOKIE = "rotary_session";
 const DEVICE_COOKIE = "rotary_device";
@@ -145,6 +146,18 @@ export async function trustCurrentDevice(userId: string) {
   const rawToken = createSecret();
   const context = await getRequestContext();
   const expiresAt = new Date(Date.now() + DEVICE_MAX_AGE_SECONDS * 1000);
+
+  // Hitung device sebelum insert: kalau user sudah punya device lain, login ini
+  // dari perangkat baru dan layak diberi tahu. Device pertama (registrasi/login
+  // perdana, atau login pertama setelah reset password yang menghapus device)
+  // dilewati agar bukan jadi noise.
+  let priorDeviceCount = 0;
+  try {
+    priorDeviceCount = await db.$count(userDevices, eq(userDevices.userId, userId));
+  } catch {
+    priorDeviceCount = 0;
+  }
+
   const [device] = await db
     .insert(userDevices)
     .values({
@@ -161,6 +174,16 @@ export async function trustCurrentDevice(userId: string) {
     ...baseCookie,
     maxAge: DEVICE_MAX_AGE_SECONDS,
   });
+
+  if (priorDeviceCount > 0) {
+    await createNotification({
+      recipientId: userId,
+      type: "security_new_device",
+      title: "Login dari perangkat baru",
+      body: `Akunmu diakses dari ${context.deviceName}${context.ipAddress ? ` (IP ${context.ipAddress})` : ""}. Jika ini bukan kamu, segera ganti kata sandi.`,
+      href: "/account/settings",
+    });
+  }
 
   return device;
 }

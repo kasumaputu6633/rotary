@@ -1,25 +1,28 @@
+import { requireRole } from "@/lib/auth";
+import { getNotificationPreferences } from "@/lib/notifications";
 import {
   AccountPageHeader,
   AccountPanel,
-  AccountStatusBadge,
 } from "../_components/AccountUi";
 import { NotificationSettings } from "./_components/NotificationSettings";
 
-export default function AccountNotificationsPage() {
+export default async function AccountNotificationsPage() {
+  const user = await requireRole("user");
+  const preferences = await getNotificationPreferences(user.id);
+
   return (
     <div className="grid gap-5">
       <AccountPageHeader
         icon="lucide:bell-ring"
         title="Notifikasi"
         description="Atur kabar akun, keamanan, dan aktivitas marketplace yang ingin kamu terima."
-        actions={<AccountStatusBadge>Preview</AccountStatusBadge>}
       />
 
       <AccountPanel
         title="Preferensi notifikasi"
-        description="Pilihan akan dapat disimpan setelah sistem notifikasi Rotary terhubung ke database."
+        description="Pilih kabar marketplace yang ingin kamu terima. Perubahan langsung tersimpan."
       >
-        <NotificationSettings />
+        <NotificationSettings initialPreferences={preferences} />
       </AccountPanel>
     </div>
   );

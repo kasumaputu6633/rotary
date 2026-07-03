@@ -7,6 +7,7 @@ import {
   index,
   uniqueIndex,
 } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
 import { users } from "./auth";
 import { listings } from "./auth";
 import { contactPreferenceEnum } from "./auth";
@@ -29,8 +30,12 @@ export const conversations = pgTable(
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [
-    // Satu sesi chat per pasang buyer-seller (tidak peduli produknya)
-    uniqueIndex("conversations_buyer_seller_unique").on(t.buyerId, t.sellerId),
+    // Satu sesi chat per pasang orang, tak peduli arah. least/greatest
+    // menormalkan pasangan sehingga (A,B) dan (B,A) menempati slot unik sama.
+    uniqueIndex("conversations_pair_unique").on(
+      sql`least(${t.buyerId}, ${t.sellerId})`,
+      sql`greatest(${t.buyerId}, ${t.sellerId})`,
+    ),
     index("conversations_buyer_idx").on(t.buyerId, t.lastMessageAt),
     index("conversations_seller_idx").on(t.sellerId, t.lastMessageAt),
   ],

@@ -1,6 +1,7 @@
 import { db } from "@/db";
 import { listings, users } from "@/db/schema";
 import { generateRenewToken } from "@/lib/listings";
+import { createNotificationIfEnabled } from "@/lib/notifications";
 import { sendWhatsAppText } from "@/lib/waha";
 import { and, eq, lte, isNull, sql } from "drizzle-orm";
 
@@ -130,6 +131,20 @@ export async function runDeactivateListingsCron(force = false) {
         .where(eq(listings.id, listing.id));
 
       results.deactivatedListings.push(listing.id);
+
+      // Notifikasi in-app dikirim ke penjual (termasuk yang tanpa WA),
+      // mencerminkan pesan WhatsApp penonaktifan di bawah. Di-gate preferensi
+      // "aktivitas listing" — penjual boleh mematikannya.
+      await createNotificationIfEnabled(
+        {
+          recipientId: listing.sellerId,
+          type: "listing_deactivated",
+          title: "Listing dinonaktifkan otomatis",
+          body: `"${listing.title}" dinonaktifkan sementara karena belum ada konfirmasi ketersediaan. Aktifkan kembali kapan saja dari Seller Center.`,
+          href: "/dashboard/listings/inactive",
+        },
+        "listingActivity",
+      );
 
       // Kirim WhatsApp pemberitahuan penonaktifan jika ada nomor telepon
       if (listing.sellerPhone) {

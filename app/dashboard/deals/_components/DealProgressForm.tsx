@@ -14,9 +14,17 @@ import type { ListingMode } from "@/lib/listing-format";
 import { SellerSelect } from "@/app/dashboard/_components/SellerSelect";
 import { CurrencyInput } from "@/app/dashboard/_components/CurrencyInput";
 
+type BuyerContact = {
+  buyerId: string;
+  name: string | null;
+  discussedThisListing: boolean;
+};
+
 type DealProgressFormProps = {
+  contacts: BuyerContact[];
   deal: {
     agreedPrice: number | null;
+    buyerId: string | null;
     counterpartyContact: string | null;
     counterpartyName: string | null;
     handoverLocation: string | null;
@@ -49,6 +57,7 @@ function FieldLabel({
 }
 
 export function DealProgressForm({
+  contacts,
   deal,
   listingId,
   listingMode,
@@ -57,6 +66,15 @@ export function DealProgressForm({
 }: DealProgressFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+
+  const buyerOptions = [
+    { value: "", label: "Tidak dari chat / pihak lain", description: "Isi manual di kolom nama & kontak di bawah." },
+    ...contacts.map((c) => ({
+      value: c.buyerId,
+      label: c.name ?? "Pengguna",
+      description: c.discussedThisListing ? "Pernah membahas barang ini" : undefined,
+    })),
+  ];
 
   function handleSubmit(formData: FormData) {
     startTransition(async () => {
@@ -103,6 +121,21 @@ export function DealProgressForm({
             <p className="mt-1 text-[12px] leading-relaxed text-[var(--seller-muted)]">
               Data ini hanya menjadi catatan pribadi seller dan tidak tampil di marketplace.
             </p>
+          </div>
+
+          <div className="sm:col-span-2">
+            <FieldLabel optional>Pembeli dari chat</FieldLabel>
+            <SellerSelect
+              ariaLabel="Pembeli dari chat"
+              name="buyerId"
+              defaultValue={deal.buyerId ?? ""}
+              disabled={readOnly || isPending}
+              className={fieldClass}
+              options={buyerOptions}
+            />
+            <span className="mt-1.5 block text-[11px] leading-relaxed text-[var(--seller-muted)]">
+              Tautkan ke lawan chat agar barang favoritnya ikut ter-update. Kosongkan bila deal diatur di luar aplikasi.
+            </span>
           </div>
 
           <label>
