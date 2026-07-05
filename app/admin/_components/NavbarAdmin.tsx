@@ -3,8 +3,7 @@
 import { Icon } from "@iconify/react";
 import Image from "next/image";
 import Link from "next/link";
-import { useState, useRef, useEffect, useTransition, Suspense } from "react";
-import NavbarSearch from "@/app/_components/NavbarSearch";
+import { useState, useRef, useEffect, useTransition } from "react";
 import { logoutAction } from "@/app/actions";
 
 interface NavbarAdminProps {
@@ -96,12 +95,7 @@ export default function NavbarAdmin({ user, onMenuToggle }: NavbarAdminProps) {
             </Link>
           </div>
 
-          {/* Middle section: Search Bar */}
-          <div className="hidden max-w-md flex-1 px-4 sm:block md:max-w-lg lg:max-w-xl">
-            <Suspense fallback={<div className="h-10 w-full rounded-xl border border-[#c5cbd6] bg-white" />}>
-              <NavbarSearch />
-            </Suspense>
-          </div>
+
 
           {/* Right section: Profile Dropdown */}
           <div className="flex items-center gap-4">
@@ -164,13 +158,27 @@ export default function NavbarAdmin({ user, onMenuToggle }: NavbarAdminProps) {
                     className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left font-open-sauce text-[13px] text-gray-700 hover:bg-gray-50 hover:text-gray-950 transition-colors"
                   >
                     <Icon
-                      icon="lucide:home"
+                      icon="lucide:layout-dashboard"
+                      width={16}
+                      height={16}
+                      className="text-gray-400"
+                    />
+                    <span>Dashboard</span>
+                  </Link>
+
+                  <Link
+                    href="/"
+                    className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left font-open-sauce text-[13px] text-gray-700 hover:bg-gray-50 hover:text-gray-950 transition-colors"
+                  >
+                    <Icon
+                      icon="lucide:globe"
                       width={16}
                       height={16}
                       className="text-gray-400"
                     />
                     <span>Halaman Utama</span>
                   </Link>
+
 
                   <button
                     onClick={() => {
@@ -188,12 +196,7 @@ export default function NavbarAdmin({ user, onMenuToggle }: NavbarAdminProps) {
           </div>
         </div>
 
-        {/* Search Bar on Mobile */}
-        <div className="border-t border-[#eef2f6] px-4 py-2 sm:hidden bg-white">
-          <Suspense fallback={<div className="h-10 w-full rounded-xl border border-[#c5cbd6] bg-white" />}>
-            <NavbarSearch />
-          </Suspense>
-        </div>
+
       </header>
 
       {/* Logout Confirmation Modal */}

@@ -28,7 +28,7 @@ const menuSections: MenuSection[] = [
         icon: "lucide:layout-dashboard",
       },
       {
-        label: "Beranda Situs",
+        label: "Beranda Marketplace",
         href: "/",
         icon: "lucide:house",
       },
@@ -140,8 +140,8 @@ export default function SidebarAdmin({
                           }
                         }}
                         className={`flex items-center gap-3 rounded-xl px-3 py-2.5 font-open-sauce text-[13px] font-semibold transition-all duration-200 ${isActive
-                            ? "bg-linear-to-r from-[#f7a81b] to-[#e89a14] text-white shadow-md shadow-[#f7a81b]/15 translate-x-1"
-                            : "text-gray-600 hover:bg-[#fff9f0] hover:text-[#f7a81b]"
+                          ? "bg-linear-to-r from-[#f7a81b] to-[#e89a14] text-white shadow-md shadow-[#f7a81b]/15 translate-x-1"
+                          : "text-gray-600 hover:bg-[#fff9f0] hover:text-[#f7a81b]"
                           }`}
                       >
                         <Icon
@@ -149,8 +149,8 @@ export default function SidebarAdmin({
                           width={18}
                           height={18}
                           className={`shrink-0 transition-colors ${isActive
-                              ? "text-white"
-                              : "text-gray-400 group-hover:text-[#f7a81b]"
+                            ? "text-white"
+                            : "text-gray-400 group-hover:text-[#f7a81b]"
                             }`}
                         />
                         <span>{item.label}</span>
