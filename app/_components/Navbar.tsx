@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Icon } from "@iconify/react";
@@ -73,7 +74,16 @@ export default async function Navbar() {
 
             <div className="col-span-2 row-start-2 flex items-center md:col-span-1 md:col-start-3 md:row-auto">
               <div className="w-full max-w-[860px]">
-                <NavbarSearch />
+                <Suspense
+                  fallback={
+                    <div className="w-full flex items-center h-10 bg-white border border-[#c5cbd6] rounded-xl overflow-hidden">
+                      <div className="flex-1 px-4 font-open-sauce text-[13px] text-[#9ca3af]">Cari di Marketplace</div>
+                      <div className="h-full w-11 bg-[#f7a81b] flex items-center justify-center shrink-0" />
+                    </div>
+                  }
+                >
+                  <NavbarSearch />
+                </Suspense>
               </div>
             </div>
 

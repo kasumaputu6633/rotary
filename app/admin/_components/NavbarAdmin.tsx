@@ -3,7 +3,7 @@
 import { Icon } from "@iconify/react";
 import Image from "next/image";
 import Link from "next/link";
-import { useState, useRef, useEffect, useTransition } from "react";
+import { useState, useRef, useEffect, useTransition, Suspense } from "react";
 import NavbarSearch from "@/app/_components/NavbarSearch";
 import { logoutAction } from "@/app/actions";
 
@@ -98,7 +98,9 @@ export default function NavbarAdmin({ user, onMenuToggle }: NavbarAdminProps) {
 
           {/* Middle section: Search Bar */}
           <div className="hidden max-w-md flex-1 px-4 sm:block md:max-w-lg lg:max-w-xl">
-            <NavbarSearch />
+            <Suspense fallback={<div className="h-10 w-full rounded-xl border border-[#c5cbd6] bg-white" />}>
+              <NavbarSearch />
+            </Suspense>
           </div>
 
           {/* Right section: Profile Dropdown */}
@@ -188,7 +190,9 @@ export default function NavbarAdmin({ user, onMenuToggle }: NavbarAdminProps) {
 
         {/* Search Bar on Mobile */}
         <div className="border-t border-[#eef2f6] px-4 py-2 sm:hidden bg-white">
-          <NavbarSearch />
+          <Suspense fallback={<div className="h-10 w-full rounded-xl border border-[#c5cbd6] bg-white" />}>
+            <NavbarSearch />
+          </Suspense>
         </div>
       </header>
 
