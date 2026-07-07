@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { dispatchChatConversationChanged, dispatchChatUnreadChanged } from "../events";
+import { playSfx } from "@/lib/sfx";
 
 const POLL_INTERVAL_MS = 3_000;
 
@@ -133,6 +134,9 @@ export function useConversation(
               const newMsgs = data.messages.filter(
                 (m: ChatMessage) => !prev.some((p) => p.id === m.id)
               );
+              // Bunyikan SFX hanya jika ada pesan baru dari lawan bicara
+              const hasIncoming = newMsgs.some((m) => m.senderId !== currentUserId);
+              if (hasIncoming) playSfx("message-received");
               return applyReadReceipts([...prev, ...newMsgs]);
             });
           } else {
@@ -248,6 +252,7 @@ export function useConversation(
         lastMessageIdRef.current = newMsg.id;
         callbacksRef.current.onConversationChanged?.(conversationId);
         dispatchChatConversationChanged({ conversationId });
+        playSfx("message-sent");
         return true;
       } catch {
         setMessages((prev) => prev.filter((m) => m.id !== tempId));

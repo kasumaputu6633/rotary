@@ -3,6 +3,7 @@
 import { Icon } from "@iconify/react";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { playSfx } from "@/lib/sfx";
 
 type NotificationType =
   | "listing_deactivated"
@@ -56,19 +57,32 @@ export default function NavbarNotificationButton() {
   const [chatUnread, setChatUnread] = useState({ messageCount: 0, conversationCount: 0 });
   const dropdownRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
+  const prevUnreadRef = useRef<number | null>(null);         // null = initial load belum selesai
+  const prevChatUnreadRef = useRef<number | null>(null);     // untuk mendeteksi pesan chat baru
 
   const fetchNotifications = useCallback(async () => {
     try {
       const res = await fetch("/api/notifications", { cache: "no-store" });
       if (!res.ok) return;
       const data = await res.json();
+      const newUnread = typeof data.unreadCount === "number" ? data.unreadCount : 0;
+      const newChatUnread = data.chatUnread && typeof data.chatUnread.messageCount === "number"
+        ? data.chatUnread
+        : { messageCount: 0, conversationCount: 0 };
+
+      // Bunyikan SFX jika notif listing ATAU pesan chat bertambah (skip initial load)
+      const listingIncreased = prevUnreadRef.current !== null && newUnread > prevUnreadRef.current;
+      const chatIncreased = prevChatUnreadRef.current !== null && newChatUnread.messageCount > prevChatUnreadRef.current;
+      if (listingIncreased || chatIncreased) {
+        playSfx("notification");
+      }
+
+      prevUnreadRef.current = newUnread;
+      prevChatUnreadRef.current = newChatUnread.messageCount;
+
       setItems(Array.isArray(data.items) ? data.items : []);
-      setUnreadCount(typeof data.unreadCount === "number" ? data.unreadCount : 0);
-      setChatUnread(
-        data.chatUnread && typeof data.chatUnread.messageCount === "number"
-          ? data.chatUnread
-          : { messageCount: 0, conversationCount: 0 },
-      );
+      setUnreadCount(newUnread);
+      setChatUnread(newChatUnread);
     } catch {
       // Diam saja — badge notifikasi tidak boleh mengganggu navbar.
     }
