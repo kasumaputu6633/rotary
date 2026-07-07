@@ -1,0 +1,2 @@
+DROP INDEX "conversations_buyer_seller_unique";--> statement-breakpoint
+CREATE UNIQUE INDEX "conversations_pair_unique" ON "conversations" USING btree (least("buyer_id", "seller_id"),greatest("buyer_id", "seller_id"));

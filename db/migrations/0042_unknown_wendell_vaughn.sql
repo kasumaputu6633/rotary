@@ -1,0 +1,2 @@
+ALTER TABLE "listing_deals" ADD COLUMN "buyer_id" uuid;--> statement-breakpoint
+ALTER TABLE "listing_deals" ADD CONSTRAINT "listing_deals_buyer_id_users_id_fk" FOREIGN KEY ("buyer_id") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE no action;

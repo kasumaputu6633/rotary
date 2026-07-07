@@ -1,0 +1,1 @@
+ALTER TABLE "waste_locations" ADD COLUMN "website" varchar(255);

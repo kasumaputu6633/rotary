@@ -1,14 +1,37 @@
-export default function WastePage() {
+import WasteMapClient from "./_components/WasteMapClient";
+import { getWasteLocations } from "./actions";
+import Navbar from "../_components/Navbar";
+import { getCurrentUser } from "@/lib/auth";
+import { getRecentWasteLocationIds, getSavedWasteLocationIds } from "@/lib/waste";
+
+export const metadata = {
+  title: "Lokasi Penampung Limbah | Rotary",
+  description:
+    "Cari lokasi penampung limbah berdasarkan nama tempat, alamat, dan jenis sampah yang diterima.",
+};
+
+// This is a Server Component. It fetches data on the server side
+// before rendering the client component, providing instant load times and SEO.
+export default async function WasteMapPage() {
+  const [dbLocations, user] = await Promise.all([getWasteLocations(), getCurrentUser()]);
+  const [savedIds, recentIds] = user
+    ? await Promise.all([
+        getSavedWasteLocationIds(user.id),
+        getRecentWasteLocationIds(user.id),
+      ])
+    : [[], []];
+
   return (
-    <div className="max-w-6xl mx-auto px-6 py-12">
-      <h1 className="font-poppins text-3xl font-bold text-[#17458f] mb-2">Tempat Buang Sampah</h1>
-      <p className="font-poppins text-gray-500 text-sm">
-        Informasi lokasi tempat pembuangan dan pengolah sampah terdekat.
-      </p>
-      <div className="mt-10 p-8 border-2 border-dashed border-gray-200 rounded-2xl text-center">
-        <p className="font-poppins text-gray-400 text-base">Daftar lokasi pembuangan sampah — coming soon</p>
-        <p className="font-poppins text-gray-300 text-xs mt-2">Data lokasi dikelola oleh admin.</p>
-      </div>
-    </div>
+    <>
+      <Navbar />
+      <main className="bg-[#f5f7fb]">
+        <WasteMapClient
+          initialLocations={dbLocations}
+          initialSavedIds={savedIds}
+          initialRecentIds={recentIds}
+          isAuthenticated={Boolean(user)}
+        />
+      </main>
+    </>
   );
 }

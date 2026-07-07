@@ -17,32 +17,26 @@ function isPublicPath(pathname: string): boolean {
   return PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(p + "/"));
 }
 
-function getRequiredRole(pathname: string): string | null {
-  if (pathname.startsWith("/admin")) return "admin";
-  return null;
-}
+const PROTECTED_PREFIXES = ["/account", "/dashboard", "/admin"];
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   if (isPublicPath(pathname)) return NextResponse.next();
 
-  const requiredRole = getRequiredRole(pathname);
-  if (!requiredRole) return NextResponse.next();
+  const protectedPath = PROTECTED_PREFIXES.some((prefix) => pathname.startsWith(prefix));
+  if (!protectedPath) return NextResponse.next();
 
-  const sessionUserId = request.cookies.get("session_user_id")?.value;
-  const sessionRole = request.cookies.get("session_role")?.value;
+  const sessionToken = request.cookies.get("rotary_session")?.value;
 
-  if (!sessionUserId) {
+  if (!sessionToken) {
     const loginUrl = new URL("/login", request.url);
-    loginUrl.searchParams.set("redirect", pathname);
+    loginUrl.searchParams.set("redirect", `${pathname}${request.nextUrl.search}`);
     return NextResponse.redirect(loginUrl);
   }
 
-  if (sessionRole !== requiredRole) {
-    return NextResponse.redirect(new URL("/unauthorized", request.url));
-  }
-
+  // Role dan validitas token tetap diverifikasi dari database oleh requireRole()
+  // pada Server Component. Proxy hanya memberi redirect cepat saat cookie tidak ada.
   return NextResponse.next();
 }
 

@@ -1,36 +1,120 @@
 "use client";
 
 import { Icon } from "@iconify/react";
-import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
+import { useCallback, useEffect, useRef, useState } from "react";
 
-const orderSteps = [
-  { label: "Konfirmasi", icon: "lucide:clock-3" },
-  { label: "Diproses", icon: "lucide:refresh-cw" },
-  { label: "Dikirim", icon: "lucide:truck" },
-  { label: "Sampai", icon: "lucide:map-pin" },
-];
+type NotificationType =
+  | "listing_deactivated"
+  | "listing_blocked"
+  | "favorite_reserved"
+  | "favorite_sold"
+  | "favorite_price_drop"
+  | "security_new_device"
+  | "security_password_changed";
 
-const activities = [
-  {
-    title: "Pesanan rak buku menunggu konfirmasi",
-    description: "Selesaikan proses dalam 24 jam agar barang tetap tersedia.",
-    icon: "lucide:receipt-text",
-    accent: "text-[#f7a81b]",
-  },
-  {
-    title: "Ada chat baru dari calon pembeli",
-    description: "Balas pertanyaan produk untuk mempercepat transaksi.",
-    icon: "lucide:message-circle",
-    accent: "text-[#17458f]",
-  },
-];
+type NotificationItem = {
+  id: string;
+  type: NotificationType;
+  title: string;
+  body: string | null;
+  href: string | null;
+  isRead: boolean;
+  createdAt: string;
+};
+
+const typeIcon: Record<NotificationType, { icon: string; accent: string }> = {
+  listing_deactivated: { icon: "lucide:circle-pause", accent: "text-[#f7a81b]" },
+  listing_blocked: { icon: "lucide:shield-alert", accent: "text-[#ef476f]" },
+  favorite_reserved: { icon: "lucide:bookmark-check", accent: "text-[#17458f]" },
+  favorite_sold: { icon: "lucide:package-check", accent: "text-[#17458f]" },
+  favorite_price_drop: { icon: "lucide:trending-down", accent: "text-emerald-600" },
+  security_new_device: { icon: "lucide:monitor-smartphone", accent: "text-[#ef476f]" },
+  security_password_changed: { icon: "lucide:key-round", accent: "text-[#ef476f]" },
+};
+
+const POLL_INTERVAL = 30000;
+
+function timeAgo(iso: string): string {
+  const diffMs = Date.now() - new Date(iso).getTime();
+  const min = Math.floor(diffMs / 60000);
+  if (min < 1) return "Baru saja";
+  if (min < 60) return `${min} mnt lalu`;
+  const hr = Math.floor(min / 60);
+  if (hr < 24) return `${hr} jam lalu`;
+  const day = Math.floor(hr / 24);
+  if (day < 7) return `${day} hari lalu`;
+  return new Date(iso).toLocaleDateString("id-ID", { day: "numeric", month: "short" });
+}
 
 export default function NavbarNotificationButton() {
   const [showDropdown, setShowDropdown] = useState(false);
   const [isPositioned, setIsPositioned] = useState(false);
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, right: 0 });
+  const [items, setItems] = useState<NotificationItem[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [chatUnread, setChatUnread] = useState({ messageCount: 0, conversationCount: 0 });
   const dropdownRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
+
+  const fetchNotifications = useCallback(async () => {
+    try {
+      const res = await fetch("/api/notifications", { cache: "no-store" });
+      if (!res.ok) return;
+      const data = await res.json();
+      setItems(Array.isArray(data.items) ? data.items : []);
+      setUnreadCount(typeof data.unreadCount === "number" ? data.unreadCount : 0);
+      setChatUnread(
+        data.chatUnread && typeof data.chatUnread.messageCount === "number"
+          ? data.chatUnread
+          : { messageCount: 0, conversationCount: 0 },
+      );
+    } catch {
+      // Diam saja — badge notifikasi tidak boleh mengganggu navbar.
+    }
+  }, []);
+
+  // Poll berkala untuk badge (pola sama seperti unread chat).
+  useEffect(() => {
+    fetchNotifications();
+    const interval = setInterval(fetchNotifications, POLL_INTERVAL);
+    return () => clearInterval(interval);
+  }, [fetchNotifications]);
+
+  // Refresh saat dropdown dibuka agar isinya paling baru.
+  useEffect(() => {
+    if (showDropdown) fetchNotifications();
+  }, [showDropdown, fetchNotifications]);
+
+  const markRead = useCallback(async (id: string) => {
+    setItems((prev) =>
+      prev.map((n) => (n.id === id ? { ...n, isRead: true } : n)),
+    );
+    setUnreadCount((c) => Math.max(0, c - 1));
+    try {
+      await fetch("/api/notifications/mark-read", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      });
+    } catch {
+      // Optimistic — abaikan kegagalan jaringan.
+    }
+  }, []);
+
+  const markAllRead = useCallback(async () => {
+    setItems((prev) => prev.map((n) => ({ ...n, isRead: true })));
+    setUnreadCount(0);
+    try {
+      await fetch("/api/notifications/mark-read", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ all: true }),
+      });
+    } catch {
+      // Optimistic — abaikan kegagalan jaringan.
+    }
+  }, []);
 
   useEffect(() => {
     if (showDropdown && buttonRef.current) {
@@ -91,14 +175,16 @@ export default function NavbarNotificationButton() {
         aria-expanded={showDropdown}
       >
         <Icon icon="lucide:bell" width={21} height={21} className="text-[#555]" aria-hidden="true" />
-        <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-[#ef476f] font-poppins text-[9px] font-bold text-white">
-          2
-        </span>
+        {unreadCount > 0 && (
+          <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#ef476f] px-1 font-open-sauce text-[9px] font-bold text-white">
+            {unreadCount > 9 ? "9+" : unreadCount}
+          </span>
+        )}
       </button>
 
       {showDropdown && isPositioned && (
         <div
-          className="fixed z-[9999] w-[calc(100vw-32px)] overflow-hidden rounded-xl border border-gray-200/80 bg-white animate-[dropdownSlideIn_180ms_cubic-bezier(0.2,0.8,0.2,1)_both] md:w-[min(400px,calc(100vw-32px))]"
+          className="fixed z-9999 w-[calc(100vw-32px)] overflow-hidden rounded-xl border border-gray-200/80 bg-white animate-[dropdownSlideIn_180ms_cubic-bezier(0.2,0.8,0.2,1)_both] md:w-[min(400px,calc(100vw-32px))]"
           style={{
             top: `${dropdownPosition.top}px`,
             right: `${dropdownPosition.right}px`,
@@ -108,105 +194,134 @@ export default function NavbarNotificationButton() {
           <div className="flex items-start justify-between border-b border-gray-100 px-4 py-3">
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="font-poppins text-[17px] font-semibold text-black">Notifikasi</h2>
-                <span className="flex items-center gap-1 font-poppins text-[10px] font-semibold text-[#ef476f]">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#ef476f]" />
-                  2 baru
-                </span>
+                <h2 className="font-open-sauce text-[17px] font-semibold text-black">Notifikasi</h2>
+                {unreadCount > 0 && (
+                  <span className="flex items-center gap-1 font-open-sauce text-[10px] font-semibold text-[#ef476f]">
+                    <span className="h-1.5 w-1.5 rounded-full bg-[#ef476f]" />
+                    {unreadCount} baru
+                  </span>
+                )}
               </div>
-              <p className="mt-0.5 font-poppins text-[11px] text-[#6b7280]">Aktivitas jual beli dan pesan penting.</p>
+              <p className="mt-0.5 font-open-sauce text-[11px] text-[#6b7280]">Kabar listing dan barang favoritmu.</p>
             </div>
-            <button
-              type="button"
+            <Link
+              href="/account/notifications"
+              onClick={() => setShowDropdown(false)}
               className="flex h-7 w-7 items-center justify-center rounded-full text-[#6b7280] transition-colors hover:bg-[#f4f6f8] hover:text-[#17458f]"
               aria-label="Pengaturan notifikasi"
             >
               <Icon icon="lucide:settings" width={17} height={17} aria-hidden="true" />
-            </button>
+            </Link>
           </div>
 
-          <div className="max-h-[340px] overflow-y-auto">
-            <section className="px-4 py-3">
-              <div className="flex items-center justify-between">
-                <h3 className="font-poppins text-[14px] font-semibold text-black">Ringkasan Transaksi</h3>
-                <button type="button" className="font-poppins text-[12px] font-semibold text-[#17458f] hover:text-[#f7a81b]">
-                  Lihat Semua
-                </button>
-              </div>
-
-              <div className="mt-2.5 flex items-center gap-2 rounded-lg border border-gray-100 px-3 py-2 font-poppins text-[12px] text-black">
-                <Icon icon="lucide:wallet-cards" width={17} height={17} className="shrink-0 text-[#f7a81b]" aria-hidden="true" />
-                <span className="min-w-0 flex-1">
-                  <span className="block truncate font-semibold">Menunggu pembayaran</span>
-                  <span className="block truncate text-[10px] text-[#6b7280]">Selesaikan transaksi aktif kamu.</span>
+          <div className="max-h-90 overflow-y-auto">
+            {chatUnread.messageCount > 0 && (
+              <Link
+                href="/dashboard/chat"
+                onClick={() => setShowDropdown(false)}
+                className="grid grid-cols-[20px_minmax(0,1fr)_auto] items-center gap-3 border-b border-gray-100 bg-[#fff9f0] p-3 text-left transition-colors hover:bg-[#fff4e0]"
+              >
+                <Icon icon="lucide:messages-square" width={18} height={18} className="text-[#f7a81b]" aria-hidden="true" />
+                <span className="min-w-0">
+                  <span className="block truncate font-open-sauce text-[12px] font-semibold text-black">
+                    {chatUnread.messageCount} pesan belum dibaca
+                  </span>
+                  <span className="block truncate font-open-sauce text-[11px] text-[#6b7280]">
+                    {chatUnread.conversationCount > 1
+                      ? `Dari ${chatUnread.conversationCount} percakapan — buka chat untuk membalas.`
+                      : "Buka chat untuk membalas."}
+                  </span>
                 </span>
+                <Icon icon="lucide:chevron-right" width={15} height={15} className="text-[#9aa3af]" aria-hidden="true" />
+              </Link>
+            )}
+            {items.length === 0 && chatUnread.messageCount === 0 ? (
+              <div className="flex flex-col items-center gap-2 px-4 py-10 text-center">
+                <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[#f4f6f8]">
+                  <Icon icon="lucide:bell-off" width={22} height={22} className="text-[#9aa3af]" aria-hidden="true" />
+                </span>
+                <p className="font-open-sauce text-[13px] font-semibold text-black">Belum ada notifikasi</p>
+                <p className="font-open-sauce text-[11px] leading-relaxed text-[#6b7280]">
+                  Kabar tentang listing dan barang favoritmu akan muncul di sini.
+                </p>
               </div>
-
-              <div className="mt-2.5 grid grid-cols-4 gap-1.5">
-                {orderSteps.map((step) => (
-                  <button
-                    key={step.label}
-                    type="button"
-                    className="group flex flex-col items-center gap-1 rounded-lg p-1.5 text-center transition-colors hover:bg-[#fff7e8]"
-                  >
-                    <Icon icon={step.icon} width={21} height={21} className="text-[#17458f] transition-transform group-hover:-translate-y-0.5" aria-hidden="true" />
-                    <span className="font-poppins text-[10px] leading-tight text-black">{step.label}</span>
-                  </button>
-                ))}
-              </div>
-            </section>
-
-            <section className="border-t-[6px] border-[#f4f6f8] px-4 py-3">
-              <h3 className="font-poppins text-[14px] font-semibold text-black">Aktivitas Terbaru</h3>
-              <div className="mt-3 grid gap-2">
-                {activities.map((activity) => (
-                  <button
-                    key={activity.title}
-                    type="button"
-                    className="group grid grid-cols-[20px_minmax(0,1fr)] gap-3 rounded-lg border-l-2 border-transparent p-2 text-left transition-colors hover:border-[#f7a81b] hover:bg-[#fffdf8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#17458f]"
-                  >
-                    <Icon icon={activity.icon} width={18} height={18} className={`${activity.accent} mt-0.5 transition-transform group-hover:-translate-y-0.5`} aria-hidden="true" />
-                    <span className="min-w-0">
-                      <span className="block truncate font-poppins text-[12px] font-semibold text-black group-hover:text-[#17458f]">
-                        {activity.title}
+            ) : (
+              <div className="grid">
+                {items.map((n) => {
+                  const meta = typeIcon[n.type] ?? { icon: "lucide:bell", accent: "text-[#17458f]" };
+                  const content = (
+                    <>
+                      <span className="relative mt-0.5">
+                        <Icon icon={meta.icon} width={18} height={18} className={meta.accent} aria-hidden="true" />
+                        {!n.isRead && (
+                          <span className="absolute -left-1 -top-1 h-2 w-2 rounded-full bg-[#ef476f]" />
+                        )}
                       </span>
-                      <span className="mt-0.5 block font-poppins text-[11px] leading-snug text-[#6b7280]">
-                        {activity.description}
+                      <span className="min-w-0">
+                        <span className="block truncate font-open-sauce text-[12px] font-semibold text-black">
+                          {n.title}
+                        </span>
+                        {n.body && (
+                          <span className="mt-0.5 block font-open-sauce text-[11px] leading-snug text-[#6b7280]">
+                            {n.body}
+                          </span>
+                        )}
+                        <span className="mt-1 block font-open-sauce text-[10px] text-[#9aa3af]">
+                          {timeAgo(n.createdAt)}
+                        </span>
                       </span>
-                    </span>
-                  </button>
-                ))}
-              </div>
-            </section>
+                    </>
+                  );
+                  const rowClass = `grid grid-cols-[20px_minmax(0,1fr)] gap-3 border-l-2 p-3 text-left transition-colors ${n.isRead
+                    ? "border-transparent hover:bg-[#f9fafb]"
+                    : "border-[#f7a81b] bg-[#fffdf8] hover:bg-[#fffaf0]"
+                    }`;
 
-            <section className="border-t-[6px] border-[#f4f6f8] px-4 py-3">
-              <h3 className="font-poppins text-[14px] font-semibold text-black">Aksi Cepat</h3>
-              <div className="mt-3 grid grid-cols-2 gap-2">
-                <button
-                  type="button"
-                  className="flex h-9 items-center justify-center gap-2 rounded-lg bg-[#f7a81b] font-poppins text-[12px] font-semibold text-white transition-colors hover:bg-[#e89a14]"
-                >
-                  <Icon icon="lucide:shopping-bag" width={15} height={15} aria-hidden="true" />
-                  Cek Belanja
-                </button>
-                <button
-                  type="button"
-                  className="flex h-9 items-center justify-center gap-2 rounded-lg border border-[#17458f] font-poppins text-[12px] font-semibold text-[#17458f] transition-colors hover:bg-[#eef6ff]"
-                >
-                  <Icon icon="lucide:plus-circle" width={15} height={15} aria-hidden="true" />
-                  Jual Barang
-                </button>
+                  return n.href ? (
+                    <Link
+                      key={n.id}
+                      href={n.href}
+                      onClick={() => {
+                        if (!n.isRead) markRead(n.id);
+                        setShowDropdown(false);
+                      }}
+                      className={rowClass}
+                    >
+                      {content}
+                    </Link>
+                  ) : (
+                    <button
+                      key={n.id}
+                      type="button"
+                      onClick={() => {
+                        if (!n.isRead) markRead(n.id);
+                      }}
+                      className={rowClass}
+                    >
+                      {content}
+                    </button>
+                  );
+                })}
               </div>
-            </section>
+            )}
           </div>
 
           <div className="flex items-center justify-between border-t border-gray-100 px-4 py-3">
-            <button type="button" className="font-poppins text-[12px] font-semibold text-[#17458f] hover:text-[#f7a81b]">
+            <button
+              type="button"
+              onClick={markAllRead}
+              disabled={unreadCount === 0}
+              className="font-open-sauce text-[12px] font-semibold text-[#17458f] transition-colors hover:text-[#f7a81b] disabled:cursor-not-allowed disabled:text-[#c5cbd6]"
+            >
               Tandai semua dibaca
             </button>
-            <button type="button" className="font-poppins text-[12px] font-semibold text-[#17458f] hover:text-[#f7a81b]">
-              Lihat selengkapnya
-            </button>
+            <Link
+              href="/account/notifications"
+              onClick={() => setShowDropdown(false)}
+              className="font-open-sauce text-[12px] font-semibold text-[#17458f] hover:text-[#f7a81b]"
+            >
+              Pengaturan
+            </Link>
           </div>
         </div>
       )}

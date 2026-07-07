@@ -1,0 +1,1 @@
+ALTER TYPE "public"."otp_type" ADD VALUE 'two_factor';

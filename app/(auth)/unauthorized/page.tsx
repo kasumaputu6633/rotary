@@ -13,15 +13,15 @@ export default function UnauthorizedPage() {
           <div className="w-14 h-14 rounded-full bg-red-50 flex items-center justify-center">
             <Icon icon="lucide:circle-x" width={28} height={28} className="text-red-500" aria-hidden="true" />
           </div>
-          <h1 className="font-roboto-serif font-semibold text-[22px] text-black">
+          <h1 className="font-open-sauce font-semibold text-[22px] text-black">
             Akses Ditolak
           </h1>
-          <p className="font-poppins text-[14px] text-[#555] leading-relaxed max-w-70">
+          <p className="font-open-sauce text-[14px] text-[#555] leading-relaxed max-w-70">
             Anda tidak memiliki izin untuk mengakses halaman ini. Silakan masuk dengan akun yang sesuai.
           </p>
           <Link
             href="/login"
-            className="mt-2 font-poppins font-semibold text-[14px] text-white bg-[#f7a81b] rounded-[20px] px-8 py-2.5 hover:bg-[#e09918] transition-colors"
+            className="mt-2 font-open-sauce font-semibold text-[14px] text-white bg-[#f7a81b] rounded-[20px] px-8 py-2.5 hover:bg-[#e09918] transition-colors"
           >
             Kembali ke Masuk
           </Link>

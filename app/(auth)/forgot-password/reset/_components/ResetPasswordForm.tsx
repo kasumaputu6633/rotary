@@ -26,7 +26,7 @@ export default function ResetPasswordForm({ token }: { token: string }) {
 
   return (
     <div className="flex flex-col gap-2.5 items-start pt-11.25 pb-10.5 w-full">
-      <p className="font-poppins text-[14px] text-black leading-relaxed">
+      <p className="font-open-sauce text-[14px] text-black leading-relaxed">
         Kata sandi baru harus berbeda dari kata sandi sebelumnya.
       </p>
 
@@ -57,7 +57,7 @@ export default function ResetPasswordForm({ token }: { token: string }) {
         </AuthButton>
       </div>
 
-      <p className="font-poppins text-[13px] text-[#505050]">
+      <p className="font-open-sauce text-[13px] text-[#505050]">
         <Link href="/login" className="text-[#17458f] underline">
           ← Kembali ke Login
         </Link>

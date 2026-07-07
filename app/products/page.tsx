@@ -1,0 +1,257 @@
+import { Icon } from "@iconify/react";
+import type { Metadata } from "next";
+import Link from "next/link";
+import Footer from "@/app/_components/Footer";
+import Navbar from "@/app/_components/Navbar";
+import ProductCard from "@/app/_components/ProductCard";
+import { getSessionUserId } from "@/lib/auth";
+import { getActiveCategories } from "@/lib/categories";
+import {
+  getPublicListingCategoryCounts,
+  getPublicListings,
+  getPublicListingsCount,
+  type PublicListingSort,
+} from "@/lib/listings";
+import { ProductsFilterDrawer } from "./_components/ProductsFilterDrawer";
+import { buildProductsHref, ProductsFilterPanel, type ProductsFilterState } from "./_components/ProductsFilterPanel";
+
+type ProductsPageProps = {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+};
+
+const PAGE_SIZE = 18;
+const sortOptions: { value: PublicListingSort; label: string }[] = [
+  { value: "newest", label: "Terbaru" },
+  { value: "popular", label: "Paling dilihat" },
+  { value: "price-low", label: "Harga terendah" },
+  { value: "price-high", label: "Harga tertinggi" },
+];
+
+export const metadata: Metadata = {
+  title: "Marketplace Barang Bekas | Rotary",
+  description: "Cari barang bekas layak pakai yang dijual atau didonasikan melalui marketplace Rotary.",
+};
+
+function firstParam(value: string | string[] | undefined) {
+  return Array.isArray(value) ? value[0] : value;
+}
+
+function parsePositiveNumber(value: string | undefined) {
+  if (!value) return null;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && parsed >= 0 ? parsed : null;
+}
+
+function normalizeSort(value: string | undefined): PublicListingSort {
+  return sortOptions.some((option) => option.value === value) ? (value as PublicListingSort) : "newest";
+}
+
+function normalizeMode(value: string | undefined): "all" | "sale" | "donation" {
+  return value === "sale" || value === "donation" ? value : "all";
+}
+
+export default async function ProductsPage({ searchParams }: ProductsPageProps) {
+  const params = await searchParams;
+  const userId = await getSessionUserId();
+  const q = firstParam(params.q)?.trim() ?? "";
+  const category = firstParam(params.category)?.trim() ?? "";
+  const subcategory = firstParam(params.subcategory)?.trim() ?? "";
+  const mode = normalizeMode(firstParam(params.mode));
+  const minPriceInput = firstParam(params.minPrice)?.trim() ?? "";
+  const maxPriceInput = firstParam(params.maxPrice)?.trim() ?? "";
+  const minPrice = parsePositiveNumber(minPriceInput);
+  const maxPrice = parsePositiveNumber(maxPriceInput);
+  const sort = normalizeSort(firstParam(params.sort));
+  const page = Math.max(Number(firstParam(params.page) ?? 1) || 1, 1);
+  const query = {
+    q,
+    category,
+    subcategory,
+    mode,
+    minPrice,
+    maxPrice,
+    sort,
+    page,
+    limit: PAGE_SIZE,
+    userId,
+  };
+
+  const [products, totalProducts, categoryCounts, categories] = await Promise.all([
+    getPublicListings(query),
+    getPublicListingsCount(query),
+    getPublicListingCategoryCounts(),
+    getActiveCategories(),
+  ]);
+  const totalPages = Math.max(Math.ceil(totalProducts / PAGE_SIZE), 1);
+  const current: ProductsFilterState = { q, category, subcategory, mode, minPrice: minPriceInput, maxPrice: maxPriceInput, sort };
+  const categoryCountMap = new Map(categoryCounts.map((item) => [item.category, item.count]));
+  const start = totalProducts === 0 ? 0 : (page - 1) * PAGE_SIZE + 1;
+  const end = Math.min(page * PAGE_SIZE, totalProducts);
+  const filterPanelProps = {
+    categories,
+    category,
+    categoryCountMap,
+    categoryCounts,
+    current,
+    minPriceInput,
+    maxPriceInput,
+    mode,
+    q,
+    sort,
+    subcategory,
+  };
+  const activeFilterCount = [
+    q,
+    category,
+    subcategory,
+    mode !== "all" ? mode : "",
+    minPriceInput,
+    maxPriceInput,
+  ].filter(Boolean).length;
+
+  return (
+    <>
+      <Navbar />
+      <main className="bg-white">
+        <section className="bg-white">
+          <div className="v1-header-container">
+            <div className="v1-inner">
+              <nav className="v1-breadcrumb" aria-label="Breadcrumb">
+                <Link href="/" className="v1-breadcrumb-link">Home</Link>
+                <Icon icon="lucide:chevron-right" className="text-[#f7a81b]" width={12} height={12} aria-hidden="true" />
+                <span>Marketplace</span>
+              </nav>
+
+              <div className="v1-main-row">
+                <div className="v1-text-block">
+                  <p className="v1-eyebrow">Barang bekas layak pakai</p>
+                  <h1 className="v1-title">Marketplace Rotary</h1>
+                  <p className="v1-desc">
+                    Telusuri barang yang dijual atau didonasikan langsung oleh pengguna. Deal, pengiriman, dan penjemputan disepakati manual antar pengguna.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <div className="mx-auto grid max-w-[1728px] gap-7 px-8 py-8 lg:grid-cols-[260px_minmax(0,1fr)] lg:px-40 lg:py-10">
+          <aside className="hidden lg:sticky lg:top-5 lg:block lg:self-start">
+            <ProductsFilterPanel {...filterPanelProps} />
+          </aside>
+
+          <section className="min-w-0">
+            <ProductsFilterDrawer activeFilterCount={activeFilterCount}>
+              <ProductsFilterPanel {...filterPanelProps} />
+            </ProductsFilterDrawer>
+
+            <form action="/products" className="grid gap-3 rounded-lg border border-[#d7dde7] bg-white p-3 shadow-[0_10px_26px_rgba(15,23,42,0.05)] md:grid-cols-[minmax(0,1fr)_190px_auto]">
+              {category && <input type="hidden" name="category" value={category} />}
+              {subcategory && <input type="hidden" name="subcategory" value={subcategory} />}
+              {mode !== "all" && <input type="hidden" name="mode" value={mode} />}
+              {minPriceInput && <input type="hidden" name="minPrice" value={minPriceInput} />}
+              {maxPriceInput && <input type="hidden" name="maxPrice" value={maxPriceInput} />}
+              <label className="relative block">
+                <Icon icon="lucide:search" width={15} height={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#6b7280]" aria-hidden="true" />
+                <input
+                  name="q"
+                  defaultValue={q}
+                  placeholder="Cari barang, kategori, atau lokasi"
+                  className="h-10 w-full rounded-lg border border-[#c5cbd6] pl-9 pr-3 font-open-sauce text-[13px] outline-none focus:border-[#f7a81b] focus:ring-2 focus:ring-[#fff2d6]"
+                />
+              </label>
+              <select
+                name="sort"
+                defaultValue={sort}
+                className="h-10 rounded-lg border border-[#c5cbd6] bg-white px-3 font-open-sauce text-[12px] font-semibold text-[#17458f] outline-none focus:border-[#f7a81b] focus:ring-2 focus:ring-[#fff2d6]"
+                aria-label="Urutkan listing"
+              >
+                {sortOptions.map((option) => (
+                  <option key={option.value} value={option.value}>{option.label}</option>
+                ))}
+              </select>
+              <button type="submit" className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-[#f7a81b] px-4 font-open-sauce text-[12px] font-semibold text-white hover:bg-[#e89a14]">
+                <Icon icon="lucide:sliders-horizontal" width={15} height={15} aria-hidden="true" />
+                Terapkan
+              </button>
+            </form>
+
+            <div className="mt-5 flex flex-wrap items-center justify-between gap-3 font-open-sauce">
+              <p className="text-[13px] text-[#5f6370]">
+                {totalProducts > 0 ? `Menampilkan ${start}-${end} dari ${totalProducts} listing` : "Tidak ada listing yang cocok"}
+              </p>
+              {(q || category || subcategory || mode !== "all" || minPriceInput || maxPriceInput || sort !== "newest") && (
+                <div className="flex flex-wrap gap-2">
+                  {q && <span className="rounded-full bg-[#eef6ff] px-3 py-1 text-[11px] font-semibold text-[#17458f]">Cari: {q}</span>}
+                  {category && <span className="rounded-full bg-[#eef6ff] px-3 py-1 text-[11px] font-semibold text-[#17458f]">{category}</span>}
+                  {subcategory && <span className="rounded-full bg-[#eef6ff] px-3 py-1 text-[11px] font-semibold text-[#17458f]">{subcategory}</span>}
+                  {mode !== "all" && <span className="rounded-full bg-[#fff7e8] px-3 py-1 text-[11px] font-semibold text-[#17458f]">{mode === "sale" ? "Dijual" : "Didonasi"}</span>}
+                </div>
+              )}
+            </div>
+
+            {products.length > 0 ? (
+              <div className="mt-7 grid grid-cols-[repeat(auto-fill,minmax(142px,1fr))] gap-x-3 gap-y-5 sm:grid-cols-[repeat(auto-fill,minmax(150px,1fr))] lg:grid-cols-[repeat(auto-fill,minmax(135px,1fr))]">
+                {products.map((product) => (
+                  <ProductCard key={product.id} product={product} />
+                ))}
+              </div>
+            ) : (
+              <div className="mt-7 rounded-lg border border-dashed border-[#cbd5e1] bg-[#f8fafc] px-6 py-12 text-center">
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-white text-[#17458f] shadow-sm">
+                  <Icon icon="lucide:search-x" width={22} height={22} aria-hidden="true" />
+                </div>
+                <p className="mt-4 font-open-sauce text-[15px] font-semibold text-black">Belum ada barang yang cocok</p>
+                <p className="mt-2 font-open-sauce text-[13px] text-[#6b7280]">Coba kurangi filter atau cari dengan kata kunci lain.</p>
+                <Link href="/products" className="mt-5 inline-flex h-10 items-center rounded-full bg-[#f7a81b] px-5 font-open-sauce text-[12px] font-semibold text-white">
+                  Reset Filter
+                </Link>
+              </div>
+            )}
+
+            {totalPages > 1 && (
+              <nav className="mt-9 flex flex-wrap items-center justify-center gap-2 font-open-sauce" aria-label="Pagination produk">
+                <Link
+                  href={buildProductsHref(current, { page: Math.max(page - 1, 1) })}
+                  aria-disabled={page <= 1}
+                  className={`inline-flex h-9 items-center gap-2 rounded-lg border px-3 text-[12px] font-semibold ${page <= 1 ? "pointer-events-none border-[#e5e7eb] text-[#9ca3af]" : "border-[#cbd5e1] text-[#17458f] hover:bg-[#eef6ff]"
+                    }`}
+                >
+                  <Icon icon="lucide:chevron-left" width={14} height={14} aria-hidden="true" />
+                  Sebelumnya
+                </Link>
+                {Array.from({ length: totalPages }, (_, index) => index + 1)
+                  .filter((item) => item === 1 || item === totalPages || Math.abs(item - page) <= 1)
+                  .map((item, index, pages) => {
+                    const previous = pages[index - 1];
+                    return (
+                      <span key={item} className="inline-flex items-center gap-2">
+                        {previous && item - previous > 1 && <span className="text-[12px] text-[#9ca3af]">...</span>}
+                        <Link
+                          href={buildProductsHref(current, { page: item })}
+                          className={`flex h-9 w-9 items-center justify-center rounded-lg text-[12px] font-semibold ${item === page ? "bg-[#17458f] text-white" : "border border-[#cbd5e1] text-[#17458f] hover:bg-[#eef6ff]"
+                            }`}
+                        >
+                          {item}
+                        </Link>
+                      </span>
+                    );
+                  })}
+                <Link
+                  href={buildProductsHref(current, { page: Math.min(page + 1, totalPages) })}
+                  aria-disabled={page >= totalPages}
+                  className={`inline-flex h-9 items-center gap-2 rounded-lg border px-3 text-[12px] font-semibold ${page >= totalPages ? "pointer-events-none border-[#e5e7eb] text-[#9ca3af]" : "border-[#cbd5e1] text-[#17458f] hover:bg-[#eef6ff]"
+                    }`}
+                >
+                  Berikutnya
+                  <Icon icon="lucide:chevron-right" width={14} height={14} aria-hidden="true" />
+                </Link>
+              </nav>
+            )}
+          </section>
+        </div>
+      </main>
+      <Footer />
+    </>
+  );
+}

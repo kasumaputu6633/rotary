@@ -17,10 +17,10 @@ export default function AuthIllustration({ src }: AuthIllustrationProps) {
           className="object-cover"
         />
       </div>
-      <p className="font-roboto-serif font-semibold text-[14px] text-black whitespace-nowrap">
+      <p className="font-open-sauce font-semibold text-[14px] text-black whitespace-nowrap">
         Solusi Cerdas untuk Barang Bekas &amp; Sampahmu
       </p>
-      <p className="font-poppins text-[12px] text-black text-center w-[357px]">
+      <p className="font-open-sauce text-[12px] text-black text-center w-[357px]">
         Jual beli barang bekas dan setor sampah jadi jauh lebih praktis.
         Yuk, gabung bersama kami!
       </p>

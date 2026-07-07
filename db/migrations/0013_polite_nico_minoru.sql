@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX "listing_deals_one_active_per_listing_idx" ON "listing_deals" USING btree ("listing_id") WHERE "listing_deals"."status" = 'active';
