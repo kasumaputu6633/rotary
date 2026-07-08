@@ -48,8 +48,8 @@ export function ThreadView({
   const userMenuRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  // Track last attachment id to detect when user picks a new product
-  const lastAttachmentIdRef = useRef<string | undefined>(pendingAttachment?.id);
+  // Track last attachment object reference to detect when user clicks the product contact button again
+  const lastAttachmentRef = useRef<MessageAttachment | null | undefined>(pendingAttachment);
 
   // Close user menu when clicking outside
   useEffect(() => {
@@ -62,8 +62,9 @@ export function ThreadView({
     document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
   }, [showUserMenu]);
-  if (pendingAttachment?.id !== lastAttachmentIdRef.current) {
-    lastAttachmentIdRef.current = pendingAttachment?.id;
+
+  if (pendingAttachment !== lastAttachmentRef.current) {
+    lastAttachmentRef.current = pendingAttachment;
     // Reset dismissed state synchronously before render when attachment changes
     // This is safe because it's in the render path, not inside a useEffect
     if (dismissedAttachment) setDismissedAttachment(false);
@@ -146,45 +147,45 @@ export function ThreadView({
                 {otherUser ? onlineLabel(otherUser.lastSeenAt) : ""}
               </p>
             </div>
-            {otherUser && (
-              <div className="relative" ref={userMenuRef}>
-                <button
-                  type="button"
-                  onClick={() => setShowUserMenu((v) => !v)}
-                  className="flex h-7 w-7 items-center justify-center rounded-full text-[#6b7280] transition-colors hover:bg-[#f1f5f9] hover:text-[#374151] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#17458f]"
-                  aria-label="Opsi pengguna"
-                  aria-haspopup="menu"
-                  aria-expanded={showUserMenu}
-                >
-                  <Icon icon="lucide:ellipsis" width={16} height={16} />
-                </button>
-                {showUserMenu && (
-                  <div
-                    role="menu"
-                    className="absolute left-0 top-full z-[9999] mt-1 min-w-[180px] overflow-hidden rounded-xl border border-[#edf0f5] bg-white shadow-[0_8px_24px_rgba(0,0,0,0.10)]"
-                  >
-                    <div className="py-1">
-                      <button
-                        type="button"
-                        role="menuitem"
-                        onClick={() => {
-                          setShowUserMenu(false);
-                          setShowReportModal(true);
-                        }}
-                        className="flex w-full items-center gap-2.5 px-3.5 py-2.5 text-left font-open-sauce text-[13px] text-[#ef476f] transition-colors hover:bg-[#fff5f7]"
-                      >
-                        <Icon icon="lucide:flag" width={14} height={14} className="shrink-0" />
-                        Laporkan Pengguna
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
           </div>
         </div>
 
         <div className="flex shrink-0 items-center gap-1.5">
+          {otherUser && (
+            <div className="relative" ref={userMenuRef}>
+              <button
+                type="button"
+                onClick={() => setShowUserMenu((v) => !v)}
+                className="flex h-8 w-8 items-center justify-center rounded-full text-[#6b7280] transition-colors hover:bg-[#f1f5f9] hover:text-[#374151] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#17458f]"
+                aria-label="Opsi pengguna"
+                aria-haspopup="menu"
+                aria-expanded={showUserMenu}
+              >
+                <Icon icon="lucide:ellipsis" width={20} height={20} />
+              </button>
+              {showUserMenu && (
+                <div
+                  role="menu"
+                  className="absolute right-0 top-full z-[9999] mt-1 min-w-[180px] overflow-hidden rounded-xl border border-[#edf0f5] bg-white shadow-[0_8px_24px_rgba(0,0,0,0.10)]"
+                >
+                  <div className="py-1">
+                    <button
+                      type="button"
+                      role="menuitem"
+                      onClick={() => {
+                        setShowUserMenu(false);
+                        setShowReportModal(true);
+                      }}
+                      className="flex w-full items-center gap-2.5 px-3.5 py-2.5 text-left font-open-sauce text-[13px] text-[#ef476f] transition-colors hover:bg-[#fff5f7]"
+                    >
+                      <Icon icon="lucide:flag" width={14} height={14} className="shrink-0" />
+                      Laporkan Pengguna
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
           <button
             type="button"
             onClick={onClose}

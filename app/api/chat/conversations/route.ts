@@ -118,18 +118,13 @@ export async function POST(req: NextRequest) {
     .where(eq(users.id, user.id));
 
   // Find-or-create berdasarkan pasang buyer-seller (bukan per produk).
-  // Dua arah: satu sesi per pasang orang, tak peduli siapa yang memulai atau
-  // listing siapa yang dibahas. Tanpa ini, (A→B) dan (B→A) jadi dua sesi.
+  // Arah penting: jika A beli dari B, itu satu sesi (A = buyer, B = seller).
+  // Jika B beli dari A, itu sesi yang BERBEDA (B = buyer, A = seller).
+  // Dengan demikian, percakapan akan muncul dengan benar di Seller Center masing-masing.
   const existing = await db.query.conversations.findFirst({
-    where: or(
-      and(
-        eq(conversations.buyerId, user.id),
-        eq(conversations.sellerId, listing.sellerId),
-      ),
-      and(
-        eq(conversations.buyerId, listing.sellerId),
-        eq(conversations.sellerId, user.id),
-      ),
+    where: and(
+      eq(conversations.buyerId, user.id),
+      eq(conversations.sellerId, listing.sellerId),
     ),
     columns: { id: true },
   });
