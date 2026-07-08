@@ -51,6 +51,10 @@ export async function loginAction(
       return { error: "Email/nomor telepon atau kata sandi salah." };
     }
 
+    if (user.isBanned) {
+      return { error: "Akun Anda telah dinonaktifkan karena melanggar kebijakan platform." };
+    }
+
     const isMatch = await bcrypt.compare(password, user.passwordHash);
     if (!isMatch) {
       await recordLoginActivity(user.id, "login_failed", {

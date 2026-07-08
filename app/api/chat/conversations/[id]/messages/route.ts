@@ -181,7 +181,7 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
   // Info lawan bicara (online status)
   const otherUser = await db.query.users.findFirst({
     where: eq(users.id, otherUserId),
-    columns: { id: true, lastSeenAt: true, shopName: true, fullName: true, avatarUrl: true },
+    columns: { id: true, lastSeenAt: true, shopName: true, fullName: true, avatarUrl: true, isBanned: true },
   });
 
   return NextResponse.json({
@@ -201,6 +201,7 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
           name: otherUser.shopName ?? otherUser.fullName ?? "Pengguna Rotary",
           avatarUrl: otherUser.avatarUrl,
           lastSeenAt: otherUser.lastSeenAt,
+          isBanned: otherUser.isBanned,
         }
       : null,
   }, { headers: noStoreHeaders });
@@ -214,6 +215,16 @@ export async function POST(req: NextRequest, { params }: RouteContext) {
   const { id } = await params;
   const conv = await getConversationForUser(id, user.id);
   if (!conv) return NextResponse.json({ error: "Conversation tidak ditemukan" }, { status: 404 });
+
+  // Prevent sending to banned users
+  const otherUserId = conv.buyerId === user.id ? conv.sellerId : conv.buyerId;
+  const otherUser = await db.query.users.findFirst({
+    where: eq(users.id, otherUserId),
+    columns: { isBanned: true },
+  });
+  if (otherUser?.isBanned) {
+    return NextResponse.json({ error: "Tidak dapat mengirim pesan. Pengguna ini sedang ditangguhkan." }, { status: 403 });
+  }
 
   const body = await req.json().catch(() => null);
   const content = typeof body?.content === "string" ? body.content.trim() : "";
@@ -297,3 +308,46 @@ export async function POST(req: NextRequest, { params }: RouteContext) {
   }, { status: 201 });
 }
 
+
+// DELETE /api/chat/conversations/[id]/messages?messageId=xxx — hapus pesan sendiri (maks 3 menit)
+export async function DELETE(req: NextRequest, { params }: RouteContext) {
+  const user = await getCurrentUser();
+  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const { id } = await params;
+  const conv = await getConversationForUser(id, user.id);
+  if (!conv) return NextResponse.json({ error: "Conversation tidak ditemukan" }, { status: 404 });
+
+  const messageId = req.nextUrl.searchParams.get("messageId");
+  if (!messageId) {
+    return NextResponse.json({ error: "messageId diperlukan" }, { status: 400 });
+  }
+
+  // Cari pesan — pastikan milik user ini dan di conversation ini
+  const msg = await db.query.messages.findFirst({
+    where: and(
+      eq(messages.id, messageId),
+      eq(messages.conversationId, id),
+      eq(messages.senderId, user.id),
+    ),
+    columns: { id: true, createdAt: true },
+  });
+
+  if (!msg) {
+    return NextResponse.json({ error: "Pesan tidak ditemukan atau bukan milik Anda" }, { status: 404 });
+  }
+
+  // Validasi batas waktu 3 menit
+  const THREE_MINUTES_MS = 3 * 60 * 1000;
+  const ageMs = Date.now() - new Date(msg.createdAt).getTime();
+  if (ageMs > THREE_MINUTES_MS) {
+    return NextResponse.json(
+      { error: "Pesan hanya bisa dihapus dalam 3 menit pertama setelah dikirim" },
+      { status: 403 },
+    );
+  }
+
+  await db.delete(messages).where(eq(messages.id, messageId));
+
+  return NextResponse.json({ deleted: true });
+}
