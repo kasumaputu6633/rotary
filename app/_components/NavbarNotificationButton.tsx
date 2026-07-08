@@ -4,6 +4,7 @@ import { Icon } from "@iconify/react";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { playSfx } from "@/lib/sfx";
+import { CHAT_UNREAD_CHANGED_EVENT } from "@/app/_features/chat/events";
 
 type NotificationType =
   | "listing_deactivated"
@@ -70,10 +71,10 @@ export default function NavbarNotificationButton() {
         ? data.chatUnread
         : { messageCount: 0, conversationCount: 0 };
 
-      // Bunyikan SFX jika notif listing ATAU pesan chat bertambah (skip initial load)
+      // Bunyikan SFX jika notif listing bertambah (skip initial load)
+      // Note: Pesan chat baru sekarang ditangani SFX-nya oleh useUnreadCount agar sinkron dengan badge chat
       const listingIncreased = prevUnreadRef.current !== null && newUnread > prevUnreadRef.current;
-      const chatIncreased = prevChatUnreadRef.current !== null && newChatUnread.messageCount > prevChatUnreadRef.current;
-      if (listingIncreased || chatIncreased) {
+      if (listingIncreased) {
         playSfx("notification");
       }
 
@@ -93,6 +94,16 @@ export default function NavbarNotificationButton() {
     fetchNotifications();
     const interval = setInterval(fetchNotifications, POLL_INTERVAL);
     return () => clearInterval(interval);
+  }, [fetchNotifications]);
+
+  // Listener untuk event chat dibaca atau diubah dari useConversation
+  useEffect(() => {
+    const handleUnreadChanged = () => {
+      fetchNotifications();
+    };
+
+    window.addEventListener(CHAT_UNREAD_CHANGED_EVENT, handleUnreadChanged);
+    return () => window.removeEventListener(CHAT_UNREAD_CHANGED_EVENT, handleUnreadChanged);
   }, [fetchNotifications]);
 
   // Refresh saat dropdown dibuka agar isinya paling baru.

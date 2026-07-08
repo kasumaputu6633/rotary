@@ -30,6 +30,13 @@ export function playSfx(name: SfxName): void {
   const now = Date.now();
   const last = lastPlayedAt[name] ?? 0;
 
+  // Mencegah double sound: jika 'message-received' baru saja bunyi (user ada di halaman chat),
+  // jangan bunyikan 'notification' SFX karena akan terdengar seperti suara yang delay/dobel.
+  if (name === "notification") {
+    const lastMsgRecv = lastPlayedAt["message-received"] ?? 0;
+    if (now - lastMsgRecv < 2000) return;
+  }
+
   if (now - last < COOLDOWN[name]) return;
 
   lastPlayedAt[name] = now;
@@ -39,4 +46,19 @@ export function playSfx(name: SfxName): void {
   audio.play().catch(() => {
     // Browser memblokir autoplay sebelum ada interaksi user — diam saja
   });
+}
+
+// Preload audio di background saat client-side idle
+if (typeof window !== "undefined") {
+  const preload = () => {
+    getAudio("/sounds/sfx-notification.mp3").load();
+    getAudio("/sounds/sfx-message-received.mp3").load();
+    getAudio("/sounds/sfx-message-sent.mp3").load();
+  };
+  
+  if ("requestIdleCallback" in window) {
+    window.requestIdleCallback(preload);
+  } else {
+    setTimeout(preload, 1500);
+  }
 }

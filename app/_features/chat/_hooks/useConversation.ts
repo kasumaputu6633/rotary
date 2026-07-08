@@ -152,7 +152,7 @@ export function useConversation(
           setMessages((prev) => {
             const serverIds = new Set(data.messages.map((m) => m.id));
             const prevIds = new Set(prev.map((m) => m.id));
-            const hasIncoming = data.messages.some(
+            const hasIncoming = prev.length > 0 && data.messages.some(
               (m) => !prevIds.has(m.id) && m.senderId !== currentUserId,
             );
             if (hasIncoming) playSfx("message-received");

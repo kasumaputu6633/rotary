@@ -2,12 +2,14 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { CHAT_UNREAD_CHANGED_EVENT } from "../events";
+import { playSfx } from "@/lib/sfx";
 
 const POLL_INTERVAL_MS = 30_000;
 
 export function useUnreadCount() {
   const [count, setCount] = useState(0);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const prevCountRef = useRef<number | null>(null);
 
   const fetchCount = useCallback(async () => {
     try {
@@ -17,7 +19,13 @@ export function useUnreadCount() {
       const res = await fetch("/api/chat/unread-count", { cache: "no-store" });
       if (res.ok) {
         const data = await res.json();
-        setCount(data.count ?? 0);
+        const newCount = data.count ?? 0;
+        
+        if (prevCountRef.current !== null && newCount > prevCountRef.current) {
+          playSfx("notification");
+        }
+        prevCountRef.current = newCount;
+        setCount(newCount);
       } else if (res.status === 401) {
         // User tidak login, stop polling
         return false;
