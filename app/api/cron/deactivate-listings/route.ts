@@ -2,6 +2,9 @@ import { NextResponse } from "next/server";
 import { runDeactivateListingsCron } from "@/lib/listings-cron";
 
 export const dynamic = "force-dynamic";
+// Cron mengirim WhatsApp berurutan (timeout 10s per pesan). Beri ruang eksekusi
+// lebih panjang agar tidak terpotong batas default fungsi serverless Vercel.
+export const maxDuration = 60;
 
 export async function GET(request: Request) {
   return handleDeactivateCron(request);
