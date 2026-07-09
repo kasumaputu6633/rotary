@@ -186,7 +186,7 @@ function buildOtpContent({
       <tr>
         <td style="border:1px solid #dce3ec;border-radius:8px;padding:16px 18px">
           <p style="margin:0;font-size:12.5px;color:#5a6a82;line-height:1.6">
-            Jangan pernah bagikan kode ini. Rotary tidak akan pernah memintanya melalui telepon atau email.
+            Gunakan kode OTP ini hanya untuk memverifikasi akun Anda. Demi keamanan, jangan bagikan kode ini kepada siapa pun. Kami tidak akan pernah meminta kode OTP Anda melalui telepon, WhatsApp, email, atau pesan lainnya.
           </p>
         </td>
       </tr>

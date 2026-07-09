@@ -420,10 +420,27 @@ export default function ComplaintsTable({
                         >
                           {c.targetLabel}
                         </Link>
+                      ) : c.targetType === "user" ? (
+                        <Link
+                          href={`/admin/users?search=${encodeURIComponent(c.targetLabel)}`}
+                          className="font-semibold hover:text-[#17458f] hover:underline"
+                          title="Lihat & kelola pengguna ini"
+                        >
+                          {c.targetLabel}
+                        </Link>
                       ) : (
                         <span className="font-semibold">{c.targetLabel}</span>
                       )}
                     </div>
+                    {c.targetType === "user" && (
+                      <Link
+                        href={`/admin/users?search=${encodeURIComponent(c.targetLabel)}`}
+                        className="mt-1 inline-flex items-center gap-1 text-[11px] font-semibold text-[#17458f] hover:underline"
+                      >
+                        <Icon icon="lucide:external-link" width={10} height={10} />
+                        Kelola pengguna
+                      </Link>
+                    )}
                     {c.description ? (
                       <p className="mt-1 max-w-[240px] text-[11px] leading-snug text-gray-400">
                         {c.description}
@@ -436,6 +453,7 @@ export default function ComplaintsTable({
                       </p>
                     ) : null}
                   </td>
+
                   <td className="py-3.5 pr-4 text-gray-500">{c.category}</td>
                   <td className="py-3.5 pr-4">
                     <PriorityBadge complaint={c} />

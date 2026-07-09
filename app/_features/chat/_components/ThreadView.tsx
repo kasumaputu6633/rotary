@@ -6,6 +6,7 @@ import type { MessageAttachment } from "../_hooks/useConversation";
 import { OnlineDot } from "./OnlineDot";
 import { onlineLabel } from "../utils";
 import { MessageBubble } from "./MessageBubble";
+import { ReportUserModal } from "./ReportUserModal";
 
 const quickReplies = [
   "Barang ini masih ada?",
@@ -34,7 +35,7 @@ export function ThreadView({
   onBack: () => void;
   onClose: () => void;
 }) {
-  const { messages, otherUser, loading, error, sending, sendMessage } = useConversation(
+  const { messages, otherUser, loading, error, sending, sendMessage, deleteMessage } = useConversation(
     conversationId,
     currentUserId,
     { onConversationRead, onConversationChanged },
@@ -42,12 +43,28 @@ export function ThreadView({
   const [inputValue, setInputValue] = useState("");
   const [dismissedAttachment, setDismissedAttachment] = useState(false);
   const [replyingTo, setReplyingTo] = useState<ChatMessage | null>(null);
+  const [showUserMenu, setShowUserMenu] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
+  const userMenuRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  // Track last attachment id to detect when user picks a new product
-  const lastAttachmentIdRef = useRef<string | undefined>(pendingAttachment?.id);
-  if (pendingAttachment?.id !== lastAttachmentIdRef.current) {
-    lastAttachmentIdRef.current = pendingAttachment?.id;
+  // Track last attachment object reference to detect when user clicks the product contact button again
+  const lastAttachmentRef = useRef<MessageAttachment | null | undefined>(pendingAttachment);
+
+  // Close user menu when clicking outside
+  useEffect(() => {
+    if (!showUserMenu) return;
+    const handleClick = (e: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
+        setShowUserMenu(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [showUserMenu]);
+
+  if (pendingAttachment !== lastAttachmentRef.current) {
+    lastAttachmentRef.current = pendingAttachment;
     // Reset dismissed state synchronously before render when attachment changes
     // This is safe because it's in the render path, not inside a useEffect
     if (dismissedAttachment) setDismissedAttachment(false);
@@ -116,19 +133,59 @@ export function ThreadView({
             )}
             <OnlineDot lastSeenAt={otherUser?.lastSeenAt ?? null} />
           </span>
-          <div className="min-w-0">
-            <div className="flex items-center gap-2">
-              <h2 className="truncate text-[16px] font-semibold text-black">
+          <div className="min-w-0 flex-1 flex items-center gap-2">
+            <div className="min-w-0">
+              <h2 className="truncate text-[16px] font-semibold text-black flex items-center gap-2">
                 {otherUser?.name ?? "Memuat..."}
+                {otherUser?.isBanned && (
+                  <span className="inline-flex items-center rounded-full bg-red-100 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-red-600">
+                    Banned
+                  </span>
+                )}
               </h2>
+              <p className="truncate text-[11px] text-[#6b7280]">
+                {otherUser ? onlineLabel(otherUser.lastSeenAt) : ""}
+              </p>
             </div>
-            <p className="truncate text-[11px] text-[#6b7280]">
-              {otherUser ? onlineLabel(otherUser.lastSeenAt) : ""}
-            </p>
           </div>
         </div>
 
         <div className="flex shrink-0 items-center gap-1.5">
+          {otherUser && (
+            <div className="relative" ref={userMenuRef}>
+              <button
+                type="button"
+                onClick={() => setShowUserMenu((v) => !v)}
+                className="flex h-8 w-8 items-center justify-center rounded-full text-[#6b7280] transition-colors hover:bg-[#f1f5f9] hover:text-[#374151] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#17458f]"
+                aria-label="Opsi pengguna"
+                aria-haspopup="menu"
+                aria-expanded={showUserMenu}
+              >
+                <Icon icon="lucide:ellipsis" width={20} height={20} />
+              </button>
+              {showUserMenu && (
+                <div
+                  role="menu"
+                  className="absolute right-0 top-full z-[9999] mt-1 min-w-[180px] overflow-hidden rounded-xl border border-[#edf0f5] bg-white shadow-[0_8px_24px_rgba(0,0,0,0.10)]"
+                >
+                  <div className="py-1">
+                    <button
+                      type="button"
+                      role="menuitem"
+                      onClick={() => {
+                        setShowUserMenu(false);
+                        setShowReportModal(true);
+                      }}
+                      className="flex w-full items-center gap-2.5 px-3.5 py-2.5 text-left font-open-sauce text-[13px] text-[#ef476f] transition-colors hover:bg-[#fff5f7]"
+                    >
+                      <Icon icon="lucide:flag" width={14} height={14} className="shrink-0" />
+                      Laporkan Pengguna
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
           <button
             type="button"
             onClick={onClose}
@@ -173,6 +230,14 @@ export function ThreadView({
                 onReply={(msgToReply) => {
                   setReplyingTo(msgToReply);
                   inputRef.current?.focus();
+                }}
+                onDelete={async (msgToDelete) => {
+                  const result = await deleteMessage(msgToDelete.id);
+                  if (!result.ok) {
+                    // dynamic import toast to avoid adding dep at top
+                    const { toast } = await import("sonner");
+                    toast.error(result.error ?? "Gagal menghapus pesan.");
+                  }
                 }}
               />
             ))}
@@ -252,47 +317,65 @@ export function ThreadView({
           </div>
         )}
 
-        <div className="mb-2.5 flex gap-2 overflow-x-auto pb-2 [scrollbar-width:thin] [&::-webkit-scrollbar]:h-[3px] [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-[#cbd5e1] hover:[&::-webkit-scrollbar-thumb]:bg-[#94a3b8]">
-          {quickReplies.map((reply) => (
-            <button
-              key={reply}
-              type="button"
-              onClick={() => handleQuickReply(reply)}
-              className="shrink-0 rounded-full border border-[#f7a81b] px-3.5 py-1.5 text-[12px] font-semibold text-[#17458f] transition-colors hover:bg-[#fff7e8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#17458f]"
-            >
-              {reply}
-            </button>
-          ))}
-        </div>
-
-        <div className="grid grid-cols-[1fr_44px] gap-2.5">
-          <div className="flex h-[42px] items-center gap-2 rounded-full border border-[#cbd5e1] bg-white px-3 transition-colors focus-within:border-[#f7a81b]">
-            <input
-              ref={inputRef}
-              type="text"
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyDown={handleKeyDown}
-              className="min-w-0 flex-1 bg-transparent text-[13px] text-black outline-none placeholder:text-[#b2b8c3]"
-              placeholder={showAttachmentPreview ? "Tambahkan pesan (opsional)..." : "Tulis pesan..."}
-              maxLength={2000}
-            />
+        {otherUser?.isBanned ? (
+          <div className="flex items-center justify-center rounded-lg border border-red-200 bg-red-50 p-3 text-center">
+            <p className="font-open-sauce text-[12px] font-semibold text-red-600">
+              Tidak dapat membalas pesan. Pengguna ini sedang ditangguhkan.
+            </p>
           </div>
-          <button
-            type="button"
-            onClick={handleSend}
-            disabled={(!inputValue.trim() && !showAttachmentPreview) || sending}
-            className="flex h-[42px] w-[42px] items-center justify-center rounded-full bg-[#f7a81b] text-white shadow-[0_8px_18px_rgba(247,168,27,0.28)] transition-all hover:-translate-y-0.5 hover:bg-[#e89a14] hover:shadow-[0_12px_24px_rgba(247,168,27,0.34)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f7a81b] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
-            aria-label="Kirim pesan"
-          >
-            {sending ? (
-              <Icon icon="lucide:loader-circle" width={18} height={18} className="animate-spin" aria-hidden="true" />
-            ) : (
-              <Icon icon="lucide:send-horizontal" width={20} height={20} aria-hidden="true" />
-            )}
-          </button>
-        </div>
+        ) : (
+          <>
+            <div className="mb-2.5 flex gap-2 overflow-x-auto pb-2 [scrollbar-width:thin] [&::-webkit-scrollbar]:h-[3px] [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-[#cbd5e1] hover:[&::-webkit-scrollbar-thumb]:bg-[#94a3b8]">
+              {quickReplies.map((reply) => (
+                <button
+                  key={reply}
+                  type="button"
+                  onClick={() => handleQuickReply(reply)}
+                  className="shrink-0 rounded-full border border-[#f7a81b] px-3.5 py-1.5 text-[12px] font-semibold text-[#17458f] transition-colors hover:bg-[#fff7e8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#17458f]"
+                >
+                  {reply}
+                </button>
+              ))}
+            </div>
+
+            <div className="grid grid-cols-[1fr_44px] gap-2.5">
+              <div className="flex h-[42px] items-center gap-2 rounded-full border border-[#cbd5e1] bg-white px-3 transition-colors focus-within:border-[#f7a81b]">
+                <input
+                  ref={inputRef}
+                  type="text"
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  className="min-w-0 flex-1 bg-transparent text-[13px] text-black outline-none placeholder:text-[#b2b8c3]"
+                  placeholder={showAttachmentPreview ? "Tambahkan pesan (opsional)..." : "Tulis pesan..."}
+                  maxLength={2000}
+                />
+              </div>
+              <button
+                type="button"
+                onClick={handleSend}
+                disabled={(!inputValue.trim() && !showAttachmentPreview) || sending}
+                className="flex h-[42px] w-[42px] items-center justify-center rounded-full bg-[#f7a81b] text-white shadow-[0_8px_18px_rgba(247,168,27,0.28)] transition-all hover:-translate-y-0.5 hover:bg-[#e89a14] hover:shadow-[0_12px_24px_rgba(247,168,27,0.34)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f7a81b] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+                aria-label="Kirim pesan"
+              >
+                {sending ? (
+                  <Icon icon="lucide:loader-circle" width={18} height={18} className="animate-spin" aria-hidden="true" />
+                ) : (
+                  <Icon icon="lucide:send-horizontal" width={20} height={20} aria-hidden="true" />
+                )}
+              </button>
+            </div>
+          </>
+        )}
       </footer>
+
+      {showReportModal && otherUser && (
+        <ReportUserModal
+          conversationId={conversationId}
+          reportedUserName={otherUser.name ?? "Pengguna"}
+          onClose={() => setShowReportModal(false)}
+        />
+      )}
     </>
   );
 }

@@ -11,6 +11,53 @@ interface CategoryFormModalProps {
     category: AdminCategory | null;
 }
 
+const ICON_SUGGESTIONS: Record<string, string> = {
+    elektronik: "lucide:monitor-smartphone",
+    kendaraan: "lucide:car",
+    mobil: "lucide:car",
+    motor: "lucide:bike",
+    properti: "lucide:home",
+    rumah: "lucide:home",
+    pakaian: "lucide:shirt",
+    baju: "lucide:shirt",
+    sepatu: "lucide:footprints",
+    kesehatan: "lucide:heart-pulse",
+    olahraga: "lucide:dumbbell",
+    hobi: "lucide:gamepad-2",
+    mainan: "lucide:toy-brick",
+    makanan: "lucide:utensils",
+    minuman: "lucide:cup-soda",
+    jasa: "lucide:briefcase",
+    kantor: "lucide:building-2",
+    buku: "lucide:book",
+    hewan: "lucide:paw-print",
+    peliharaan: "lucide:paw-print",
+    bayi: "lucide:baby",
+    peralatan: "lucide:wrench",
+    furniture: "lucide:sofa",
+    perabotan: "lucide:sofa",
+    musik: "lucide:music",
+    kamera: "lucide:camera",
+    tiket: "lucide:ticket",
+    voucher: "lucide:ticket",
+    travel: "lucide:plane",
+    komputer: "lucide:laptop",
+    laptop: "lucide:laptop",
+    handphone: "lucide:smartphone",
+    hp: "lucide:smartphone",
+};
+
+const POPULAR_ICONS = [
+    "lucide:tag", "lucide:monitor-smartphone", "lucide:car", "lucide:bike", "lucide:home",
+    "lucide:shirt", "lucide:footprints", "lucide:heart-pulse", "lucide:dumbbell", "lucide:gamepad-2",
+    "lucide:toy-brick", "lucide:utensils", "lucide:cup-soda", "lucide:briefcase", "lucide:building-2",
+    "lucide:book", "lucide:paw-print", "lucide:baby", "lucide:wrench", "lucide:sofa",
+    "lucide:music", "lucide:camera", "lucide:ticket", "lucide:plane", "lucide:laptop",
+    "lucide:smartphone", "lucide:shopping-bag", "lucide:shopping-cart", "lucide:gift", "lucide:star",
+    "lucide:truck", "lucide:bus", "lucide:ship", "lucide:scissors", "lucide:palette",
+    "lucide:wallet", "lucide:credit-card", "lucide:watch", "lucide:glasses", "lucide:headphones"
+];
+
 export default function CategoryFormModal({
     isOpen,
     onClose,
@@ -23,6 +70,9 @@ export default function CategoryFormModal({
     const [name, setName] = useState("");
     const [icon, setIcon] = useState("");
     const [subcategories, setSubcategories] = useState("");
+    const [isIconManuallyEdited, setIsIconManuallyEdited] = useState(false);
+    const [isIconPickerOpen, setIsIconPickerOpen] = useState(false);
+    const [iconSearch, setIconSearch] = useState("");
 
     // Sinkron dengan kategori yang dipilih tiap modal dibuka.
     useEffect(() => {
@@ -31,9 +81,25 @@ export default function CategoryFormModal({
         setName(category?.name ?? "");
         setIcon(category?.icon ?? "lucide:tag");
         setSubcategories(category?.subcategories.join(", ") ?? "");
+        setIsIconManuallyEdited(!!category);
     }, [isOpen, category]);
 
     if (!isOpen) return null;
+
+    const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const val = e.target.value;
+        setName(val);
+
+        if (!isIconManuallyEdited && !category) {
+            const keyword = val.toLowerCase();
+            for (const [key, suggestedIcon] of Object.entries(ICON_SUGGESTIONS)) {
+                if (keyword.includes(key)) {
+                    setIcon(suggestedIcon);
+                    break;
+                }
+            }
+        }
+    };
 
     function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
@@ -60,7 +126,7 @@ export default function CategoryFormModal({
                 onClick={onClose}
             />
             <div
-                className="relative w-full max-w-[460px] overflow-hidden rounded-2xl bg-white shadow-[0_24px_60px_rgba(0,0,0,0.18)] animate-in zoom-in-95 fade-in duration-200"
+                className="relative w-full max-w-[460px] rounded-2xl bg-white shadow-[0_24px_60px_rgba(0,0,0,0.18)] animate-in zoom-in-95 fade-in duration-200"
                 onClick={(e) => e.stopPropagation()}
             >
                 <div className="h-1.5 w-full rounded-t-2xl bg-linear-to-r from-[#f7a81b] to-[#e89a14]" />
@@ -94,7 +160,7 @@ export default function CategoryFormModal({
                             </span>
                             <input
                                 value={name}
-                                onChange={(e) => setName(e.target.value)}
+                                onChange={handleNameChange}
                                 placeholder="mis. Elektronik"
                                 maxLength={80}
                                 required
@@ -102,21 +168,67 @@ export default function CategoryFormModal({
                             />
                         </label>
 
-                        <label className="grid gap-1.5">
+                        <div className="grid gap-1.5 relative">
                             <span className="font-open-sauce text-[12px] font-semibold text-gray-700">
-                                Ikon{" "}
-                                <span className="font-normal text-gray-400">
-                                    (nama ikon Iconify, mis. lucide:sofa)
-                                </span>
+                                Ikon
                             </span>
-                            <input
-                                value={icon}
-                                onChange={(e) => setIcon(e.target.value)}
-                                placeholder="lucide:tag"
-                                maxLength={120}
-                                className="h-11 rounded-xl border border-gray-200 px-3 font-open-sauce text-[13px] outline-none transition focus:border-[#f7a81b] focus:ring-2 focus:ring-[#fff2d6]"
-                            />
-                        </label>
+                            <button
+                                type="button"
+                                onClick={() => setIsIconPickerOpen(!isIconPickerOpen)}
+                                className="flex h-11 w-full items-center gap-3 rounded-xl border border-gray-200 px-3 font-open-sauce text-[13px] text-gray-700 outline-none transition focus:border-[#f7a81b] focus:ring-2 focus:ring-[#fff2d6]"
+                            >
+                                <Icon icon={icon || "lucide:tag"} width={18} height={18} className={icon ? "text-[#f7a81b]" : "text-gray-400"} />
+                                <span className="flex-1 text-left truncate">{icon || "Pilih Ikon..."}</span>
+                                <Icon icon="lucide:chevron-down" width={16} height={16} className={`text-gray-400 transition-transform ${isIconPickerOpen ? 'rotate-180' : ''}`} />
+                            </button>
+
+                            {isIconPickerOpen && (
+                                <>
+                                    <div className="fixed inset-0 z-10" onClick={() => setIsIconPickerOpen(false)} />
+                                    <div className="absolute top-[calc(100%+8px)] z-20 w-full rounded-xl border border-gray-200 bg-white p-3 shadow-[0_12px_40px_rgba(0,0,0,0.12)] animate-in fade-in slide-in-from-top-2">
+                                        <input 
+                                            type="text" 
+                                            placeholder="Cari ikon atau ketik custom (mis. mdi:car)" 
+                                            value={iconSearch}
+                                            onChange={(e) => setIconSearch(e.target.value)}
+                                            className="mb-3 w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 font-open-sauce text-[12px] outline-none transition focus:border-[#f7a81b] focus:ring-2 focus:ring-[#fff2d6]"
+                                            onKeyDown={(e) => {
+                                                if (e.key === 'Enter') {
+                                                    e.preventDefault();
+                                                    if (iconSearch) {
+                                                        setIcon(iconSearch);
+                                                        setIsIconManuallyEdited(true);
+                                                        setIsIconPickerOpen(false);
+                                                    }
+                                                }
+                                            }}
+                                        />
+                                        <div className="grid grid-cols-7 gap-1 max-h-[180px] overflow-y-auto pr-1">
+                                            {POPULAR_ICONS.filter(i => i.toLowerCase().includes(iconSearch.toLowerCase()) || i.replace('lucide:', '').includes(iconSearch.toLowerCase())).map(ic => (
+                                                <button
+                                                    key={ic}
+                                                    type="button"
+                                                    onClick={() => {
+                                                        setIcon(ic);
+                                                        setIsIconManuallyEdited(true);
+                                                        setIsIconPickerOpen(false);
+                                                    }}
+                                                    className={`flex aspect-square items-center justify-center rounded-lg border transition-colors hover:bg-gray-50 ${icon === ic ? 'border-[#f7a81b] bg-[#fff9f0] text-[#f7a81b]' : 'border-transparent text-gray-600 hover:border-gray-200'}`}
+                                                    title={ic.replace('lucide:', '')}
+                                                >
+                                                    <Icon icon={ic} width={22} height={22} />
+                                                </button>
+                                            ))}
+                                            {POPULAR_ICONS.filter(i => i.toLowerCase().includes(iconSearch.toLowerCase()) || i.replace('lucide:', '').includes(iconSearch.toLowerCase())).length === 0 && (
+                                                <div className="col-span-7 py-6 text-center font-open-sauce text-[11px] text-gray-400">
+                                                    Tekan Enter untuk simpan ikon kustom
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                </>
+                            )}
+                        </div>
 
                         <label className="grid gap-1.5">
                             <span className="font-open-sauce text-[12px] font-semibold text-gray-700">

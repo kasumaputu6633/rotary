@@ -63,18 +63,7 @@ export function MessageBubble({ msg, isOwn, onReply, onDelete }: { msg: ChatMess
               Hapus
             </button>
           )}
-          {!isOwn && (
-            <button
-              onClick={() => {
-                setMenuPos(null);
-                alert("Fitur laporan sedang dalam pengembangan oleh admin");
-              }}
-              className="flex w-full items-center gap-2.5 px-3.5 py-2 text-left text-[13px] text-gray-700 hover:bg-gray-50"
-            >
-              <Icon icon="lucide:circle-alert" width={15} height={15} className="text-gray-400" />
-              Laporkan
-            </button>
-          )}
+
         </div>
       </div>,
       document.body

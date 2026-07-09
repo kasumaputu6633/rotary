@@ -1,36 +1,127 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Rotary
 
-## Getting Started
+Marketplace barang bekas untuk jual, beli, dan donasi, sekaligus direktori lokasi penampung limbah. Rotary mempertemukan penjual dan pembeli barang bekas dalam satu platform, dilengkapi peta lokasi penampung sampah/limbah agar barang yang tak lagi bernilai jual tetap punya tujuan yang benar.
 
-First, run the development server:
+## Fitur Utama
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+**Marketplace**
+- Listing barang dengan dua mode: penjualan (`sale`) dan donasi (`donation`)
+- Pencarian, kategori & subkategori, kondisi barang, serta galeri foto per listing
+- Favorit listing dengan notifikasi (direservasi, terjual, turun harga)
+- Alur *deal* penjual–pembeli (negosiasi, kesepakatan, jadwal serah terima)
+- Chat in-app antar pengguna, dengan opsi kontak via WhatsApp
+- Peta & autocomplete alamat listing (Mapbox)
+
+**Direktori Penampung Limbah**
+- Data lokasi penampung (TPS, bank sampah, dropbox, komunitas, dll.)
+- Jenis sampah yang diterima, jam operasional, kontak, dan titik peta
+- Simpan lokasi favorit & riwayat lokasi yang dilihat
+
+**Akun & Keamanan**
+- Registrasi/login berbasis sesi cookie server-side (`rotary_session`)
+- Verifikasi email & nomor HP via OTP (email lewat Resend, WhatsApp lewat WAHA)
+- Two-factor authentication (email atau WhatsApp) + recovery codes
+- Manajemen perangkat & riwayat aktivitas login
+- Pusat notifikasi dengan preferensi opt-out per kategori
+
+**Panel Admin (hierarki `super_admin` ⊇ `admin` ⊇ `user`)**
+- Dashboard agregat (pengguna, penjual, listing, transaksi, tren)
+- Manajemen pengguna, admin, kategori, dan lokasi limbah
+- Moderasi listing serta komplain/laporan pengguna
+
+**Lifecycle Otomatis**
+- Cron job mendeteksi listing berumur 30 hari, mengirim konfirmasi perpanjangan via WhatsApp, dan menonaktifkan listing bila tak ada konfirmasi dalam 48 jam (lihat [`CRON.md`](./CRON.md))
+
+## Teknologi
+
+| Area | Teknologi |
+|------|-----------|
+| Framework | Next.js 16 (App Router) + React 19 |
+| Bahasa | TypeScript |
+| Database | PostgreSQL + Drizzle ORM (driver `postgres`) |
+| Styling | Tailwind CSS v4 |
+| Auth | Sesi cookie server-side + bcryptjs |
+| OTP / WhatsApp | WAHA |
+| Email | Resend |
+| Object Storage | Cloudflare R2 |
+| Peta & Geocoding | Mapbox GL + `@mapbox/search-js` |
+| Grafik | Recharts |
+| Notifikasi UI | Sonner |
+
+## Prasyarat
+
+- Node.js 20+
+- PostgreSQL (lokal via Docker, atau Supabase untuk production)
+- Akun/kredensial untuk Resend, WAHA, Cloudflare R2, dan Mapbox
+
+## Menjalankan Secara Lokal
+
+1. **Install dependency**
+
+   ```bash
+   npm install
+   ```
+
+2. **Siapkan database (opsional, via Docker)**
+
+   ```bash
+   docker compose up -d
+   ```
+
+   Ini menjalankan PostgreSQL di port `5432` dan pgAdmin di `http://localhost:5050`.
+
+3. **Konfigurasi environment**
+
+   Salin `env.example` menjadi `.env.local`, lalu isi nilainya:
+
+   ```bash
+   cp env.example .env.local
+   ```
+
+   Variabel yang perlu diisi antara lain `DATABASE_URL`, `RESEND_API_KEY`, `WAHA_*`, `OTP_HASH_SECRET`, `R2_*`, `NEXT_PUBLIC_MAPBOX_TOKEN`, dan `CRON_*`.
+
+4. **Jalankan migrasi database**
+
+   ```bash
+   npm run db:migrate
+   ```
+
+5. **Jalankan development server**
+
+   ```bash
+   npm run dev
+   ```
+
+   Buka [http://localhost:3000](http://localhost:3000).
+
+## Script yang Tersedia
+
+| Script | Kegunaan |
+|--------|----------|
+| `npm run dev` | Menjalankan development server |
+| `npm run build` | Build untuk production |
+| `npm run start` | Menjalankan hasil build |
+| `npm run lint` | Menjalankan ESLint |
+| `npm run db:generate` | Membuat file migrasi dari perubahan schema |
+| `npm run db:migrate` | Menerapkan migrasi ke database |
+| `npm run db:push` | Push schema langsung ke database |
+| `npm run db:studio` | Membuka Drizzle Studio |
+
+## Struktur Proyek
+
+```
+app/            Routes App Router (marketplace, waste, dashboard, admin, auth, api)
+  api/          Route handler (chat, cron, categories, notifications)
+  dashboard/    Area penjual (listing, deals, chat, favorit, profil)
+  admin/        Panel admin & super admin
+  (auth)/       Login, register, forgot-password
+db/
+  schema/       Definisi schema Drizzle (per domain)
+  migrations/   File migrasi SQL
+lib/            Logika domain & integrasi (auth, listings, deals, chat, waha, r2, mapbox, dll.)
+proxy.ts        Guard route berbasis cookie sesi
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Deployment
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Project ini dioptimalkan untuk deploy di **Vercel**. Cron job penjadwalan lifecycle listing sudah dikonfigurasi lewat [`vercel.json`](./vercel.json). Untuk penyedia lain (cron-job.org, crontab VPS), ikuti panduan di [`CRON.md`](./CRON.md) dan set `CRON_TYPE=external`.

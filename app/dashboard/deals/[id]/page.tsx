@@ -35,11 +35,9 @@ export default async function SellerDealDetailPage({ params }: Props) {
 
   const isActive = deal.status === "active";
 
-  // Kontak chat hanya diperlukan saat deal masih bisa diedit; deal tertutup
-  // bersifat read-only sehingga selektornya tidak dipakai.
-  const contacts = isActive
-    ? await getSellerChatContacts(user.id, deal.listingId)
-    : [];
+  // Kontak selalu diambil: dipakai untuk memilih buyer (saat active) dan untuk
+  // menampilkan nama buyer yang sudah tersimpan (saat read-only/completed).
+  const contacts = await getSellerChatContacts(user.id, deal.listingId);
 
   return (
     <div className="grid gap-5">

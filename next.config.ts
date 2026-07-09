@@ -29,7 +29,7 @@ const nextConfig: NextConfig = {
     serverActions: {
       // 4 foto × max 5MB = 20MB, kasih ruang lebih
       bodySizeLimit: "25mb",
-      allowedOrigins: ["local.heyputu.lol", "heyputu.lol", "*.heyputu.lol"],
+      allowedOrigins: ["local.heyputu.lol", "heyputu.lol", "*.heyputu.lol", "192.168.110.237"],
     },
   },
   images: {
@@ -45,6 +45,11 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "heyputu.lol",
+      },
+      // add local ip 192.168.110.237
+      {
+        protocol: "http",
+        hostname: "192.168.110.237",
       },
     ],
   },

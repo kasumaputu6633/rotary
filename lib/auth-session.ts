@@ -245,6 +245,21 @@ export async function getCurrentAccountSession() {
 
   if (!result) return null;
 
+  // Jika user di-ban, otomatis cabut sesi dan hapus cookie
+  if (result.user.isBanned) {
+    await db
+      .update(accountSessions)
+      .set({ revokedAt: new Date() })
+      .where(eq(accountSessions.id, result.session.id));
+    
+    const cookieStore = await cookies();
+    cookieStore.delete(SESSION_COOKIE);
+    cookieStore.delete("session_user_id");
+    cookieStore.delete("session_role");
+    
+    return null;
+  }
+
   if (Date.now() - result.session.lastActiveAt.getTime() >= SESSION_TOUCH_INTERVAL_MS) {
     await db
       .update(accountSessions)

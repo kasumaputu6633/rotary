@@ -15,6 +15,7 @@ export type UserRow = {
   phone: string | null;
   avatarUrl: string | null;
   isVerified: boolean;
+  isBanned: boolean;
   createdAt: Date;
   totalListings: number;
 };
@@ -68,6 +69,7 @@ export async function getAdminUsers({
         phone: users.phone,
         avatarUrl: users.avatarUrl,
         isVerified: users.isVerified,
+        isBanned: users.isBanned,
         createdAt: users.createdAt,
         totalListings: sql<number>`coalesce(${sq.cnt}, 0)`,
       })
@@ -216,5 +218,28 @@ export async function deleteUser(
   } catch (err) {
     console.error("[deleteUser]", err);
     return { success: false, error: "Gagal menghapus pengguna." };
+  }
+}
+
+export async function toggleUserBan(
+  userId: string,
+  ban: boolean,
+): Promise<{ success: boolean; error?: string }> {
+  const currentUser = await requireRole("admin");
+
+  if (currentUser.id === userId) {
+    return {
+      success: false,
+      error: "Anda tidak dapat menangguhkan akun Anda sendiri.",
+    };
+  }
+
+  try {
+    await db.update(users).set({ isBanned: ban }).where(eq(users.id, userId));
+    revalidatePath("/admin/users");
+    return { success: true };
+  } catch (err) {
+    console.error("[toggleUserBan]", err);
+    return { success: false, error: "Gagal memperbarui status ban pengguna." };
   }
 }

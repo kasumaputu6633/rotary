@@ -72,6 +72,7 @@ export const users = pgTable("users", {
   twoFactorMethod: twoFactorMethodEnum("two_factor_method")
     .notNull()
     .default("email"),
+  isBanned: boolean("is_banned").notNull().default(false),
   lastSeenAt: timestamp("last_seen_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),

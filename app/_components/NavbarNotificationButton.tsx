@@ -3,6 +3,8 @@
 import { Icon } from "@iconify/react";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { playSfx } from "@/lib/sfx";
+import { CHAT_UNREAD_CHANGED_EVENT } from "@/app/_features/chat/events";
 
 type NotificationType =
   | "listing_deactivated"
@@ -56,19 +58,32 @@ export default function NavbarNotificationButton() {
   const [chatUnread, setChatUnread] = useState({ messageCount: 0, conversationCount: 0 });
   const dropdownRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
+  const prevUnreadRef = useRef<number | null>(null);         // null = initial load belum selesai
+  const prevChatUnreadRef = useRef<number | null>(null);     // untuk mendeteksi pesan chat baru
 
   const fetchNotifications = useCallback(async () => {
     try {
       const res = await fetch("/api/notifications", { cache: "no-store" });
       if (!res.ok) return;
       const data = await res.json();
+      const newUnread = typeof data.unreadCount === "number" ? data.unreadCount : 0;
+      const newChatUnread = data.chatUnread && typeof data.chatUnread.messageCount === "number"
+        ? data.chatUnread
+        : { messageCount: 0, conversationCount: 0 };
+
+      // Bunyikan SFX jika notif listing bertambah (skip initial load)
+      // Note: Pesan chat baru sekarang ditangani SFX-nya oleh useUnreadCount agar sinkron dengan badge chat
+      const listingIncreased = prevUnreadRef.current !== null && newUnread > prevUnreadRef.current;
+      if (listingIncreased) {
+        playSfx("notification");
+      }
+
+      prevUnreadRef.current = newUnread;
+      prevChatUnreadRef.current = newChatUnread.messageCount;
+
       setItems(Array.isArray(data.items) ? data.items : []);
-      setUnreadCount(typeof data.unreadCount === "number" ? data.unreadCount : 0);
-      setChatUnread(
-        data.chatUnread && typeof data.chatUnread.messageCount === "number"
-          ? data.chatUnread
-          : { messageCount: 0, conversationCount: 0 },
-      );
+      setUnreadCount(newUnread);
+      setChatUnread(newChatUnread);
     } catch {
       // Diam saja — badge notifikasi tidak boleh mengganggu navbar.
     }
@@ -79,6 +94,16 @@ export default function NavbarNotificationButton() {
     fetchNotifications();
     const interval = setInterval(fetchNotifications, POLL_INTERVAL);
     return () => clearInterval(interval);
+  }, [fetchNotifications]);
+
+  // Listener untuk event chat dibaca atau diubah dari useConversation
+  useEffect(() => {
+    const handleUnreadChanged = () => {
+      fetchNotifications();
+    };
+
+    window.addEventListener(CHAT_UNREAD_CHANGED_EVENT, handleUnreadChanged);
+    return () => window.removeEventListener(CHAT_UNREAD_CHANGED_EVENT, handleUnreadChanged);
   }, [fetchNotifications]);
 
   // Refresh saat dropdown dibuka agar isinya paling baru.

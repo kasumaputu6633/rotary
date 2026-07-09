@@ -90,7 +90,7 @@ export function DealProgressForm({
 
   return (
     <form action={handleSubmit}>
-      <fieldset disabled={readOnly || isPending} className="grid gap-0">
+      <fieldset className="grid gap-0">
         <section className="grid gap-4 border-b border-[var(--seller-rule)] p-4 sm:p-5">
           <div>
             <h2 className="text-[16px] font-semibold text-[var(--seller-ink)]">Progres kesepakatan</h2>
@@ -144,6 +144,7 @@ export function DealProgressForm({
               name="counterpartyName"
               defaultValue={deal.counterpartyName ?? ""}
               maxLength={120}
+              disabled={readOnly || isPending}
               className={fieldClass}
               placeholder="Contoh: Ayu / peminat WhatsApp"
             />
@@ -155,6 +156,7 @@ export function DealProgressForm({
               name="counterpartyContact"
               defaultValue={deal.counterpartyContact ?? ""}
               maxLength={80}
+              disabled={readOnly || isPending}
               className={fieldClass}
               placeholder="Nomor atau akun yang digunakan"
             />
@@ -199,6 +201,7 @@ export function DealProgressForm({
               type="datetime-local"
               name="scheduledAt"
               defaultValue={scheduledAtValue}
+              disabled={readOnly || isPending}
               className={fieldClass}
             />
           </label>
@@ -208,6 +211,7 @@ export function DealProgressForm({
             <input
               name="handoverLocation"
               defaultValue={deal.handoverLocation ?? ""}
+              disabled={readOnly || isPending}
               className={fieldClass}
               placeholder="Contoh: titik temu di area parkir sisi utara"
             />
@@ -221,6 +225,7 @@ export function DealProgressForm({
               name="sellerNote"
               defaultValue={deal.sellerNote ?? ""}
               rows={4}
+              disabled={readOnly || isPending}
               className={`${fieldClass} resize-y py-3 leading-relaxed`}
               placeholder="Detail yang perlu kamu ingat sebelum penyerahan barang."
             />

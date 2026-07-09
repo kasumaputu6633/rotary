@@ -4,7 +4,7 @@ import { useState, useTransition, useCallback } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { Icon } from "@iconify/react";
 import Image from "next/image";
-import { deleteUser, updateUser, type UserRow } from "./actions";
+import { deleteUser, updateUser, toggleUserBan, type UserRow } from "./actions";
 
 // ─── Helpers ───────────────────────────────────────────────────────────────
 
@@ -44,6 +44,7 @@ function EditModal({
   const [email, setEmail] = useState(user.email ?? "");
   const [phone, setPhone] = useState(user.phone ?? "");
   const [isVerified, setIsVerified] = useState(user.isVerified);
+  const [isBanned, setIsBanned] = useState(user.isBanned);
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
@@ -57,7 +58,16 @@ function EditModal({
         phone,
         isVerified,
       });
+
       if (result.success) {
+        // Also update ban status if changed
+        if (isBanned !== user.isBanned) {
+          const banResult = await toggleUserBan(user.id, isBanned);
+          if (!banResult.success) {
+            setError(banResult.error ?? "Gagal memperbarui status ban.");
+            return;
+          }
+        }
         onSuccess();
       } else {
         setError(result.error ?? "Terjadi kesalahan.");
@@ -161,6 +171,33 @@ function EditModal({
               <span
                 className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform ${
                   isVerified ? "translate-x-5" : "translate-x-0.5"
+                }`}
+              />
+            </span>
+          </button>
+
+          {/* Ban toggle */}
+          <button
+            type="button"
+            onClick={() => setIsBanned((v) => !v)}
+            className="flex items-center justify-between rounded-xl border border-red-200 bg-red-50/50 px-4 py-3 text-left transition hover:border-red-300"
+          >
+            <div>
+              <p className="font-open-sauce text-[13px] font-semibold text-red-700">
+                Status Penangguhan (Ban)
+              </p>
+              <p className="font-open-sauce text-[11px] text-red-500">
+                {isBanned ? "Akun ini sedang ditangguhkan" : "Akun ini aktif"}
+              </p>
+            </div>
+            <span
+              className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors ${
+                isBanned ? "bg-red-500" : "bg-red-200"
+              }`}
+            >
+              <span
+                className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform ${
+                  isBanned ? "translate-x-5" : "translate-x-0.5"
                 }`}
               />
             </span>
@@ -578,17 +615,25 @@ export default function UsersTable({
 
                       {/* Status Badge */}
                       <td className="px-5 py-3.5">
-                        {user.isVerified ? (
-                          <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 font-open-sauce text-[11px] font-semibold text-emerald-600">
-                            <Icon icon="lucide:badge-check" width={11} height={11} />
-                            Terverifikasi
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-gray-100 px-2.5 py-1 font-open-sauce text-[11px] font-semibold text-gray-500">
-                            <Icon icon="lucide:clock" width={11} height={11} />
-                            Belum
-                          </span>
-                        )}
+                        <div className="flex flex-col items-start gap-1.5">
+                          {user.isVerified ? (
+                            <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 font-open-sauce text-[11px] font-semibold text-emerald-600">
+                              <Icon icon="lucide:badge-check" width={11} height={11} />
+                              Terverifikasi
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-gray-100 px-2.5 py-1 font-open-sauce text-[11px] font-semibold text-gray-500">
+                              <Icon icon="lucide:clock" width={11} height={11} />
+                              Belum
+                            </span>
+                          )}
+                          {user.isBanned && (
+                            <span className="inline-flex items-center gap-1.5 rounded-full border border-red-200 bg-red-50 px-2.5 py-1 font-open-sauce text-[11px] font-semibold text-red-600">
+                              <Icon icon="lucide:ban" width={11} height={11} />
+                              Banned
+                            </span>
+                          )}
+                        </div>
                       </td>
 
                       {/* Phone */}
