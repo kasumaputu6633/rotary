@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { requireRole } from "@/lib/auth";
+import { requireNonAdmin } from "@/lib/auth";
 import { getSellerListings } from "@/lib/listings";
 import { runDeactivateListingsCron } from "@/lib/listings-cron";
 import { getProfileCompletion, resolveShopName } from "@/lib/profile";
@@ -23,7 +23,7 @@ export default async function LapakSayaLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const user = await requireRole("user");
+  const user = await requireNonAdmin();
 
   // Jalankan lazy cron di background secara non-blocking jika disetel di env
   // Default ke "lazycron" pada lingkungan development jika tidak disetel

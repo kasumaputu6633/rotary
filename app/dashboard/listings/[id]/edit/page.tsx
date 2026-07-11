@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { requireRole } from "@/lib/auth";
+import { requireNonAdmin } from "@/lib/auth";
 import { getListingImages, getSellerListingById } from "@/lib/listings";
 import { getActiveCategories } from "@/lib/categories";
 import { updateListingAction } from "@/app/dashboard/actions";
@@ -12,7 +12,7 @@ type Props = {
 
 export default async function EditListingPage({ params }: Props) {
   const { id } = await params;
-  const user = await requireRole("user");
+  const user = await requireNonAdmin();
   const [listing, images, activeCategories] = await Promise.all([
     getSellerListingById(id, user.id),
     getListingImages(id),

@@ -1,6 +1,6 @@
 import { Icon } from "@iconify/react";
 import Link from "next/link";
-import { requireRole } from "@/lib/auth";
+import { requireNonAdmin } from "@/lib/auth";
 import { isEmailVerified, isPhoneVerified } from "@/lib/account-verification";
 import { formatPrice } from "@/lib/listing-format";
 import { getSellerListings, getSellerListingStats } from "@/lib/listings";
@@ -34,7 +34,7 @@ function getCurrentTimestamp() {
 }
 
 export default async function LapakSayaPage() {
-  const user = await requireRole("user");
+  const user = await requireNonAdmin();
 
   const emailVerified = isEmailVerified(user);
   const phoneVerified = isPhoneVerified(user);

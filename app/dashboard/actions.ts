@@ -2,7 +2,7 @@
 
 import { db } from "@/db";
 import { conversations, listingDeals, listingImages, listings, users } from "@/db/schema";
-import { requireRole, requireSellerReady } from "@/lib/auth";
+import { requireNonAdmin, requireSellerReady } from "@/lib/auth";
 import type { DealStage } from "@/lib/deal-format";
 import type { ListingMode, ListingStatus } from "@/lib/listing-format";
 import { createUniqueListingSlug } from "@/lib/listings";
@@ -495,7 +495,7 @@ export async function deleteListingAction(listingId: string) {
 }
 
 export async function updateProfileAction(formData: FormData) {
-  const user = await requireRole("user");
+  const user = await requireNonAdmin();
   const shopName = getString(formData, "shopName").slice(0, 80);
   const bio = getString(formData, "bio").slice(0, 280);
   const whatsappContactEnabled = formData.get("whatsappContactEnabled") === "on";

@@ -1,6 +1,6 @@
 import { Icon } from "@iconify/react";
 import Link from "next/link";
-import { requireRole } from "@/lib/auth";
+import { requireNonAdmin } from "@/lib/auth";
 import { getSellerDeals } from "@/lib/deals";
 import { getSellerListings } from "@/lib/listings";
 import {
@@ -16,7 +16,7 @@ import {
 import { ListingLifecycleActions } from "../_components/ListingLifecycleActions";
 
 export default async function ReservedListingsPage() {
-  const user = await requireRole("user");
+  const user = await requireNonAdmin();
   const [reservedListings, activeDeals] = await Promise.all([
     getSellerListings(user.id, "reserved"),
     getSellerDeals(user.id, "active"),

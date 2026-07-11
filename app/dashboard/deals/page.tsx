@@ -1,6 +1,6 @@
 import { Icon } from "@iconify/react";
 import Link from "next/link";
-import { requireRole } from "@/lib/auth";
+import { requireNonAdmin } from "@/lib/auth";
 import {
   formatDealSchedule,
   formatDealStatus,
@@ -21,7 +21,7 @@ import {
 } from "../_components/SellerCenterUi";
 
 export default async function SellerDealsPage() {
-  const user = await requireRole("user");
+  const user = await requireNonAdmin();
   const deals = await getSellerDeals(user.id);
   const activeDeals = deals.filter((deal) => deal.status === "active");
   const completedDeals = deals.filter((deal) => deal.status === "completed");

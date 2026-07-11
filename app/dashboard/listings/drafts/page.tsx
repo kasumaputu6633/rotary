@@ -1,10 +1,10 @@
-import { requireRole } from "@/lib/auth";
+import { requireNonAdmin } from "@/lib/auth";
 import { getSellerListings } from "@/lib/listings";
 import { EmptyState, ListingThumb, ModeBadge, PageHeader, Panel, PrimaryLink } from "../../_components/SellerCenterUi";
 import { ListingLifecycleActions } from "../_components/ListingLifecycleActions";
 
 export default async function DraftListingsPage() {
-  const user = await requireRole("user");
+  const user = await requireNonAdmin();
   const drafts = await getSellerListings(user.id, "draft");
 
   return (
