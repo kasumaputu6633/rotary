@@ -6,6 +6,7 @@ import { createPortal } from "react-dom";
 import { toast } from "sonner";
 import { COMPLAINT_CATEGORIES } from "@/lib/moderation-format";
 import { submitWasteComplaintAction } from "../actions";
+import { checkAuthAction } from "@/app/actions";
 
 export default function ReportWasteLocationButton({
   locationId,
@@ -13,6 +14,7 @@ export default function ReportWasteLocationButton({
   locationId: string;
 }) {
   const [open, setOpen] = useState(false);
+  const [checkingAuth, setCheckingAuth] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [category, setCategory] = useState<string>("");
   const [description, setDescription] = useState("");
@@ -48,15 +50,32 @@ export default function ReportWasteLocationButton({
     });
   }
 
+  async function handleOpenClick() {
+    setCheckingAuth(true);
+    try {
+      const isLoggedIn = await checkAuthAction();
+      if (!isLoggedIn) {
+        window.location.href = `/login?next=${encodeURIComponent(window.location.pathname)}`;
+        return;
+      }
+      setOpen(true);
+    } catch (err) {
+      toast.error("Terjadi kesalahan. Silakan coba lagi.");
+    } finally {
+      setCheckingAuth(false);
+    }
+  }
+
   return (
     <>
       <button
         type="button"
-        onClick={() => setOpen(true)}
-        className="mt-2 flex w-full items-center justify-center gap-1.5 font-open-sauce text-[12px] font-medium text-[#9ca3af] transition-colors hover:text-red-500"
+        onClick={handleOpenClick}
+        disabled={checkingAuth}
+        className="mt-2 flex w-full items-center justify-center gap-1.5 font-open-sauce text-[12px] font-medium text-[#9ca3af] transition-colors hover:text-red-500 disabled:opacity-50"
       >
-        <Icon icon="lucide:flag" width={13} height={13} aria-hidden="true" />
-        Laporkan lokasi ini
+        <Icon icon={checkingAuth ? "lucide:loader-circle" : "lucide:flag"} width={13} height={13} className={checkingAuth ? "animate-spin" : ""} aria-hidden="true" />
+        {checkingAuth ? "Memeriksa..." : "Laporkan lokasi ini"}
       </button>
 
       {open && mounted ? createPortal(
