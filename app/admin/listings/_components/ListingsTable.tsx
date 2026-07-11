@@ -98,10 +98,10 @@ function DeleteModal({
         onClick={onClose}
       />
       <div
-        className="relative w-full max-w-400 rounded-2xl bg-white shadow-[0_24px_60px_rgba(0,0,0,0.18)] animate-in zoom-in-95 fade-in duration-200"
+        className="relative w-full max-w-100 rounded-2xl bg-white shadow-[0_24px_60px_rgba(0,0,0,0.18)] animate-in zoom-in-95 fade-in duration-200"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="h-1.5 w-full rounded-t-2xl bg-gradient-to-r from-red-500 to-rose-500" />
+        <div className="h-1.5 w-full rounded-t-4xl bg-gradient-to-r from-red-500 to-rose-500" />
         <div className="px-6 py-6">
           <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-red-50 ring-8 ring-red-50/60">
             <Icon

@@ -599,7 +599,8 @@ export default function WasteMapClient({
   return (
     <section className="mx-auto grid min-h-[calc(100dvh-149px)] max-w-[1920px] overflow-hidden border-t border-gray-200 bg-white lg:min-h-[calc(100dvh-133px)] lg:grid-cols-[410px_minmax(0,1fr)] xl:grid-cols-[450px_minmax(0,1fr)]">
       <aside className={`relative z-20 h-[calc(100dvh-149px)] flex-col border-b border-[#d8deea] bg-white lg:flex lg:h-[calc(100dvh-133px)] lg:border-b-0 lg:border-r ${mobileView === "map" ? "hidden" : "flex"}`}>
-        <div className="border-b border-[#e6eaf0] bg-white px-5 py-5 md:px-6">
+        <div className="flex flex-col flex-1 min-h-0 overflow-y-auto lg:contents">
+          <div className="border-b border-[#e6eaf0] bg-white px-5 py-5 md:px-6">
           <div className="mb-4">
             <p className="inline-flex items-center gap-2 font-open-sauce text-xs font-semibold text-[#17458f]">
               <Icon icon="lucide:recycle" width={14} height={14} className="text-[#f7a81b]" aria-hidden="true" />
@@ -779,7 +780,7 @@ export default function WasteMapClient({
           )}
         </div>
 
-        <div className="flex-1 space-y-3 overflow-y-auto px-5 pb-5 md:px-6 lg:pb-8">
+        <div className="flex-1 space-y-3 overflow-y-visible lg:overflow-y-auto px-5 pb-5 md:px-6 lg:pb-8">
           {filteredLocations.length > 0 ? (
             filteredLocations.map((location) => (
               <LocationListCard
@@ -802,6 +803,8 @@ export default function WasteMapClient({
               </p>
             </div>
           )}
+        </div>
+
         </div>
 
         {/* Toggle ke peta (mobile). Mengambang di bawah daftar. */}
