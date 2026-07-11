@@ -72,7 +72,7 @@ export default function MapContainer({
       zoom: targetZoom,
       duration: 900,
       essential: true,
-      padding: { top: 0, bottom: isMobile ? 380 : 320, left: 0, right: 0 },
+      padding: { top: 0, bottom: isMobile ? 240 : 280, left: 0, right: 0 },
     });
   }, [activeLocationId, locations]);
 
