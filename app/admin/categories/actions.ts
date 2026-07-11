@@ -3,7 +3,7 @@
 import { requireRole } from "@/lib/auth";
 import { db } from "@/db";
 import { categories, listings } from "@/db/schema";
-import { eq, sql } from "drizzle-orm";
+import { and, eq, inArray, notInArray, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { seedCategoriesFromTaxonomy } from "@/lib/categories";
 
@@ -103,6 +103,34 @@ export async function updateCategoryAction(id: string, formData: FormData) {
 
 export async function toggleCategoryAction(id: string, active: boolean) {
   await requireRole("admin");
+
+  // Saat menonaktifkan, cegah bila masih ada listing aktif/reserved yang
+  // memakai kategori ini — listing tersebut akan jadi "yatim" di marketplace
+  // karena kategori sudah hilang dari filter/picker.
+  if (!active) {
+    const [current] = await db
+      .select({ name: categories.name })
+      .from(categories)
+      .where(eq(categories.id, id));
+    if (!current) throw new Error("Kategori tidak ditemukan.");
+
+    const [usage] = await db
+      .select({ count: sql<number>`count(*)::int` })
+      .from(listings)
+      .where(
+        and(
+          eq(listings.category, current.name),
+          inArray(listings.status, ["active", "reserved"]),
+        ),
+      );
+
+    if ((usage?.count ?? 0) > 0) {
+      throw new Error(
+        `Tidak bisa menonaktifkan: masih ada ${usage.count} listing aktif di kategori ini. Ubah status listing tersebut atau pindahkan ke kategori lain terlebih dahulu.`,
+      );
+    }
+  }
+
   await db
     .update(categories)
     .set({ active, updatedAt: new Date() })
@@ -122,13 +150,19 @@ export async function deleteCategoryAction(id: string) {
   const [usage] = await db
     .select({ count: sql<number>`count(*)::int` })
     .from(listings)
-    .where(eq(listings.category, current.name));
+    .where(
+      and(
+        eq(listings.category, current.name),
+        inArray(listings.status, ["active", "reserved"]),
+      ),
+    );
 
-  // Jangan hapus kategori yang masih dipakai listing — nonaktifkan saja agar
-  // hilang dari picker/filter tanpa membuat listing kehilangan kategorinya.
+  // Jangan hapus kategori yang masih dipakai listing aktif — nonaktifkan saja
+  // agar hilang dari picker/filter tanpa membuat listing kehilangan kategorinya.
+  // Listing draft/completed/inactive tidak menghalangi penghapusan.
   if ((usage?.count ?? 0) > 0) {
     throw new Error(
-      `Kategori masih dipakai ${usage.count} listing. Nonaktifkan kategori alih-alih menghapusnya.`,
+      `Kategori masih dipakai ${usage.count} listing aktif. Nonaktifkan kategori alih-alih menghapusnya.`,
     );
   }
 
