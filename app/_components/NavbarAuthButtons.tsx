@@ -225,17 +225,19 @@ export default function NavbarAuthButtons({
                   </Link>
 
                   <div className="border-t border-gray-100">
-                    <Link
-                      href="/dashboard"
-                      onClick={() => setShowDropdown(false)}
-                      className="group flex min-h-11 w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-[#fff7e8] focus-visible:bg-[#fff7e8] focus-visible:outline-none"
-                      role="menuitem"
-                    >
-                      <Icon icon="lucide:store" width={16} height={16} className="text-[#555] transition-colors group-hover:text-[#17458f]" aria-hidden="true" />
-                      <span className="font-open-sauce text-[13px] text-[#333] transition-colors group-hover:font-semibold group-hover:text-[#17458f]">
-                        Seller Center
-                      </span>
-                    </Link>
+                    {isUser && (
+                      <Link
+                        href="/dashboard"
+                        onClick={() => setShowDropdown(false)}
+                        className="group flex min-h-11 w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-[#fff7e8] focus-visible:bg-[#fff7e8] focus-visible:outline-none"
+                        role="menuitem"
+                      >
+                        <Icon icon="lucide:store" width={16} height={16} className="text-[#555] transition-colors group-hover:text-[#17458f]" aria-hidden="true" />
+                        <span className="font-open-sauce text-[13px] text-[#333] transition-colors group-hover:font-semibold group-hover:text-[#17458f]">
+                          Seller Center
+                        </span>
+                      </Link>
+                    )}
                   </div>
 
                   <button

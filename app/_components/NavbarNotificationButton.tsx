@@ -49,7 +49,7 @@ function timeAgo(iso: string): string {
   return new Date(iso).toLocaleDateString("id-ID", { day: "numeric", month: "short" });
 }
 
-export default function NavbarNotificationButton({ isLoggedIn }: { isLoggedIn?: boolean }) {
+export default function NavbarNotificationButton({ isLoggedIn, isAdmin }: { isLoggedIn?: boolean; isAdmin?: boolean }) {
   const [showDropdown, setShowDropdown] = useState(false);
   const [isPositioned, setIsPositioned] = useState(false);
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, right: 0 });
@@ -243,7 +243,7 @@ export default function NavbarNotificationButton({ isLoggedIn }: { isLoggedIn?: 
           </div>
 
           <div className="max-h-90 overflow-y-auto">
-            {chatUnread.messageCount > 0 && (
+            {chatUnread.messageCount > 0 && !isAdmin && (
               <Link
                 href="/dashboard/chat"
                 onClick={() => setShowDropdown(false)}

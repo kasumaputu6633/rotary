@@ -23,6 +23,8 @@ export default async function Navbar() {
   const userAvatarUrl = user?.avatarUrl ?? null;
   const userRole = user?.role ?? null;
 
+  const isUser = user?.role === "user";
+
   return (
     <>
       <header className="fixed inset-x-0 top-0 z-[960] w-full border-b border-gray-200 bg-white">
@@ -89,13 +91,13 @@ export default async function Navbar() {
 
             <div className="col-start-2 row-start-1 flex min-w-0 items-center gap-2 justify-end md:col-start-4 md:row-auto md:gap-4">
               <div className="flex items-center gap-1.5 md:gap-2">
-                {user && (
+                {user && isUser && (
                   <div className="hidden md:block">
                     <NavbarChatButton />
                   </div>
                 )}
 
-                <NavbarNotificationButton isLoggedIn={!!user} />
+                <NavbarNotificationButton isLoggedIn={!!user} isAdmin={!isUser} />
               </div>
 
               <NavbarAuthButtons
