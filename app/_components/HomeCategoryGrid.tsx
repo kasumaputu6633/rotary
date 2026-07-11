@@ -19,6 +19,10 @@ export default async function HomeCategoryGrid() {
   ]);
   const categoryCountMap = new Map(categoryCounts.map((item) => [item.category, item.count]));
 
+  // Hanya tampilkan kategori yang punya ilustrasi — kategori baru yang
+  // dibuat admin tidak punya gambar, jadi tidak ditampilkan di sini.
+  const featuredCategories = categories.filter((c) => categoryImages[c.name] !== undefined);
+
   return (
     <section className="bg-white py-12 md:py-16" aria-labelledby="home-categories-heading">
       <div className="mx-auto max-w-[1728px] px-8 lg:px-40">
@@ -54,7 +58,7 @@ export default async function HomeCategoryGrid() {
           </div>
 
           <div className="category-grid">
-            {categories.map((category) => {
+            {featuredCategories.map((category) => {
               const imageUrl = categoryImages[category.name];
               return (
                 <Link
