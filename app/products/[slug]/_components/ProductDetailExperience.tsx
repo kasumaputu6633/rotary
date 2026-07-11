@@ -13,6 +13,7 @@ type ProductDetailExperienceProps = {
   publicLocation: string;
   sellerWhatsapp?: string | null;
   isOwner?: boolean;
+  isAdmin?: boolean;
 };
 
 export default function ProductDetailExperience({
@@ -22,6 +23,7 @@ export default function ProductDetailExperience({
   publicLocation,
   sellerWhatsapp,
   isOwner,
+  isAdmin,
 }: ProductDetailExperienceProps) {
   const galleryImages = useMemo(() => {
     if (imageUrls.length > 0) return imageUrls;
@@ -50,6 +52,7 @@ export default function ProductDetailExperience({
             publicLocation={publicLocation}
             sellerWhatsapp={sellerWhatsapp}
             isOwner={isOwner}
+            isAdmin={isAdmin}
           />
         </div>
       </aside>

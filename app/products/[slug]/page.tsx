@@ -5,7 +5,7 @@ import { notFound } from "next/navigation";
 import Footer from "@/app/_components/Footer";
 import Navbar from "@/app/_components/Navbar";
 import ProductCard from "@/app/_components/ProductCard";
-import { getSessionUserId } from "@/lib/auth";
+import { getCurrentUser, getSessionUserId } from "@/lib/auth";
 import { formatPrice, formatPublicLocation } from "@/lib/listing-format";
 import { getListingImages, getPublicListingBySlug, getPublicListings, incrementListingView } from "@/lib/listings";
 import ProductDetailExperience from "./_components/ProductDetailExperience";
@@ -48,6 +48,8 @@ function MapPlaceholder() {
 export default async function ProductDetailPage({ params }: ProductDetailPageProps) {
   const { slug } = await params;
   const userId = await getSessionUserId();
+  const currentUser = await getCurrentUser();
+  const isAdmin = currentUser ? currentUser.role === "admin" || currentUser.role === "super_admin" : false;
   const product = await getPublicListingBySlug(slug, userId);
 
   if (!product) notFound();
@@ -93,6 +95,7 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
             publicLocation={publicLocation}
             sellerWhatsapp={product.sellerWhatsapp}
             isOwner={userId === product.sellerId}
+            isAdmin={isAdmin}
           >
             <div className="min-w-0">
               <h1 className="font-open-sauce text-[19px] font-semibold leading-snug text-black md:text-[21px]">
@@ -170,7 +173,7 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
               </div>
               <div className="mt-8 grid grid-cols-[repeat(auto-fill,minmax(142px,1fr))] gap-x-3 gap-y-7 sm:grid-cols-[repeat(auto-fill,minmax(158px,1fr))] xl:grid-cols-[repeat(auto-fill,minmax(168px,1fr))]">
                 {recommendations.map((item) => (
-                  <ProductCard key={item.id} product={item} />
+                  <ProductCard key={item.id} product={item} isAdmin={isAdmin} />
                 ))}
               </div>
             </section>
