@@ -89,11 +89,13 @@ export default async function Navbar() {
 
             <div className="col-start-2 row-start-1 flex min-w-0 items-center gap-2 justify-end md:col-start-4 md:row-auto md:gap-4">
               <div className="flex items-center gap-1.5 md:gap-2">
-                <div className="hidden md:block">
-                  <NavbarChatButton />
-                </div>
+                {user && (
+                  <div className="hidden md:block">
+                    <NavbarChatButton />
+                  </div>
+                )}
 
-                <NavbarNotificationButton />
+                <NavbarNotificationButton isLoggedIn={!!user} />
               </div>
 
               <NavbarAuthButtons
