@@ -268,7 +268,7 @@ export default function CategoriesClient({
                                                 className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-500 transition-colors hover:bg-gray-50 disabled:opacity-50"
                                             >
                                                 <Icon
-                                                    icon={cat.active ? "lucide:eye" : "lucide:eye-off"}
+                                                    icon={cat.active ? "lucide:pause" : "lucide:play"}
                                                     width={16}
                                                     height={16}
                                                 />

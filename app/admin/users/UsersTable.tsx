@@ -49,6 +49,15 @@ function EditModal({
   const [error, setError] = useState<string | null>(null);
 
   function handleSave() {
+    if (!fullName.trim()) {
+      setError("Nama lengkap tidak boleh kosong.");
+      return;
+    }
+    if (!email.trim()) {
+      setError("Email tidak boleh kosong.");
+      return;
+    }
+
     setError(null);
     startTransition(async () => {
       const result = await updateUser(user.id, {
@@ -82,12 +91,12 @@ function EditModal({
         onClick={onClose}
       />
       <div
-        className="relative w-full max-w-[460px] rounded-2xl bg-white shadow-[0_24px_60px_rgba(0,0,0,0.18)] animate-in zoom-in-95 fade-in duration-200"
+        className="relative w-full max-w-[460px] overflow-hidden rounded-2xl bg-white shadow-[0_24px_60px_rgba(0,0,0,0.18)] animate-in zoom-in-95 fade-in duration-200"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="h-1.5 w-full rounded-t-2xl bg-gradient-to-r from-[#f7a81b] to-[#e89a14]" />
+        <div className="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-[#f7a81b] to-[#e89a14]" />
 
-        <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4">
+        <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4 pt-5">
           <h3 className="font-open-sauce text-base font-bold text-gray-900">
             Edit Pengguna
           </h3>
@@ -278,13 +287,13 @@ function DeleteModal({
       />
       {/* Modal */}
       <div
-        className="relative w-full max-w-[400px] rounded-2xl bg-white shadow-[0_24px_60px_rgba(0,0,0,0.18)] animate-in zoom-in-95 fade-in duration-200"
+        className="relative w-full max-w-[400px] overflow-hidden rounded-2xl bg-white shadow-[0_24px_60px_rgba(0,0,0,0.18)] animate-in zoom-in-95 fade-in duration-200"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header strip */}
-        <div className="h-1.5 w-full rounded-t-2xl bg-gradient-to-r from-red-500 to-rose-500" />
+        <div className="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-red-500 to-rose-500" />
 
-        <div className="px-6 py-6">
+        <div className="px-6 py-6 pt-7">
           {/* Icon */}
           <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-red-50 ring-8 ring-red-50/60">
             <Icon
