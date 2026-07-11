@@ -126,7 +126,7 @@ export default function CategoryFormModal({
                 onClick={onClose}
             />
             <div
-                className="relative w-full max-w-[460px] rounded-2xl bg-white shadow-[0_24px_60px_rgba(0,0,0,0.18)] animate-in zoom-in-95 fade-in duration-200"
+                className="relative w-full max-w-[460px] overflow-hidden rounded-2xl bg-white shadow-[0_24px_60px_rgba(0,0,0,0.18)] animate-in zoom-in-95 fade-in duration-200"
                 onClick={(e) => e.stopPropagation()}
             >
                 <div className="h-1.5 w-full rounded-t-2xl bg-linear-to-r from-[#f7a81b] to-[#e89a14]" />
