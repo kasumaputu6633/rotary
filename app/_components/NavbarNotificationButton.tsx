@@ -49,7 +49,7 @@ function timeAgo(iso: string): string {
   return new Date(iso).toLocaleDateString("id-ID", { day: "numeric", month: "short" });
 }
 
-export default function NavbarNotificationButton() {
+export default function NavbarNotificationButton({ isLoggedIn }: { isLoggedIn?: boolean }) {
   const [showDropdown, setShowDropdown] = useState(false);
   const [isPositioned, setIsPositioned] = useState(false);
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, right: 0 });
@@ -62,6 +62,7 @@ export default function NavbarNotificationButton() {
   const prevChatUnreadRef = useRef<number | null>(null);     // untuk mendeteksi pesan chat baru
 
   const fetchNotifications = useCallback(async () => {
+    if (isLoggedIn === false) return;
     try {
       const res = await fetch("/api/notifications", { cache: "no-store" });
       if (!res.ok) return;
@@ -87,7 +88,7 @@ export default function NavbarNotificationButton() {
     } catch {
       // Diam saja — badge notifikasi tidak boleh mengganggu navbar.
     }
-  }, []);
+  }, [isLoggedIn]);
 
   // Poll berkala untuk badge (pola sama seperti unread chat).
   useEffect(() => {
@@ -263,12 +264,25 @@ export default function NavbarNotificationButton() {
             {items.length === 0 && chatUnread.messageCount === 0 ? (
               <div className="flex flex-col items-center gap-2 px-4 py-10 text-center">
                 <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[#f4f6f8]">
-                  <Icon icon="lucide:bell-off" width={22} height={22} className="text-[#9aa3af]" aria-hidden="true" />
+                  <Icon icon={isLoggedIn === false ? "lucide:log-in" : "lucide:bell-off"} width={22} height={22} className="text-[#9aa3af]" aria-hidden="true" />
                 </span>
-                <p className="font-open-sauce text-[13px] font-semibold text-black">Belum ada notifikasi</p>
-                <p className="font-open-sauce text-[11px] leading-relaxed text-[#6b7280]">
-                  Kabar tentang listing dan barang favoritmu akan muncul di sini.
+                <p className="font-open-sauce text-[13px] font-semibold text-black">
+                  {isLoggedIn === false ? "Masuk untuk melihat notifikasi" : "Belum ada notifikasi"}
                 </p>
+                <p className="font-open-sauce text-[11px] leading-relaxed text-[#6b7280]">
+                  {isLoggedIn === false
+                    ? "Silakan masuk atau daftar untuk menerima pembaruan aktivitasmu."
+                    : "Kabar tentang listing dan barang favoritmu akan muncul di sini."}
+                </p>
+                {isLoggedIn === false && (
+                  <Link
+                    href={`/login?next=${encodeURIComponent(typeof window !== "undefined" ? window.location.pathname : "/")}`}
+                    onClick={() => setShowDropdown(false)}
+                    className="mt-3 rounded-lg bg-[#17458f] px-4 py-2 font-open-sauce text-[12px] font-semibold text-white transition-colors hover:bg-[#113268]"
+                  >
+                    Masuk Sekarang
+                  </Link>
+                )}
               </div>
             ) : (
               <div className="grid">
