@@ -23,6 +23,7 @@ import { isContactVerified } from "@/lib/account-verification";
 import { normalizeAuthContact } from "@/lib/auth-contact";
 import { otpErrorMessage } from "@/lib/otp";
 import { passwordValid } from "@/lib/password";
+import { validateSafeText } from "@/lib/sanitize";
 
 function verifiedContactUpdate(contact: string, verifiedAt: Date) {
   return {
@@ -113,12 +114,16 @@ export async function updateProfileAction(
   const contact = await getPendingContact();
   if (!contact) return { error: "Sesi habis, silakan mulai ulang." };
   if (fullName.trim().length < 2) return { error: "Nama lengkap minimal 2 karakter." };
+  const nameErr = validateSafeText(fullName.trim(), "Nama lengkap", { minLen: 2, maxLen: 80 });
+  if (nameErr) return { error: nameErr };
   if (password.length > 128 || !passwordValid(password)) {
     return { error: "Kata sandi belum memenuhi semua persyaratan." };
   }
 
   const trimmedShopName = shopName.trim().slice(0, 80);
   if (trimmedShopName.length < 2) return { error: "Nama lapak minimal 2 karakter." };
+  const shopErr = validateSafeText(trimmedShopName, "Nama lapak", { minLen: 2, maxLen: 80 });
+  if (shopErr) return { error: shopErr };
 
   try {
     const passwordHash = await bcrypt.hash(password, 12);

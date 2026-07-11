@@ -6,6 +6,7 @@ import { listings, users } from "@/db/schema";
 import { and, eq, ne, ilike, or, desc, count, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { isEmailContact } from "@/lib/auth-contact";
+import { validateSafeText } from "@/lib/sanitize";
 
 export type UserRow = {
   id: string;
@@ -157,6 +158,16 @@ export async function updateUser(
   const shopName = data.shopName?.trim() || null;
   const email = data.email?.trim().toLowerCase() || null;
   const phone = data.phone?.trim() || null;
+
+  // Sanitasi karakter aneh
+  if (fullName) {
+    const err = validateSafeText(fullName, "Nama lengkap", { minLen: 2, maxLen: 120 });
+    if (err) return { success: false, error: err };
+  }
+  if (shopName) {
+    const err = validateSafeText(shopName, "Nama lapak", { minLen: 2, maxLen: 80 });
+    if (err) return { success: false, error: err };
+  }
 
   if (email && !isEmailContact(email)) {
     return { success: false, error: "Format email tidak valid." };

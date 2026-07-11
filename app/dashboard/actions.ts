@@ -12,6 +12,7 @@ import { and, desc, eq, inArray } from "drizzle-orm";
 import { geocodeLocationText } from "@/lib/mapbox";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { assertSafeText } from "@/lib/sanitize";
 
 function getString(formData: FormData, key: string) {
   const value = formData.get(key);
@@ -58,6 +59,13 @@ async function getListingFormValues(formData: FormData) {
 
   if (!title || !category || !condition || !location) {
     throw new Error("Judul, kategori, kondisi, dan lokasi wajib diisi.");
+  }
+
+  // Sanitasi karakter aneh
+  assertSafeText(title, "Judul listing", { minLen: 3, maxLen: 150 });
+  assertSafeText(location, "Lokasi", { narrative: true, minLen: 2 });
+  if (description) {
+    assertSafeText(description, "Deskripsi", { narrative: true });
   }
 
   if (description.length > DESCRIPTION_MAX_LENGTH) {
@@ -503,6 +511,8 @@ export async function updateProfileAction(formData: FormData) {
   if (shopName.length < 2) {
     throw new Error("Nama lapak minimal 2 karakter.");
   }
+  assertSafeText(shopName, "Nama lapak", { minLen: 2, maxLen: 80 });
+  if (bio) assertSafeText(bio, "Bio", { narrative: true, maxLen: 280 });
   if (whatsappContactEnabled && (!user.phone || !user.phoneVerifiedAt)) {
     throw new Error("Verifikasi nomor HP terlebih dahulu untuk mengaktifkan kontak WhatsApp.");
   }

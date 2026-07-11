@@ -6,6 +6,7 @@ import { categories, listings } from "@/db/schema";
 import { and, eq, inArray, notInArray, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { seedCategoriesFromTaxonomy } from "@/lib/categories";
+import { assertSafeText } from "@/lib/sanitize";
 
 function parseSubcategories(raw: string | null): string[] {
   if (!raw) return [];
@@ -38,6 +39,10 @@ export async function createCategoryAction(formData: FormData) {
   const subcategories = parseSubcategories(formData.get("subcategories") as string);
 
   if (!name) throw new Error("Nama kategori harus diisi.");
+  assertSafeText(name, "Nama kategori", { minLen: 2, maxLen: 80 });
+  for (const sub of subcategories) {
+    assertSafeText(sub, "Subkategori", { minLen: 1, maxLen: 60 });
+  }
 
   const existing = await db
     .select({ id: categories.id })
@@ -68,6 +73,10 @@ export async function updateCategoryAction(id: string, formData: FormData) {
   const subcategories = parseSubcategories(formData.get("subcategories") as string);
 
   if (!name) throw new Error("Nama kategori harus diisi.");
+  assertSafeText(name, "Nama kategori", { minLen: 2, maxLen: 80 });
+  for (const sub of subcategories) {
+    assertSafeText(sub, "Subkategori", { minLen: 1, maxLen: 60 });
+  }
 
   const [current] = await db
     .select({ name: categories.name })
