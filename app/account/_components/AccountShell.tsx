@@ -40,16 +40,19 @@ export function AccountShell({
   emailVerified,
   name,
   phoneVerified,
+  userRole,
 }: {
   avatarUrl?: string | null;
   children: ReactNode;
   emailVerified: boolean;
   name: string;
   phoneVerified: boolean;
+  userRole: string | null;
 }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const contactComplete = emailVerified && phoneVerified;
+  const isUser = userRole === "user";
   const isSettingsPage = pathname === "/account/settings";
   const settingsTab = searchParams.get("tab") === "contact"
     ? "contact"
@@ -161,16 +164,18 @@ export function AccountShell({
             </nav>
 
             <div className="border-t border-[var(--seller-rule)] p-3">
-              <Link
-                href="/dashboard"
-                className="flex min-h-11 items-center justify-between gap-3 rounded-[8px] bg-[var(--seller-accent-soft)] px-3 text-[12px] font-semibold text-[var(--seller-brand)] transition-colors hover:bg-[#ffe8b7]"
-              >
-                <span className="flex items-center gap-3">
-                  <Icon icon="lucide:store" width={16} height={16} aria-hidden="true" />
-                  Seller Center
-                </span>
-                <Icon icon="lucide:arrow-up-right" width={14} height={14} aria-hidden="true" />
-              </Link>
+              {isUser && (
+                <Link
+                  href="/dashboard"
+                  className="flex min-h-11 items-center justify-between gap-3 rounded-[8px] bg-[var(--seller-accent-soft)] px-3 text-[12px] font-semibold text-[var(--seller-brand)] transition-colors hover:bg-[#ffe8b7]"
+                >
+                  <span className="flex items-center gap-3">
+                    <Icon icon="lucide:store" width={16} height={16} aria-hidden="true" />
+                    Seller Center
+                  </span>
+                  <Icon icon="lucide:arrow-up-right" width={14} height={14} aria-hidden="true" />
+                </Link>
+              )}
             </div>
           </div>
         </aside>

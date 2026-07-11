@@ -1,12 +1,12 @@
 import { Icon } from "@iconify/react";
 import Link from "next/link";
 import ProductCard from "@/app/_components/ProductCard";
-import { requireRole } from "@/lib/auth";
+import { requireNonAdmin } from "@/lib/auth";
 import { getFavoriteListings } from "@/lib/listings";
 import { AccountPageHeader, AccountPanel, AccountSecondaryLink } from "../_components/AccountUi";
 
 export default async function AccountFavoritesPage() {
-  const user = await requireRole("user");
+  const user = await requireNonAdmin();
   const favorites = await getFavoriteListings(user.id);
 
   return (

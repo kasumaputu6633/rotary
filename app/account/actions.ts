@@ -2,7 +2,7 @@
 
 import { db } from "@/db";
 import { favoriteListings, listings, users } from "@/db/schema";
-import { requireAuth, requireRole } from "@/lib/auth";
+import { requireNonAdmin, requireRole } from "@/lib/auth";
 import { deleteUserAvatar, uploadUserAvatar } from "@/lib/r2";
 import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
@@ -65,7 +65,7 @@ export async function updateAccountProfileAction(formData: FormData) {
 }
 
 export async function toggleFavoriteListingAction(listingId: string, slug?: string) {
-  const user = await requireAuth();
+  const user = await requireNonAdmin();
   const existing = await db.query.favoriteListings.findFirst({
     where: and(
       eq(favoriteListings.userId, user.id),
