@@ -113,10 +113,14 @@ export default function CategoriesClient({
 
     async function handleDeleteConfirm() {
         if (!categoryToDelete) return;
-        await deleteCategoryAction(categoryToDelete.id);
-        toast.success("Kategori dihapus.");
-        setCategoryToDelete(null);
-        router.refresh();
+        try {
+            await deleteCategoryAction(categoryToDelete.id);
+            toast.success("Kategori dihapus.");
+            setCategoryToDelete(null);
+            router.refresh();
+        } catch (err: any) {
+            toast.error(err?.message ?? "Gagal menghapus kategori.");
+        }
     }
 
     return (
