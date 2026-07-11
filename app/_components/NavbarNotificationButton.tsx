@@ -230,14 +230,16 @@ export default function NavbarNotificationButton({ isLoggedIn }: { isLoggedIn?: 
               </div>
               <p className="mt-0.5 font-open-sauce text-[11px] text-[#6b7280]">Kabar listing dan barang favoritmu.</p>
             </div>
-            <Link
-              href="/account/notifications"
-              onClick={() => setShowDropdown(false)}
-              className="flex h-7 w-7 items-center justify-center rounded-full text-[#6b7280] transition-colors hover:bg-[#f4f6f8] hover:text-[#17458f]"
-              aria-label="Pengaturan notifikasi"
-            >
-              <Icon icon="lucide:settings" width={17} height={17} aria-hidden="true" />
-            </Link>
+            {isLoggedIn !== false && (
+              <Link
+                href="/account/notifications"
+                onClick={() => setShowDropdown(false)}
+                className="flex h-7 w-7 items-center justify-center rounded-full text-[#6b7280] transition-colors hover:bg-[#f4f6f8] hover:text-[#17458f]"
+                aria-label="Pengaturan notifikasi"
+              >
+                <Icon icon="lucide:settings" width={17} height={17} aria-hidden="true" />
+              </Link>
+            )}
           </div>
 
           <div className="max-h-90 overflow-y-auto">
@@ -345,23 +347,25 @@ export default function NavbarNotificationButton({ isLoggedIn }: { isLoggedIn?: 
             )}
           </div>
 
-          <div className="flex items-center justify-between border-t border-gray-100 px-4 py-3">
-            <button
-              type="button"
-              onClick={markAllRead}
-              disabled={unreadCount === 0}
-              className="font-open-sauce text-[12px] font-semibold text-[#17458f] transition-colors hover:text-[#f7a81b] disabled:cursor-not-allowed disabled:text-[#c5cbd6]"
-            >
-              Tandai semua dibaca
-            </button>
-            <Link
-              href="/account/notifications"
-              onClick={() => setShowDropdown(false)}
-              className="font-open-sauce text-[12px] font-semibold text-[#17458f] hover:text-[#f7a81b]"
-            >
-              Pengaturan
-            </Link>
-          </div>
+          {isLoggedIn !== false && (
+            <div className="flex items-center justify-between border-t border-gray-100 px-4 py-3">
+              <button
+                type="button"
+                onClick={markAllRead}
+                disabled={unreadCount === 0}
+                className="font-open-sauce text-[12px] font-semibold text-[#17458f] transition-colors hover:text-[#f7a81b] disabled:cursor-not-allowed disabled:text-[#c5cbd6]"
+              >
+                Tandai semua dibaca
+              </button>
+              <Link
+                href="/account/notifications"
+                onClick={() => setShowDropdown(false)}
+                className="font-open-sauce text-[12px] font-semibold text-[#17458f] hover:text-[#f7a81b]"
+              >
+                Pengaturan
+              </Link>
+            </div>
+          )}
         </div>
       )}
     </div>
