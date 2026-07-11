@@ -1,9 +1,11 @@
 "use client";
 
 import { Icon } from "@iconify/react";
+import { useState } from "react";
 import { toggleFavoriteListingAction } from "@/app/account/actions";
 import { formatListingMode, formatPrice, type ListingCardData } from "@/lib/listing-format";
 import ProductContactActions from "./ProductContactActions";
+import ProductShareDialog from "./ProductShareDialog";
 
 type ProductActionCardProps = {
   imageUrl?: string | null;
@@ -21,6 +23,7 @@ export default function ProductActionCard({
   isOwner,
 }: ProductActionCardProps) {
   const handoverOptions = product.handoverOptions ?? [];
+  const [isShareOpen, setIsShareOpen] = useState(false);
 
   return (
     <div className="rounded-lg border border-[#d8deea] bg-white p-4 font-open-sauce shadow-[0_10px_28px_rgba(15,23,42,0.08)]">
@@ -101,12 +104,19 @@ export default function ProductActionCard({
         </form>
         <button
           type="button"
+          onClick={() => setIsShareOpen(true)}
           className="flex h-9 items-center justify-center gap-2 rounded-lg border border-[#d8deea] text-[12px] font-semibold text-[#17458f] transition-colors hover:bg-[#eef6ff] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#17458f] focus-visible:ring-offset-2"
         >
           <Icon icon="lucide:share-2" width={15} height={15} aria-hidden="true" />
           Bagikan
         </button>
       </div>
+
+      <ProductShareDialog 
+        isOpen={isShareOpen} 
+        onClose={() => setIsShareOpen(false)} 
+        title={product.title} 
+      />
     </div>
   );
 }
