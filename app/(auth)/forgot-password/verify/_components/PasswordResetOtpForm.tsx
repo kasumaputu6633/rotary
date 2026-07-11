@@ -59,7 +59,7 @@ export default function PasswordResetOtpForm() {
 
   return (
     <>
-      <div className="mt-4 flex gap-3">
+      <div className="mt-4 flex justify-center gap-2 lg:gap-3 w-full">
         {otp.map((digit, index) => (
           <input
             key={index}
@@ -73,7 +73,7 @@ export default function PasswordResetOtpForm() {
             onKeyDown={(event) => handleKeyDown(index, event)}
             onPaste={handlePaste}
             aria-label={`Digit kode ${index + 1}`}
-            className={`h-12 w-12 rounded-[9px] border text-center font-open-sauce text-[20px] font-semibold outline-none transition-colors hover:border-[#17458f] hover:bg-white focus:border-[#17458f] focus:bg-white ${
+            className={`h-10 w-10 lg:h-12 lg:w-12 rounded-[9px] border text-center font-open-sauce text-[18px] lg:text-[20px] font-semibold outline-none transition-colors hover:border-[#17458f] hover:bg-white focus:border-[#17458f] focus:bg-white ${
               digit
                 ? "border-[#17458f] bg-white"
                 : "border-[#979797] bg-[rgba(130,130,130,0.27)]"

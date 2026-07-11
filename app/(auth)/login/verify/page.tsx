@@ -16,7 +16,7 @@ export default async function LoginVerifyPage() {
   const isTwoFactor = reason === "two_factor";
 
   return (
-    <div className="flex gap-[60px] items-center justify-center w-full max-w-5xl py-10">
+    <div className="flex flex-col md:flex-row gap-12 lg:gap-[60px] items-center justify-center w-full max-w-5xl py-6 lg:py-10">
       <AuthIllustration src="/auth/otp.png" />
 
       <AuthCard>
@@ -24,7 +24,7 @@ export default async function LoginVerifyPage() {
           {isTwoFactor ? "Verifikasi Dua Langkah" : "Verifikasi Perangkat"}
         </h1>
 
-        <div className="flex flex-col gap-[10px] items-center pt-[45px] pb-[42px] w-full">
+        <div className="flex flex-col gap-[10px] items-center pt-4 pb-6 lg:pt-[45px] lg:pb-[42px] w-full">
           <div className="w-12 h-12 rounded-full bg-[#fff8ec] flex items-center justify-center mb-2">
             <Icon icon="lucide:shield-check" width={24} height={24} className="text-[#f7a81b]" aria-hidden="true" />
           </div>
