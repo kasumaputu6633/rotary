@@ -48,8 +48,17 @@ export async function requireRole(minimum: Role) {
   return user;
 }
 
+// Mencegah admin/super_admin mengakses fitur penjualan (Seller Center).
+// Admin diarahkan ke dashboard admin, user yang belum login ke /login.
+export async function requireNonAdmin() {
+  const user = await getCurrentUser();
+  if (!user) redirect("/login");
+  if (hasRole(user.role, "admin")) redirect("/admin/dashboard");
+  return user;
+}
+
 export async function requireSellerReady() {
-  const user = await requireRole("user");
+  const user = await requireNonAdmin();
   const verification = getAccountVerificationStatus(user);
 
   if (!verification.sellerReady) {
