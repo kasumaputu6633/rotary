@@ -1,7 +1,8 @@
 "use client";
 
 import { Icon } from "@iconify/react";
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
+import { createPortal } from "react-dom";
 import { toast } from "sonner";
 import { COMPLAINT_CATEGORIES } from "@/lib/moderation-format";
 import { submitComplaintAction } from "../actions";
@@ -12,9 +13,14 @@ export default function ReportListingButton({
   listingId: string;
 }) {
   const [open, setOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const [category, setCategory] = useState<string>("");
   const [description, setDescription] = useState("");
   const [isPending, startTransition] = useTransition();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   function reset() {
     setCategory("");
@@ -53,9 +59,9 @@ export default function ReportListingButton({
         Laporkan listing ini
       </button>
 
-      {open ? (
+      {open && mounted ? createPortal(
         <div
-          className="fixed inset-0 z-[9998] flex items-center justify-center bg-black/40 p-4"
+          className="fixed inset-0 z-[10050] flex items-center justify-center bg-black/40 p-4"
           onClick={() => !isPending && setOpen(false)}
         >
           <div
@@ -135,7 +141,7 @@ export default function ReportListingButton({
               <button
                 type="button"
                 onClick={handleSubmit}
-                disabled={isPending}
+                disabled={isPending || !category || (category === "Lainnya" && !description.trim())}
                 className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-red-500 py-2.5 font-open-sauce text-[13px] font-semibold text-white transition-colors hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-70"
               >
                 {isPending ? (
@@ -152,7 +158,8 @@ export default function ReportListingButton({
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       ) : null}
     </>
   );

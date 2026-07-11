@@ -2,6 +2,7 @@
 
 import { Icon } from "@iconify/react";
 import { useEffect, useId, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 
 type ProductShareDialogProps = {
   isOpen: boolean;
@@ -16,8 +17,13 @@ export default function ProductShareDialog({
 }: ProductShareDialogProps) {
   const [url, setUrl] = useState("");
   const [copied, setCopied] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const titleId = useId();
   const previousFocusRef = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -53,7 +59,7 @@ export default function ProductShareDialog({
     };
   }, [isOpen, onClose]);
 
-  if (!isOpen) return null;
+  if (!isOpen || !mounted) return null;
 
   const handleCopy = async () => {
     try {
@@ -94,7 +100,7 @@ export default function ProductShareDialog({
     },
   ];
 
-  return (
+  return createPortal(
     <div
       className="modal-backdrop-enter fixed inset-0 z-[10050] flex items-center justify-center bg-[var(--color-overlay)] p-4 font-open-sauce sm:p-6"
       onMouseDown={(event) => {
@@ -157,6 +163,7 @@ export default function ProductShareDialog({
           </div>
         </div>
       </section>
-    </div>
+    </div>,
+    document.body
   );
 }
