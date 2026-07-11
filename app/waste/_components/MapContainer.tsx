@@ -42,9 +42,6 @@ export default function MapContainer({
     zoom: 10,
   });
   const [bounds, setBounds] = useState<BBox | null>(null);
-  const [isLocating, setIsLocating] = useState(false);
-  const [locationError, setLocationError] = useState<string | null>(null);
-  const [userLocation, setUserLocation] = useState<{ latitude: number; longitude: number } | null>(null);
 
   const updateBounds = () => {
     const map = mapRef.current?.getMap();
@@ -68,12 +65,14 @@ export default function MapContainer({
 
     const currentZoom = mapRef.current.getZoom();
     const targetZoom = Math.max(currentZoom, 15);
+    const isMobile = window.innerWidth < 768;
 
     mapRef.current.flyTo({
       center: [location.longitude, location.latitude],
       zoom: targetZoom,
       duration: 900,
       essential: true,
+      padding: { top: 0, bottom: isMobile ? 380 : 320, left: 0, right: 0 },
     });
   }, [activeLocationId, locations]);
 
@@ -200,39 +199,6 @@ export default function MapContainer({
     });
   };
 
-  const handleLocate = () => {
-    if (!navigator.geolocation) {
-      setLocationError("Browser belum mendukung lokasi.");
-      return;
-    }
-
-    setIsLocating(true);
-    setLocationError(null);
-
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const nextLocation = {
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-        };
-
-        setUserLocation(nextLocation);
-        setIsLocating(false);
-        mapRef.current?.flyTo({
-          center: [nextLocation.longitude, nextLocation.latitude],
-          zoom: 14,
-          duration: 800,
-          essential: true,
-        });
-      },
-      () => {
-        setIsLocating(false);
-        setLocationError("Lokasi tidak bisa diakses.");
-      },
-      { enableHighAccuracy: true, timeout: 8000 },
-    );
-  };
-
   return (
     <div className="absolute inset-0 isolate overflow-hidden bg-[#dce8ee]">
       <Map
@@ -303,29 +269,15 @@ export default function MapContainer({
           );
         })}
 
-        {userLocation && (
-          <Marker longitude={userLocation.longitude} latitude={userLocation.latitude} anchor="center">
-            <div className="h-5 w-5 rounded-full border-[4px] border-white bg-[#17458f] shadow-[0_0_0_8px_rgba(23,69,143,0.18)]" />
-          </Marker>
-        )}
-
         <Source id="locations-source" type="geojson" data={geojsonData}>
           <Layer {...labelLayerStyle} />
         </Source>
       </Map>
 
       <MapControls
-        isLocating={isLocating}
-        onLocate={handleLocate}
         onZoomIn={() => zoomBy(1)}
         onZoomOut={() => zoomBy(-1)}
       />
-
-      {locationError && (
-        <div className="absolute right-4 top-[148px] z-10 rounded-lg border border-amber-200 bg-white px-4 py-3 font-open-sauce text-xs font-semibold text-amber-700">
-          {locationError}
-        </div>
-      )}
     </div>
   );
 }
