@@ -1,11 +1,14 @@
 import Link from "next/link";
 import { Icon } from "@iconify/react";
-import { getSessionUserId } from "@/lib/auth";
+import { getCurrentUser, getSessionUserId } from "@/lib/auth";
 import { getPublicListings } from "@/lib/listings";
 import ProductCard from "./ProductCard";
 
 export default async function HomeProductShowcase() {
   const userId = await getSessionUserId();
+  const user = await getCurrentUser();
+  const isAdmin = user ? user.role === "admin" || user.role === "super_admin" : false;
+  const isSeller = user ? user.role === "user" : false;
   const products = await getPublicListings({ limit: 24, userId });
 
   return (
@@ -33,14 +36,16 @@ export default async function HomeProductShowcase() {
           <div className="rounded-lg border border-dashed border-[#cbd5e1] bg-[#f8fafc] px-6 py-12 text-center">
             <p className="font-open-sauce text-[15px] font-semibold text-black">Belum ada listing aktif</p>
             <p className="mt-2 font-open-sauce text-[13px] text-[#6b7280]">Jadilah yang pertama mengunggah barang bekas layak pakai.</p>
-            <Link href="/dashboard/listings/new" className="mt-5 inline-flex h-10 items-center rounded-full bg-[#f7a81b] px-5 font-open-sauce text-[12px] font-semibold text-white">
-              Unggah Barang
-            </Link>
+            {isSeller && (
+              <Link href="/dashboard/listings/new" className="mt-5 inline-flex h-10 items-center rounded-full bg-[#f7a81b] px-5 font-open-sauce text-[12px] font-semibold text-white">
+                Unggah Barang
+              </Link>
+            )}
           </div>
         ) : (
           <div className="grid grid-cols-[repeat(auto-fill,minmax(142px,1fr))] gap-x-3 gap-y-5 sm:grid-cols-[repeat(auto-fill,minmax(150px,1fr))] lg:grid-cols-[repeat(auto-fill,minmax(155px,1fr))]">
             {products.map((product) => (
-              <ProductCard key={product.id} product={product} />
+              <ProductCard key={product.id} product={product} isAdmin={isAdmin} />
             ))}
           </div>
         )}
