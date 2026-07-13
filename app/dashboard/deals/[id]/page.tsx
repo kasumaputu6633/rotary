@@ -1,7 +1,7 @@
 import { Icon } from "@iconify/react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { requireRole } from "@/lib/auth";
+import { requireNonAdmin } from "@/lib/auth";
 import {
   formatDealSchedule,
   formatDealStatus,
@@ -28,7 +28,7 @@ type Props = {
 
 export default async function SellerDealDetailPage({ params }: Props) {
   const { id } = await params;
-  const user = await requireRole("user");
+  const user = await requireNonAdmin();
   const deal = await getSellerDealById(id, user.id);
 
   if (!deal) notFound();

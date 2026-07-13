@@ -13,3 +13,9 @@ export async function logoutAction() {
   cookieStore.delete("pending_login_reason");
   redirect("/login");
 }
+
+export async function checkAuthAction() {
+  const { getCurrentUser } = await import("@/lib/auth");
+  const user = await getCurrentUser();
+  return !!user;
+}

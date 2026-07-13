@@ -1,8 +1,8 @@
 import { db } from "@/db";
-import { favoriteListings, listingImages, listings, users } from "@/db/schema";
+import { categories, favoriteListings, listingImages, listings, users } from "@/db/schema";
 import { createHmac } from "node:crypto";
 import type { ListingCardData, ListingMode, ListingStatus } from "@/lib/listing-format";
-import { and, asc, desc, eq, gte, ilike, inArray, lte, ne, or, sql, type SQL } from "drizzle-orm";
+import { and, asc, desc, eq, gte, ilike, inArray, lte, ne, notInArray, or, sql, type SQL } from "drizzle-orm";
 
 export type { ListingCardData, ListingMode, ListingStatus } from "@/lib/listing-format";
 
@@ -102,7 +102,7 @@ function buildPublicListingConditions({
   location,
   minPrice,
   maxPrice,
-}: PublicListingsQuery) {
+}: PublicListingsQuery & { inactiveCategoryNames?: string[] }) {
   const conditions: SQL[] = [inArray(listings.status, ["active", "reserved"])];
 
   if (excludeSlug) conditions.push(ne(listings.slug, excludeSlug));
@@ -129,6 +129,14 @@ function buildPublicListingConditions({
   return conditions;
 }
 
+async function getInactiveCategoryNames(): Promise<string[]> {
+  const rows = await db
+    .select({ name: categories.name })
+    .from(categories)
+    .where(eq(categories.active, false));
+  return rows.map((r) => r.name);
+}
+
 function getPublicListingOrder(sort: PublicListingSort | null | undefined) {
   if (sort === "popular") return [desc(listings.viewCount), desc(listings.publishedAt), desc(listings.createdAt)];
   if (sort === "price-low") return [sql`${listings.price} asc nulls last`, desc(listings.publishedAt)];
@@ -141,6 +149,12 @@ export async function getPublicListings(params: PublicListingsQuery = {}) {
   const page = normalizePage(params.page);
   const offset = typeof params.offset === "number" ? Math.max(params.offset, 0) : (page - 1) * limit;
   const conditions = buildPublicListingConditions(params);
+
+  // Defense in depth: sembunyikan listing yang kategorinya sudah dinonaktifkan.
+  const inactiveNames = await getInactiveCategoryNames();
+  if (inactiveNames.length > 0) {
+    conditions.push(notInArray(listings.category, inactiveNames));
+  }
 
   const rows = await db
     .select({
@@ -160,22 +174,43 @@ export async function getPublicListings(params: PublicListingsQuery = {}) {
 
 export async function getPublicListingsCount(params: PublicListingsQuery = {}) {
   const conditions = buildPublicListingConditions(params);
+  const inactiveNames = await getInactiveCategoryNames();
+  if (inactiveNames.length > 0) {
+    conditions.push(notInArray(listings.category, inactiveNames));
+  }
   return db.$count(listings, and(...conditions));
 }
 
 export async function getPublicListingCategoryCounts() {
+  const inactiveNames = await getInactiveCategoryNames();
   return db
     .select({
       category: listings.category,
       count: sql<number>`count(*)::int`,
     })
     .from(listings)
-    .where(inArray(listings.status, ["active", "reserved"]))
+    .where(
+      and(
+        inArray(listings.status, ["active", "reserved"]),
+        inactiveNames.length > 0 ? notInArray(listings.category, inactiveNames) : sql`true`,
+      ),
+    )
     .groupBy(listings.category)
     .orderBy(asc(listings.category));
 }
 
 export async function getPublicListingBySlug(slug: string, userId?: string | null) {
+  // Defense in depth: juga cek kategori aktif — konsisten dengan getPublicListings.
+  const inactiveNames = await getInactiveCategoryNames();
+
+  const conditions: SQL[] = [
+    eq(listings.slug, slug),
+    inArray(listings.status, ["active", "reserved"]),
+  ];
+  if (inactiveNames.length > 0) {
+    conditions.push(notInArray(listings.category, inactiveNames));
+  }
+
   const [row] = await db
     .select({
       ...listingSelection,
@@ -194,7 +229,7 @@ export async function getPublicListingBySlug(slug: string, userId?: string | nul
     .from(listings)
     .leftJoin(users, eq(users.id, listings.sellerId))
     .leftJoin(listingImages, and(eq(listingImages.listingId, listings.id), eq(listingImages.sortOrder, 0)))
-    .where(and(eq(listings.slug, slug), inArray(listings.status, ["active", "reserved"])))
+    .where(and(...conditions))
     .limit(1);
 
   return row ? withFavorite(row) : null;

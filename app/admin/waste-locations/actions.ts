@@ -7,9 +7,10 @@ import { eq, desc } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { uploadWasteLocationImage } from "@/lib/r2";
 import { geocodeLocationText } from "@/lib/mapbox";
+import { assertSafeText } from "@/lib/sanitize";
 
 /**
- * Fetches all active waste locations for the admin panel, sorted by latest created.
+ * Fetches all active waste locations for the admin panel, sorted by last modified.
  */
 export async function getWasteLocationsAdmin() {
   await requireRole("admin");
@@ -17,7 +18,7 @@ export async function getWasteLocationsAdmin() {
     .select()
     .from(wasteLocations)
     .where(eq(wasteLocations.isActive, true))
-    .orderBy(desc(wasteLocations.createdAt));
+    .orderBy(desc(wasteLocations.updatedAt));
 }
 
 /**
@@ -45,6 +46,11 @@ export async function createWasteLocationAction(formData: FormData) {
   if (!type) throw new Error("Tipe lokasi harus diisi.");
   if (!teleponKontak?.trim()) throw new Error("Kontak harus diisi.");
   if (!alamat?.trim()) throw new Error("Alamat harus diisi.");
+
+  // Sanitasi karakter aneh
+  assertSafeText(namaUsaha.trim(), "Nama lokasi", { minLen: 2, maxLen: 120 });
+  if (namaPic?.trim()) assertSafeText(namaPic.trim(), "Nama PIC", { minLen: 2, maxLen: 80 });
+  assertSafeText(alamat.trim(), "Alamat", { narrative: true, minLen: 5 });
 
   // Koordinat opsional: terisi otomatis dari pencarian alamat di client,
   // atau di-geocode dari alamat di server bila tidak diisi.
@@ -123,6 +129,11 @@ export async function updateWasteLocationAction(id: string, formData: FormData) 
   if (!type) throw new Error("Tipe lokasi harus diisi.");
   if (!teleponKontak?.trim()) throw new Error("Kontak harus diisi.");
   if (!alamat?.trim()) throw new Error("Alamat harus diisi.");
+
+  // Sanitasi karakter aneh
+  assertSafeText(namaUsaha.trim(), "Nama lokasi", { minLen: 2, maxLen: 120 });
+  if (namaPic?.trim()) assertSafeText(namaPic.trim(), "Nama PIC", { minLen: 2, maxLen: 80 });
+  assertSafeText(alamat.trim(), "Alamat", { narrative: true, minLen: 5 });
 
   // Koordinat opsional: terisi otomatis dari pencarian alamat di client,
   // atau di-geocode dari alamat di server bila tidak diisi.

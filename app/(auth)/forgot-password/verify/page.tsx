@@ -11,7 +11,7 @@ export default async function ForgotPasswordVerifyPage() {
   if (!contact) redirect("/forgot-password");
 
   return (
-    <div className="flex w-full max-w-5xl items-center justify-center gap-[60px] py-10">
+    <div className="flex flex-col md:flex-row gap-12 lg:gap-[60px] items-center justify-center w-full max-w-5xl py-6 lg:py-10">
       <AuthIllustration src="/auth/otp.png" />
 
       <AuthCard>
@@ -19,7 +19,7 @@ export default async function ForgotPasswordVerifyPage() {
           Verifikasi WhatsApp
         </h1>
 
-        <div className="flex w-full flex-col items-center gap-[10px] pb-[42px] pt-[45px]">
+        <div className="flex w-full flex-col items-center gap-[10px] pb-6 pt-4 lg:pb-[42px] lg:pt-[45px]">
           <div className="mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-[#fff8ec]">
             <Icon
               icon="lucide:message-circle-check"

@@ -51,7 +51,7 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="flex gap-[60px] items-center justify-center w-full max-w-5xl py-10">
+    <div className="flex flex-col md:flex-row gap-12 lg:gap-[60px] items-center justify-center w-full max-w-5xl py-6 lg:py-10">
       <AuthIllustration src="/auth/illustration-register.png" />
 
       <AuthCard>
@@ -59,7 +59,7 @@ export default function RegisterPage() {
           Daftar
         </h1>
 
-        <div className="flex flex-col gap-[10px] items-start pt-[25px] pb-[42px] w-full">
+        <div className="flex flex-col gap-[10px] items-start pt-4 pb-6 lg:pt-[25px] lg:pb-[42px] w-full">
           <AuthMethodTabs value={method} onChange={handleMethodChange} />
 
           {method === "email" ? (

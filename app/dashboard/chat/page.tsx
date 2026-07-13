@@ -1,5 +1,5 @@
 import { Icon } from "@iconify/react";
-import { requireRole } from "@/lib/auth";
+import { requireNonAdmin } from "@/lib/auth";
 import { db } from "@/db";
 import { conversations, listings, users } from "@/db/schema";
 import { desc, eq, sql } from "drizzle-orm";
@@ -12,7 +12,7 @@ const buyerUsers = alias(users, "buyer_users");
 export const dynamic = "force-dynamic";
 
 export default async function SellerChatPage() {
-  const user = await requireRole("user");
+  const user = await requireNonAdmin();
 
   const rows = await db
     .select({

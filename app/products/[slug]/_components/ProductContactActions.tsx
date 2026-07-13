@@ -11,11 +11,13 @@ export default function ProductContactActions({
   product,
   sellerWhatsapp,
   isOwner,
+  isAdmin,
   onConversationCreated,
 }: {
   product: ListingCardData;
   sellerWhatsapp?: string | null;
   isOwner?: boolean;
+  isAdmin?: boolean;
   onConversationCreated?: (conversationId: string) => void;
 }) {
   const isSale = product.mode === "sale";
@@ -99,6 +101,21 @@ export default function ProductContactActions({
           <Icon icon="lucide:layout-dashboard" width={16} height={16} aria-hidden="true" />
           Kelola di Dashboard
         </Link>
+      </div>
+    );
+  }
+
+  if (isAdmin) {
+    return (
+      <div className="mt-5">
+        <div className="rounded-lg border border-[#17458f]/20 bg-[#eef6ff] p-3 font-open-sauce">
+          <div className="flex gap-2">
+            <Icon icon="lucide:info" width={16} height={16} className="mt-0.5 shrink-0 text-[#17458f]" aria-hidden="true" />
+            <p className="text-[12px] leading-relaxed text-[#5f6370]">
+              Akun admin tidak dapat melakukan transaksi, chat, atau menyimpan favorit. Gunakan akun user untuk fitur tersebut.
+            </p>
+          </div>
+        </div>
       </div>
     );
   }

@@ -1,11 +1,11 @@
 import { createListingAction } from "../../actions";
 import { Badge, PageHeader } from "../../_components/SellerCenterUi";
 import { ListingForm } from "../_components/ListingForm";
-import { requireRole } from "@/lib/auth";
+import { requireNonAdmin } from "@/lib/auth";
 import { getActiveCategories } from "@/lib/categories";
 
 export default async function NewListingPage() {
-  await requireRole("user");
+  await requireNonAdmin();
   const categories = await getActiveCategories();
 
   return (

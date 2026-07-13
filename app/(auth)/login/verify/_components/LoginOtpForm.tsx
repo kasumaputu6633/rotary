@@ -75,7 +75,7 @@ export default function LoginOtpForm({ allowRecoveryCode }: { allowRecoveryCode:
           />
         </label>
       ) : (
-        <div className="flex gap-3 mt-4">
+        <div className="flex justify-center gap-2 lg:gap-3 mt-4 w-full">
           {otp.map((digit, i) => (
             <input
               key={i}
@@ -87,7 +87,7 @@ export default function LoginOtpForm({ allowRecoveryCode }: { allowRecoveryCode:
               onChange={(e) => handleChange(i, e.target.value)}
               onKeyDown={(e) => handleKeyDown(i, e)}
               onPaste={handlePaste}
-              className={`w-12 h-12 text-center text-[20px] font-open-sauce font-semibold border rounded-[9px] outline-none hover:bg-white hover:border-[#17458f] focus:bg-white focus:border-[#17458f] transition-colors ${
+              className={`w-10 h-10 lg:w-12 lg:h-12 text-center text-[18px] lg:text-[20px] font-open-sauce font-semibold border rounded-[9px] outline-none hover:bg-white hover:border-[#17458f] focus:bg-white focus:border-[#17458f] transition-colors ${
                 digit ? "bg-white border-[#17458f]" : "bg-[rgba(130,130,130,0.27)] border-[#979797]"
               }`}
             />

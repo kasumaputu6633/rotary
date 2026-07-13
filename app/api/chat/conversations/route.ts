@@ -1,6 +1,6 @@
 import { db } from "@/db";
 import { conversations, listings, listingImages, users } from "@/db/schema";
-import { getCurrentUser } from "@/lib/auth";
+import { getCurrentUser, hasRole } from "@/lib/auth";
 import { and, desc, eq, or, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import { NextRequest, NextResponse } from "next/server";
@@ -17,6 +17,7 @@ export const dynamic = "force-dynamic";
 export async function GET() {
   const user = await getCurrentUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (hasRole(user.role, "admin")) return NextResponse.json([], { headers: noStoreHeaders });
 
   const rows = await db
     .select({
@@ -79,6 +80,7 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   const user = await getCurrentUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (hasRole(user.role, "admin")) return NextResponse.json({ error: "Admin tidak dapat menggunakan chat" }, { status: 403 });
 
   const body = await req.json().catch(() => null);
   const listingId = body?.listingId as string | undefined;

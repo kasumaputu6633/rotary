@@ -2,10 +2,11 @@
 
 import { db } from "@/db";
 import { favoriteListings, listings, users } from "@/db/schema";
-import { requireAuth, requireRole } from "@/lib/auth";
+import { requireNonAdmin, requireRole } from "@/lib/auth";
 import { deleteUserAvatar, uploadUserAvatar } from "@/lib/r2";
 import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { assertSafeText } from "@/lib/sanitize";
 
 function getOptionalFile(formData: FormData, key: string) {
   const value = formData.get(key);
@@ -24,6 +25,7 @@ export async function updateAccountProfileAction(formData: FormData) {
   if (normalizedName.length < 2) {
     throw new Error("Nama lengkap minimal 2 karakter.");
   }
+  assertSafeText(normalizedName, "Nama lengkap", { minLen: 2, maxLen: 120 });
 
   if (avatarFile && avatarFile.size > 2 * 1024 * 1024) {
     throw new Error("Ukuran foto profil harus kurang dari 2 MB.");
@@ -65,7 +67,7 @@ export async function updateAccountProfileAction(formData: FormData) {
 }
 
 export async function toggleFavoriteListingAction(listingId: string, slug?: string) {
-  const user = await requireAuth();
+  const user = await requireNonAdmin();
   const existing = await db.query.favoriteListings.findFirst({
     where: and(
       eq(favoriteListings.userId, user.id),

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Icon } from "@iconify/react";
-import { requireRole } from "@/lib/auth";
+import { requireNonAdmin } from "@/lib/auth";
 import { formatListingMode, formatListingStatus, formatPrice, type ListingMode, type ListingStatus } from "@/lib/listing-format";
 import { getSellerListings, getSellerListingStats } from "@/lib/listings";
 import {
@@ -123,7 +123,7 @@ function getNowTimestamp() {
 export default async function SellerListingsPage({ searchParams }: SellerListingsPageProps) {
   const params = await searchParams;
   const nowTime = getNowTimestamp();
-  const user = await requireRole("user");
+  const user = await requireNonAdmin();
   const [sellerListings, listingStats] = await Promise.all([
     getSellerListings(user.id),
     getSellerListingStats(user.id),

@@ -45,7 +45,7 @@ export default function DeleteConfirmModal({
             />
             {/* Modal */}
             <div
-                className="relative w-full max-w-[400px] rounded-2xl bg-white shadow-[0_24px_60px_rgba(0,0,0,0.18)] animate-in zoom-in-95 fade-in duration-200"
+                className="relative w-full max-w-[400px] overflow-hidden rounded-2xl bg-white shadow-[0_24px_60px_rgba(0,0,0,0.18)] animate-in zoom-in-95 fade-in duration-200"
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* Header strip */}

@@ -3,7 +3,7 @@ import Link from "next/link";
 import { toggleFavoriteListingAction } from "@/app/account/actions";
 import { formatPrice, formatPublicLocation, type ListingCardData } from "@/lib/listing-format";
 
-export default function ProductCard({ product }: { product: ListingCardData }) {
+export default function ProductCard({ product, isAdmin }: { product: ListingCardData; isAdmin?: boolean }) {
   const isSale = product.mode === "sale";
   const isReserved = product.status === "reserved";
   const publicLocation = formatPublicLocation(product.location);
@@ -30,23 +30,25 @@ export default function ProductCard({ product }: { product: ListingCardData }) {
           </div>
         </Link>
 
-        <form action={toggleFavoriteListingAction.bind(null, product.id, product.slug)} className="absolute right-2 top-2">
-          <button
-            type="submit"
-            className={`flex h-7 w-7 items-center justify-center rounded-full bg-white/95 shadow-sm transition-colors hover:bg-[#fff7e8] ${
-              product.isFavorite ? "text-[#ef476f]" : "text-[#6b7280]"
-            }`}
-            aria-label={product.isFavorite ? "Hapus dari favorit" : "Tambah ke favorit"}
-          >
-            <Icon
-              icon="lucide:heart"
-              width={15}
-              height={15}
-              className={product.isFavorite ? "[&_path]:fill-current" : ""}
-              aria-hidden="true"
-            />
-          </button>
-        </form>
+        {!isAdmin && (
+          <form action={toggleFavoriteListingAction.bind(null, product.id, product.slug)} className="absolute right-2 top-2">
+            <button
+              type="submit"
+              className={`flex h-7 w-7 items-center justify-center rounded-full bg-white/95 shadow-sm transition-colors hover:bg-[#fff7e8] ${
+                product.isFavorite ? "text-[#ef476f]" : "text-[#6b7280]"
+              }`}
+              aria-label={product.isFavorite ? "Hapus dari favorit" : "Tambah ke favorit"}
+            >
+              <Icon
+                icon="lucide:heart"
+                width={15}
+                height={15}
+                className={product.isFavorite ? "[&_path]:fill-current" : ""}
+                aria-hidden="true"
+              />
+            </button>
+          </form>
+        )}
       </div>
 
       <Link href={`/products/${product.slug}`} className="block">

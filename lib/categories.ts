@@ -1,5 +1,5 @@
 import "server-only";
-import { asc, eq, inArray, sql } from "drizzle-orm";
+import { and, asc, eq, inArray, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { categories, listings } from "@/db/schema";
 import { listingCategoryGroups } from "@/lib/listing-taxonomy";
@@ -59,6 +59,8 @@ export async function getAdminCategories(): Promise<AdminCategory[]> {
 
   if (rows.length === 0) return [];
 
+  // Hanya hitung listing aktif/reserved agar angka ini konsisten dengan
+  // guard di toggleCategoryAction / deleteCategoryAction.
   const counts = await db
     .select({
       category: listings.category,
@@ -66,9 +68,12 @@ export async function getAdminCategories(): Promise<AdminCategory[]> {
     })
     .from(listings)
     .where(
-      inArray(
-        listings.category,
-        rows.map((r) => r.name),
+      and(
+        inArray(
+          listings.category,
+          rows.map((r) => r.name),
+        ),
+        inArray(listings.status, ["active", "reserved"]),
       ),
     )
     .groupBy(listings.category);

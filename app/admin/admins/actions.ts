@@ -8,6 +8,7 @@ import { revalidatePath } from "next/cache";
 import bcrypt from "bcryptjs";
 import { passwordValid } from "@/lib/password";
 import { isEmailContact } from "@/lib/auth-contact";
+import { validateSafeText } from "@/lib/sanitize";
 
 export type AdminRow = {
   id: string;
@@ -146,6 +147,8 @@ export async function createAdmin(formData: FormData): Promise<AdminActionResult
   if (fullName.length < 2) {
     return { success: false, error: "Nama lengkap minimal 2 karakter." };
   }
+  const nameErr = validateSafeText(fullName, "Nama lengkap", { minLen: 2, maxLen: 80 });
+  if (nameErr) return { success: false, error: nameErr };
   if (!isEmailContact(email)) {
     return { success: false, error: "Format email tidak valid." };
   }

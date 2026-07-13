@@ -55,6 +55,8 @@ export default async function AccountSettingsPage({
   const contactComplete = sellerReady;
   const securityData = activeTab === "security" ? await getAccountSecurityData() : null;
 
+  const isUser = user.role === "user";
+
   return (
     <div className="grid gap-5">
       <AccountPageHeader
@@ -63,9 +65,11 @@ export default async function AccountSettingsPage({
         description="Kelola identitas, foto, kontak, dan keamanan akun Rotary dari satu tempat."
         actions={
           activeTab === "profile" ? (
-            <AccountSecondaryLink href="/dashboard/profile" icon="lucide:store">
-              Atur Profil Lapak
-            </AccountSecondaryLink>
+            isUser ? (
+              <AccountSecondaryLink href="/dashboard/profile" icon="lucide:store">
+                Atur Profil Lapak
+              </AccountSecondaryLink>
+            ) : null
           ) : activeTab === "contact" ? (
             <AccountStatusBadge tone={sellerReady ? "success" : "warning"}>
               {sellerReady ? "Siap berjualan" : "Verifikasi belum lengkap"}
@@ -133,7 +137,7 @@ export default async function AccountSettingsPage({
                   ))}
                 </div>
                 <div className="border-t border-[var(--seller-rule)] p-4">
-                  {sellerReady ? (
+                  {isUser && sellerReady ? (
                     <Link
                       href="/dashboard"
                       className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-[8px] bg-[var(--seller-brand)] px-4 text-[12px] font-semibold text-white transition hover:brightness-110"
@@ -141,12 +145,12 @@ export default async function AccountSettingsPage({
                       <Icon icon="lucide:store" width={15} height={15} aria-hidden="true" />
                       Buka Seller Center
                     </Link>
-                  ) : (
+                  ) : isUser ? (
                     <div className="inline-flex min-h-11 w-full cursor-not-allowed items-center justify-center gap-2 rounded-[8px] bg-[var(--seller-surface-2)] px-4 text-[12px] font-semibold text-[var(--seller-muted)]">
                       <Icon icon="lucide:lock-keyhole" width={15} height={15} aria-hidden="true" />
                       Lengkapi verifikasi dahulu
                     </div>
-                  )}
+                  ) : null}
                 </div>
               </div>
             </aside>

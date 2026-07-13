@@ -202,34 +202,34 @@ function LocationListCard({
       type="button"
       onClick={() => onSelect(location.id)}
       aria-pressed={isActive}
-      className={`grid w-full grid-cols-[86px_minmax(0,1fr)] gap-3 rounded-lg border bg-white p-3 text-left transition duration-200 hover:border-[#9eb8df] hover:bg-[#fbfdff] hover:shadow-[0_8px_12px_rgba(15,23,42,0.07)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#17458f] focus-visible:ring-offset-2 ${
+      className={`grid w-full grid-cols-[60px_minmax(0,1fr)] gap-2.5 rounded-lg border bg-white p-2.5 text-left transition duration-200 hover:border-[#9eb8df] hover:bg-[#fbfdff] hover:shadow-[0_8px_12px_rgba(15,23,42,0.07)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#17458f] focus-visible:ring-offset-2 ${
         isActive ? "border-[#17458f] bg-[#f7fbff]" : "border-[#d8deea]"
       }`}
     >
       <LocationImage
         location={location}
-        className="h-[86px] w-[86px] shrink-0 overflow-hidden rounded-lg border border-[#d8deea]"
+        className="h-[60px] w-[60px] shrink-0 overflow-hidden rounded-md border border-[#d8deea]"
       />
 
       <div className="min-w-0">
-        <div className="mb-1.5 flex items-center gap-2">
-          <span className="rounded-md bg-[#e8f0fb] px-2 py-1 font-open-sauce text-[10px] font-semibold text-[#17458f]">
+        <div className="mb-1 flex items-center gap-1.5">
+          <span className="rounded bg-[#e8f0fb] px-1.5 py-0.5 font-open-sauce text-[9px] font-semibold text-[#17458f]">
             {getLocationTypeLabel(location.type)}
           </span>
           {hasMapCoordinate(location) && (
-            <span className="inline-flex h-5 w-5 items-center justify-center rounded-md bg-[#fff3d8] text-[#986a12]">
-              <Icon icon="lucide:map-pin" width={13} height={13} aria-hidden="true" />
+            <span className="inline-flex h-4 w-4 items-center justify-center rounded bg-[#fff3d8] text-[#986a12]">
+              <Icon icon="lucide:map-pin" width={11} height={11} aria-hidden="true" />
             </span>
           )}
         </div>
-        <h3 className="line-clamp-2 font-open-sauce text-[15px] font-semibold leading-snug text-[#171717]">
+        <h3 className="line-clamp-1 font-open-sauce text-[13px] font-semibold leading-snug text-[#171717]">
           {location.namaUsaha}
         </h3>
-        <p className="mt-1 line-clamp-2 font-open-sauce text-[12px] leading-relaxed text-[#5f6370]">
+        <p className="mt-0.5 line-clamp-1 font-open-sauce text-[11px] leading-relaxed text-[#5f6370]">
           {location.alamat || "Alamat belum tersedia"}
         </p>
-        <div className="mt-3">
-          <MaterialBadges materials={location.jenisSampahDiterima} />
+        <div className="mt-1.5">
+          <MaterialBadges materials={location.jenisSampahDiterima} limit={3} />
         </div>
       </div>
     </button>
@@ -255,54 +255,60 @@ function LocationDetailCard({
   onShare: () => void;
   onToggleSave: () => void;
 }) {
+  const [isExpanded, setIsExpanded] = useState(false);
+
   return (
     <aside
       aria-label="Detail lokasi penampung"
-      className="absolute inset-x-0 bottom-0 z-20 max-h-[80%] overflow-y-auto rounded-t-2xl bg-white p-4 pt-2.5 shadow-[0_-8px_28px_rgba(15,23,42,0.18)] md:inset-x-auto md:bottom-6 md:left-1/2 md:max-h-none md:w-[calc(100%-4rem)] md:max-w-4xl md:-translate-x-1/2 md:overflow-visible md:rounded-xl md:p-5 md:pt-5 md:shadow-[0_12px_28px_rgba(15,23,42,0.18)]"
+      className={`absolute inset-x-0 bottom-0 z-20 overflow-y-auto rounded-t-2xl bg-white shadow-[0_-8px_28px_rgba(15,23,42,0.18)] transition-[max-height] duration-300 ease-in-out md:inset-x-auto md:bottom-6 md:left-1/2 md:w-[calc(100%-4rem)] md:max-w-2xl md:-translate-x-1/2 md:rounded-xl md:shadow-[0_12px_28px_rgba(15,23,42,0.18)] ${
+        isExpanded ? "max-h-[80%] md:max-h-[70vh]" : "max-h-[45%] md:max-h-[320px]"
+      }`}
     >
       {/* Grab handle — penanda bottom sheet, hanya di mobile. */}
       <div
-        className="mx-auto mb-3 h-1 w-10 rounded-full bg-[#d8deea] md:hidden"
+        className="mx-auto mb-3 mt-2 h-1 w-10 rounded-full bg-[#d8deea] md:hidden"
         aria-hidden="true"
       />
 
       <button
         type="button"
         onClick={onClose}
-        className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-lg text-[#5f6370] transition hover:bg-[#f2f5f9] hover:text-[#171717] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#17458f] focus-visible:ring-offset-2"
+        className="absolute right-4 top-4 z-10 flex h-9 w-9 items-center justify-center rounded-lg text-[#5f6370] transition hover:bg-[#f2f5f9] hover:text-[#171717] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#17458f] focus-visible:ring-offset-2"
         aria-label="Tutup detail lokasi"
       >
         <Icon icon="lucide:x" width={20} height={20} />
       </button>
 
-      <div className="grid gap-5 md:grid-cols-[240px_minmax(0,1fr)_280px] lg:grid-cols-[260px_minmax(0,1fr)_300px] md:items-start">
-        <LocationImage
-          location={location}
-          className="hidden h-[154px] w-full overflow-hidden rounded-lg border border-[#d8deea] md:block"
-        />
+      <div className="p-4 pt-2.5 md:p-5">
+        {/* Header — always visible */}
+        <div className="flex gap-4">
+          <LocationImage
+            location={location}
+            className="h-16 w-16 shrink-0 overflow-hidden rounded-lg border border-[#d8deea] md:h-20 md:w-20"
+          />
+          <div className="min-w-0 flex-1 pr-10">
+            <p className="mb-1.5 flex items-center gap-2 font-open-sauce text-xs font-semibold text-[#17458f]">
+              <Icon icon="lucide:map-pin" width={14} height={14} className="text-[#f7a81b]" />
+              {getLocationTypeLabel(location.type)}
+            </p>
+            <h2 className="font-open-sauce text-[18px] font-semibold leading-tight text-[#171717] md:text-[20px]">
+              {location.namaUsaha}
+            </h2>
+            <p className="mt-1.5 flex items-start gap-1.5 font-open-sauce text-[12px] leading-relaxed text-[#5f6370]">
+              <Icon icon="lucide:map-pin" width={14} height={14} className="mt-0.5 shrink-0 text-[#17458f]" />
+              <span className={isExpanded ? "" : "line-clamp-1"}>{location.alamat || "Alamat belum tersedia"}</span>
+            </p>
+          </div>
+        </div>
 
-        <div className="min-w-0 pr-10 md:pr-0">
-          <p className="mb-2 flex items-center gap-2 font-open-sauce text-xs font-semibold text-[#17458f]">
-            <Icon icon="lucide:map-pin" width={15} height={15} className="text-[#f7a81b]" />
-            {getLocationTypeLabel(location.type)}
-          </p>
-          <h2 className="font-open-sauce text-[22px] font-semibold leading-tight text-[#171717] md:text-[24px]">
-            {location.namaUsaha}
-          </h2>
-
-          <div className="mt-4 grid gap-3 font-open-sauce text-[13px] text-[#4b5563]">
+        {/* Details — only when expanded */}
+        {isExpanded && (
+          <div className="mt-5 grid gap-4 border-t border-[#edf0f5] pt-5 font-open-sauce text-[13px] text-[#4b5563] md:grid-cols-2">
             <div>
               <p className="font-semibold text-[#171717]">Jam Operasional</p>
               <p className="mt-1 flex items-center gap-2">
                 <Icon icon="lucide:clock-3" width={16} height={16} className="text-[#17458f]" />
                 {formatOperatingHours(location.operatingHours)}
-              </p>
-            </div>
-            <div>
-              <p className="font-semibold text-[#171717]">Alamat</p>
-              <p className="mt-1 flex items-start gap-2 leading-relaxed">
-                <Icon icon="lucide:map-pin" width={16} height={16} className="mt-0.5 text-[#17458f]" />
-                <span>{location.alamat || "Alamat belum tersedia"}</span>
               </p>
             </div>
             {location.teleponKontak && (
@@ -352,59 +358,67 @@ function LocationDetailCard({
                 </a>
               </div>
             )}
-          </div>
-        </div>
-
-        <div className="flex h-full flex-col justify-between gap-5">
-          <div>
-            <p className="mb-3 font-open-sauce text-[13px] font-semibold text-[#171717]">Sampah yang diterima</p>
-            <MaterialBadges materials={location.jenisSampahDiterima} limit={8} />
-          </div>
-
-          <div className="space-y-2">
-            {shareNotice && (
-              <p className="font-open-sauce text-xs font-semibold text-[#247839]">{shareNotice}</p>
-            )}
-            <div className="grid grid-cols-2 gap-2">
-              <a
-                href={buildDirectionsUrl(location)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-[#17458f] px-3 font-open-sauce text-[13px] font-semibold text-white transition hover:bg-[#123a79] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#17458f] focus-visible:ring-offset-2 active:translate-y-px"
-              >
-                <Icon icon="lucide:navigation" width={16} height={16} />
-                Petunjuk arah
-              </a>
-              <button
-                type="button"
-                onClick={onRecenter}
-                disabled={!canRecenter}
-                className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-[#c5cbd6] bg-[#f8fafc] px-3 font-open-sauce text-[13px] font-semibold text-[#17458f] transition hover:border-[#9eb8df] hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#17458f] focus-visible:ring-offset-2 active:translate-y-px disabled:cursor-not-allowed disabled:border-[#d8deea] disabled:text-[#9aa3b2]"
-              >
-                <Icon icon="lucide:crosshair" width={16} height={16} />
-                Pusatkan
-              </button>
+            <div className="md:col-span-2">
+              <p className="mb-3 font-semibold text-[#171717]">Sampah yang diterima</p>
+              <MaterialBadges materials={location.jenisSampahDiterima} limit={8} />
             </div>
-            <div className="grid grid-cols-[minmax(0,1fr)_40px] gap-2">
-              <button
-                type="button"
-                onClick={onToggleSave}
-                className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-[#d8deea] bg-white px-3 font-open-sauce text-[13px] font-semibold text-[#5f6370] transition hover:border-[#f7a81b] hover:bg-[#fffaf0] hover:text-[#986a12] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#17458f] focus-visible:ring-offset-2 active:translate-y-px"
-              >
-                <Icon icon={isSaved ? "lucide:bookmark-check" : "lucide:bookmark"} width={16} height={16} />
-                {isSaved ? "Disimpan" : "Simpan"}
-              </button>
-              <button
-                type="button"
-                onClick={onShare}
-                className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-[#d8deea] bg-white text-[#5f6370] transition hover:border-[#17458f] hover:text-[#17458f] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#17458f] focus-visible:ring-offset-2 active:translate-y-px"
-                aria-label="Bagikan lokasi"
-              >
-                <Icon icon="lucide:share-2" width={17} height={17} />
-              </button>
-            </div>
+          </div>
+        )}
+
+        {/* Actions — always visible */}
+        <div className="mt-4 space-y-2">
+          {shareNotice && (
+            <p className="font-open-sauce text-xs font-semibold text-[#247839]">{shareNotice}</p>
+          )}
+          <div className="grid grid-cols-2 gap-2">
+            <a
+              href={buildDirectionsUrl(location)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-[#17458f] px-3 font-open-sauce text-[13px] font-semibold text-white transition hover:bg-[#123a79] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#17458f] focus-visible:ring-offset-2 active:translate-y-px"
+            >
+              <Icon icon="lucide:navigation" width={16} height={16} />
+              Petunjuk arah
+            </a>
+            <button
+              type="button"
+              onClick={onRecenter}
+              disabled={!canRecenter}
+              className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-[#c5cbd6] bg-[#f8fafc] px-3 font-open-sauce text-[13px] font-semibold text-[#17458f] transition hover:border-[#9eb8df] hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#17458f] focus-visible:ring-offset-2 active:translate-y-px disabled:cursor-not-allowed disabled:border-[#d8deea] disabled:text-[#9aa3b2]"
+            >
+              <Icon icon="lucide:crosshair" width={16} height={16} />
+              Pusatkan
+            </button>
+          </div>
+          <div className="grid grid-cols-[minmax(0,1fr)_40px_40px] gap-2">
+            <button
+              type="button"
+              onClick={onToggleSave}
+              className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-[#d8deea] bg-white px-3 font-open-sauce text-[13px] font-semibold text-[#5f6370] transition hover:border-[#f7a81b] hover:bg-[#fffaf0] hover:text-[#986a12] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#17458f] focus-visible:ring-offset-2 active:translate-y-px"
+            >
+              <Icon icon={isSaved ? "lucide:bookmark-check" : "lucide:bookmark"} width={16} height={16} />
+              {isSaved ? "Disimpan" : "Simpan"}
+            </button>
+            <button
+              type="button"
+              onClick={onShare}
+              className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-[#d8deea] bg-white text-[#5f6370] transition hover:border-[#17458f] hover:text-[#17458f] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#17458f] focus-visible:ring-offset-2 active:translate-y-px"
+              aria-label="Bagikan lokasi"
+            >
+              <Icon icon="lucide:share-2" width={17} height={17} />
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsExpanded((prev) => !prev)}
+              className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-[#d8deea] bg-white text-[#5f6370] transition hover:border-[#17458f] hover:text-[#17458f] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#17458f] focus-visible:ring-offset-2 active:translate-y-px"
+              aria-label={isExpanded ? "Sembunyikan detail" : "Lihat selengkapnya"}
+            >
+              <Icon icon={isExpanded ? "lucide:chevron-up" : "lucide:chevron-down"} width={18} height={18} />
+            </button>
+          </div>
+          {isExpanded && (
             <ReportWasteLocationButton locationId={location.id} />
-          </div>
+          )}
         </div>
       </div>
     </aside>
@@ -599,16 +613,17 @@ export default function WasteMapClient({
   return (
     <section className="mx-auto grid min-h-[calc(100dvh-149px)] max-w-[1920px] overflow-hidden border-t border-gray-200 bg-white lg:min-h-[calc(100dvh-133px)] lg:grid-cols-[410px_minmax(0,1fr)] xl:grid-cols-[450px_minmax(0,1fr)]">
       <aside className={`relative z-20 h-[calc(100dvh-149px)] flex-col border-b border-[#d8deea] bg-white lg:flex lg:h-[calc(100dvh-133px)] lg:border-b-0 lg:border-r ${mobileView === "map" ? "hidden" : "flex"}`}>
-        <div className="border-b border-[#e6eaf0] bg-white px-5 py-5 md:px-6">
-          <div className="mb-4">
-            <p className="inline-flex items-center gap-2 font-open-sauce text-xs font-semibold text-[#17458f]">
-              <Icon icon="lucide:recycle" width={14} height={14} className="text-[#f7a81b]" aria-hidden="true" />
+        <div className="flex flex-col flex-1 min-h-0 overflow-y-auto">
+          <div className="sticky top-0 z-10 border-b border-[#e6eaf0] bg-white px-4 py-3 md:px-5 md:py-3.5">
+          <div className="mb-2.5">
+            <p className="inline-flex items-center gap-2 font-open-sauce text-[11px] font-semibold text-[#17458f]">
+              <Icon icon="lucide:recycle" width={13} height={13} className="text-[#f7a81b]" aria-hidden="true" />
               Direktori limbah Bali
             </p>
-            <h1 className="mt-2 font-open-sauce text-[26px] font-semibold leading-[1.15] text-[#171717] md:text-[28px]">
+            <h1 className="mt-1 font-open-sauce text-[20px] font-semibold leading-tight text-[#171717] md:text-[22px]">
               Lokasi Penampung
             </h1>
-            <p className="mt-3 max-w-[42ch] font-open-sauce text-[13px] leading-6 text-[#5f6370]">
+            <p className="mt-1.5 hidden max-w-[42ch] font-open-sauce text-[12px] leading-5 text-[#5f6370] sm:block">
               Temukan tempat yang menerima material tertentu tanpa mencampurnya dengan marketplace barang layak pakai.
             </p>
           </div>
@@ -617,8 +632,8 @@ export default function WasteMapClient({
             <label className="relative block">
               <Icon
                 icon="lucide:search"
-                width={18}
-                height={18}
+                width={17}
+                height={17}
                 className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[#5f6370]"
                 aria-hidden="true"
               />
@@ -627,7 +642,7 @@ export default function WasteMapClient({
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
                 placeholder="Cari lokasi atau material..."
-                className="h-11 w-full rounded-lg border border-[#c5cbd6] bg-white pl-10 pr-10 font-open-sauce text-[13px] text-[#171717] outline-none transition placeholder:text-[#5f6370] focus:border-[#17458f] focus:ring-2 focus:ring-[#17458f]/15"
+                className="h-10 w-full rounded-lg border border-[#c5cbd6] bg-white pl-10 pr-10 font-open-sauce text-[13px] text-[#171717] outline-none transition placeholder:text-[#5f6370] focus:border-[#17458f] focus:ring-2 focus:ring-[#17458f]/15"
               />
               {query ? (
                 <button
@@ -644,7 +659,7 @@ export default function WasteMapClient({
 
           {isAuthenticated ? (
             <div
-              className="mt-4 flex rounded-lg border border-[#d8deea] bg-[#f2f5f9] p-1"
+              className="mt-3 flex rounded-lg border border-[#d8deea] bg-[#f2f5f9] p-1"
               role="tablist"
               aria-label="Tampilan lokasi"
             >
@@ -657,13 +672,13 @@ export default function WasteMapClient({
                     role="tab"
                     aria-selected={isActive}
                     onClick={() => setViewMode(mode.value)}
-                    className={`inline-flex flex-1 items-center justify-center gap-1.5 rounded-md px-2 py-2 font-open-sauce text-xs font-semibold transition ${
+                    className={`inline-flex flex-1 items-center justify-center gap-1.5 rounded-md px-2 py-1.5 font-open-sauce text-xs font-semibold transition ${
                       isActive
                         ? "bg-white text-[#17458f] shadow-sm"
                         : "text-[#5f6370] hover:text-[#17458f]"
                     }`}
                   >
-                    <Icon icon={mode.icon} width={14} height={14} aria-hidden="true" />
+                    <Icon icon={mode.icon} width={13} height={13} aria-hidden="true" />
                     {mode.label}
                   </button>
                 );
@@ -671,13 +686,13 @@ export default function WasteMapClient({
             </div>
           ) : null}
 
-          <div className="relative mt-4" ref={filterRef}>
+          <div className="relative mt-3" ref={filterRef}>
             <button
               type="button"
               onClick={() => setShowFilter((prev) => !prev)}
               aria-expanded={showFilter}
               aria-haspopup="dialog"
-              className={`inline-flex h-11 items-center gap-2 rounded-lg border px-4 font-open-sauce text-[13px] font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#17458f] focus-visible:ring-offset-2 ${
+              className={`inline-flex h-10 items-center gap-2 rounded-lg border px-3.5 font-open-sauce text-[13px] font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#17458f] focus-visible:ring-offset-2 ${
                 activeMaterial.length > 0
                   ? "border-[#f7a81b] bg-[#fff7e8] text-[#171717]"
                   : "border-[#c5cbd6] bg-white text-[#4b5563] hover:border-[#17458f] hover:text-[#17458f]"
@@ -760,8 +775,8 @@ export default function WasteMapClient({
           </div>
         </div>
 
-        <div className="flex items-center justify-between px-5 py-4 md:px-6">
-          <h2 className="font-open-sauce text-[17px] font-semibold text-[#171717]">
+        <div className="flex items-center justify-between px-4 py-2.5 md:px-5">
+          <h2 className="font-open-sauce text-[14px] font-semibold text-[#171717]">
             {filteredLocations.length} Lokasi Ditemukan
           </h2>
           {(query || activeMaterial.length > 0) && (
@@ -779,7 +794,7 @@ export default function WasteMapClient({
           )}
         </div>
 
-        <div className="flex-1 space-y-3 overflow-y-auto px-5 pb-5 md:px-6 lg:pb-8">
+        <div className="space-y-2 px-4 pb-20 md:px-5 lg:pb-6">
           {filteredLocations.length > 0 ? (
             filteredLocations.map((location) => (
               <LocationListCard
@@ -802,6 +817,7 @@ export default function WasteMapClient({
               </p>
             </div>
           )}
+        </div>
         </div>
 
         {/* Toggle ke peta (mobile). Mengambang di bawah daftar. */}

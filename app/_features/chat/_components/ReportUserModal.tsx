@@ -176,7 +176,7 @@ export function ReportUserModal({
             </button>
             <button
               type="submit"
-              disabled={!category || isPending}
+              disabled={isPending || !category || (category === "Lainnya" && !description.trim())}
               className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-[#ef476f] py-2.5 font-open-sauce text-[13px] font-semibold text-white transition-colors hover:bg-[#d63d60] disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isPending ? (

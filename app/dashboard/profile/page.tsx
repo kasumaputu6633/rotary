@@ -2,7 +2,7 @@ import { Icon } from "@iconify/react";
 import Link from "next/link";
 import { db } from "@/db";
 import { users } from "@/db/schema";
-import { requireRole } from "@/lib/auth";
+import { requireNonAdmin } from "@/lib/auth";
 import { getSellerListings } from "@/lib/listings";
 import { getProfileCompletion, resolveShopName } from "@/lib/profile";
 import { eq } from "drizzle-orm";
@@ -72,7 +72,7 @@ function SellerIdentityPreview({
 }
 
 export default async function ProfilePage() {
-  const user = await requireRole("user");
+  const user = await requireNonAdmin();
 
   const [[profile], sellerListings] = await Promise.all([
     db

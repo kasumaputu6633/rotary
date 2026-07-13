@@ -10,7 +10,7 @@ import { ThreadView } from "./ThreadView";
 
 const hiddenPathPrefixes = ["/login", "/register", "/forgot-password", "/unauthorized", "/account", "/admin", "/dashboard", "/waste"];
 
-export default function FloatingChat({ currentUserId }: { currentUserId: string | null }) {
+export default function FloatingChat({ currentUserId, isAdmin }: { currentUserId: string | null; isAdmin?: boolean }) {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [isLauncherLeaving, setIsLauncherLeaving] = useState(false);
@@ -123,6 +123,7 @@ export default function FloatingChat({ currentUserId }: { currentUserId: string 
   // Tidak tampilkan untuk user yang tidak login di page yang bukan hidden
   if (shouldHide) return null;
   if (!currentUserId) return null;
+  if (isAdmin) return null;
 
   function handleSelectConversation(id: string) {
     setActiveConversationId(id);

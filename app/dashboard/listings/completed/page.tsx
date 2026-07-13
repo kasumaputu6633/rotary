@@ -1,4 +1,4 @@
-import { requireRole } from "@/lib/auth";
+import { requireNonAdmin } from "@/lib/auth";
 import { formatListingStatus } from "@/lib/listing-format";
 import { getSellerListings } from "@/lib/listings";
 import {
@@ -14,7 +14,7 @@ import {
 import { ListingLifecycleActions } from "../_components/ListingLifecycleActions";
 
 export default async function CompletedListingsPage() {
-  const user = await requireRole("user");
+  const user = await requireNonAdmin();
   const completedListings = await getSellerListings(user.id, "completed");
 
   return (

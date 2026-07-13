@@ -113,10 +113,14 @@ export default function CategoriesClient({
 
     async function handleDeleteConfirm() {
         if (!categoryToDelete) return;
-        await deleteCategoryAction(categoryToDelete.id);
-        toast.success("Kategori dihapus.");
-        setCategoryToDelete(null);
-        router.refresh();
+        try {
+            await deleteCategoryAction(categoryToDelete.id);
+            toast.success("Kategori dihapus.");
+            setCategoryToDelete(null);
+            router.refresh();
+        } catch (err: any) {
+            toast.error(err?.message ?? "Gagal menghapus kategori.");
+        }
     }
 
     return (
@@ -268,7 +272,7 @@ export default function CategoriesClient({
                                                 className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-500 transition-colors hover:bg-gray-50 disabled:opacity-50"
                                             >
                                                 <Icon
-                                                    icon={cat.active ? "lucide:eye" : "lucide:eye-off"}
+                                                    icon={cat.active ? "lucide:pause" : "lucide:play"}
                                                     width={16}
                                                     height={16}
                                                 />

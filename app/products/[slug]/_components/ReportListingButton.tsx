@@ -1,10 +1,12 @@
 "use client";
 
 import { Icon } from "@iconify/react";
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
+import { createPortal } from "react-dom";
 import { toast } from "sonner";
 import { COMPLAINT_CATEGORIES } from "@/lib/moderation-format";
 import { submitComplaintAction } from "../actions";
+import { checkAuthAction } from "@/app/actions";
 
 export default function ReportListingButton({
   listingId,
@@ -12,9 +14,15 @@ export default function ReportListingButton({
   listingId: string;
 }) {
   const [open, setOpen] = useState(false);
+  const [checkingAuth, setCheckingAuth] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const [category, setCategory] = useState<string>("");
   const [description, setDescription] = useState("");
   const [isPending, startTransition] = useTransition();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   function reset() {
     setCategory("");
@@ -42,20 +50,37 @@ export default function ReportListingButton({
     });
   }
 
+  async function handleOpenClick() {
+    setCheckingAuth(true);
+    try {
+      const isLoggedIn = await checkAuthAction();
+      if (!isLoggedIn) {
+        window.location.href = `/login?next=${encodeURIComponent(window.location.pathname)}`;
+        return;
+      }
+      setOpen(true);
+    } catch (err) {
+      toast.error("Terjadi kesalahan. Silakan coba lagi.");
+    } finally {
+      setCheckingAuth(false);
+    }
+  }
+
   return (
     <>
       <button
         type="button"
-        onClick={() => setOpen(true)}
-        className="mt-3 flex w-full items-center justify-center gap-1.5 font-open-sauce text-[12px] font-medium text-[#9ca3af] transition-colors hover:text-red-500"
+        onClick={handleOpenClick}
+        disabled={checkingAuth}
+        className="mt-3 flex w-full items-center justify-center gap-1.5 font-open-sauce text-[12px] font-medium text-[#9ca3af] transition-colors hover:text-red-500 disabled:opacity-50"
       >
-        <Icon icon="lucide:flag" width={13} height={13} aria-hidden="true" />
-        Laporkan listing ini
+        <Icon icon={checkingAuth ? "lucide:loader-circle" : "lucide:flag"} width={13} height={13} className={checkingAuth ? "animate-spin" : ""} aria-hidden="true" />
+        {checkingAuth ? "Memeriksa..." : "Laporkan listing ini"}
       </button>
 
-      {open ? (
+      {open && mounted ? createPortal(
         <div
-          className="fixed inset-0 z-[9998] flex items-center justify-center bg-black/40 p-4"
+          className="fixed inset-0 z-[10050] flex items-center justify-center bg-black/40 p-4"
           onClick={() => !isPending && setOpen(false)}
         >
           <div
@@ -135,7 +160,7 @@ export default function ReportListingButton({
               <button
                 type="button"
                 onClick={handleSubmit}
-                disabled={isPending}
+                disabled={isPending || !category || (category === "Lainnya" && !description.trim())}
                 className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-red-500 py-2.5 font-open-sauce text-[13px] font-semibold text-white transition-colors hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-70"
               >
                 {isPending ? (
@@ -152,7 +177,8 @@ export default function ReportListingButton({
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       ) : null}
     </>
   );

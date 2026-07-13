@@ -27,6 +27,7 @@ export default async function AccountLayout({
         emailVerified={isEmailVerified(user)}
         name={user.fullName?.trim() || resolveShopName(user)}
         phoneVerified={isPhoneVerified(user)}
+        userRole={user.role}
       >
         {children}
       </AccountShell>

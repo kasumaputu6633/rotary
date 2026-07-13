@@ -4,7 +4,7 @@ import Link from "next/link";
 import Footer from "@/app/_components/Footer";
 import Navbar from "@/app/_components/Navbar";
 import ProductCard from "@/app/_components/ProductCard";
-import { getSessionUserId } from "@/lib/auth";
+import { getCurrentUser, getSessionUserId } from "@/lib/auth";
 import { getActiveCategories } from "@/lib/categories";
 import {
   getPublicListingCategoryCounts,
@@ -53,6 +53,8 @@ function normalizeMode(value: string | undefined): "all" | "sale" | "donation" {
 export default async function ProductsPage({ searchParams }: ProductsPageProps) {
   const params = await searchParams;
   const userId = await getSessionUserId();
+  const currentUser = await getCurrentUser();
+  const isAdmin = currentUser ? currentUser.role === "admin" || currentUser.role === "super_admin" : false;
   const q = firstParam(params.q)?.trim() ?? "";
   const category = firstParam(params.category)?.trim() ?? "";
   const subcategory = firstParam(params.subcategory)?.trim() ?? "";
@@ -193,7 +195,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
             {products.length > 0 ? (
               <div className="mt-7 grid grid-cols-[repeat(auto-fill,minmax(142px,1fr))] gap-x-3 gap-y-5 sm:grid-cols-[repeat(auto-fill,minmax(150px,1fr))] lg:grid-cols-[repeat(auto-fill,minmax(135px,1fr))]">
                 {products.map((product) => (
-                  <ProductCard key={product.id} product={product} />
+                  <ProductCard key={product.id} product={product} isAdmin={isAdmin} />
                 ))}
               </div>
             ) : (

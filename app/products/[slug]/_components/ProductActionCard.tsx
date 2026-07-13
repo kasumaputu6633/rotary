@@ -1,9 +1,11 @@
 "use client";
 
 import { Icon } from "@iconify/react";
+import { useState } from "react";
 import { toggleFavoriteListingAction } from "@/app/account/actions";
 import { formatListingMode, formatPrice, type ListingCardData } from "@/lib/listing-format";
 import ProductContactActions from "./ProductContactActions";
+import ProductShareDialog from "./ProductShareDialog";
 
 type ProductActionCardProps = {
   imageUrl?: string | null;
@@ -11,6 +13,7 @@ type ProductActionCardProps = {
   publicLocation: string;
   sellerWhatsapp?: string | null;
   isOwner?: boolean;
+  isAdmin?: boolean;
 };
 
 export default function ProductActionCard({
@@ -19,8 +22,10 @@ export default function ProductActionCard({
   publicLocation,
   sellerWhatsapp,
   isOwner,
+  isAdmin,
 }: ProductActionCardProps) {
   const handoverOptions = product.handoverOptions ?? [];
+  const [isShareOpen, setIsShareOpen] = useState(false);
 
   return (
     <div className="rounded-lg border border-[#d8deea] bg-white p-4 font-open-sauce shadow-[0_10px_28px_rgba(15,23,42,0.08)]">
@@ -87,26 +92,35 @@ export default function ProductActionCard({
         </div>
       </div>
 
-      <ProductContactActions product={product} sellerWhatsapp={sellerWhatsapp} isOwner={isOwner} />
+      <ProductContactActions product={product} sellerWhatsapp={sellerWhatsapp} isOwner={isOwner} isAdmin={isAdmin} />
 
-      <div className="mt-3 grid grid-cols-2 gap-2 border-t border-[#edf0f5] pt-3">
-        <form action={toggleFavoriteListingAction.bind(null, product.id, product.slug)}>
-          <button
-            type="submit"
-            className={`flex h-9 w-full items-center justify-center gap-2 rounded-lg border border-[#d8deea] text-[12px] font-semibold transition-colors hover:bg-[#fff7e8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f7a81b] focus-visible:ring-offset-2 ${product.isFavorite ? "text-[#ef476f]" : "text-[#17458f]"}`}
-          >
-            <Icon icon="lucide:heart" width={15} height={15} className={product.isFavorite ? "[&_path]:fill-current" : ""} aria-hidden="true" />
-            {product.isFavorite ? "Tersimpan" : "Favorit"}
-          </button>
-        </form>
+      <div className={`mt-3 grid gap-2 border-t border-[#edf0f5] pt-3 ${isAdmin ? "grid-cols-1" : "grid-cols-2"}`}>
+        {!isAdmin && (
+          <form action={toggleFavoriteListingAction.bind(null, product.id, product.slug)}>
+            <button
+              type="submit"
+              className={`flex h-9 w-full items-center justify-center gap-2 rounded-lg border border-[#d8deea] text-[12px] font-semibold transition-colors hover:bg-[#fff7e8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f7a81b] focus-visible:ring-offset-2 ${product.isFavorite ? "text-[#ef476f]" : "text-[#17458f]"}`}
+            >
+              <Icon icon="lucide:heart" width={15} height={15} className={product.isFavorite ? "[&_path]:fill-current" : ""} aria-hidden="true" />
+              {product.isFavorite ? "Tersimpan" : "Favorit"}
+            </button>
+          </form>
+        )}
         <button
           type="button"
+          onClick={() => setIsShareOpen(true)}
           className="flex h-9 items-center justify-center gap-2 rounded-lg border border-[#d8deea] text-[12px] font-semibold text-[#17458f] transition-colors hover:bg-[#eef6ff] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#17458f] focus-visible:ring-offset-2"
         >
           <Icon icon="lucide:share-2" width={15} height={15} aria-hidden="true" />
           Bagikan
         </button>
       </div>
+
+      <ProductShareDialog 
+        isOpen={isShareOpen} 
+        onClose={() => setIsShareOpen(false)} 
+        title={product.title} 
+      />
     </div>
   );
 }
