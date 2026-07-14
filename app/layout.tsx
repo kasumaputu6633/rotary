@@ -43,7 +43,8 @@ export default async function RootLayout({
   return (
     <html
       lang="id"
-      className={`${openSauce.variable} h-full antialiased`}
+      className={`${openSauce.variable} h-full antialiased scroll-smooth scroll-pt-[180px]`}
+      data-scroll-behavior="smooth"
     >
       <body id="page-top" className="min-h-full flex flex-col">
         <DropdownOverlay />

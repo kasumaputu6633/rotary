@@ -9,6 +9,12 @@ const siteMapLinks = [
   { label: "Lapak Saya", href: "/dashboard" },
 ];
 
+const policyLinks = [
+  { label: "Help", href: "/help" },
+  { label: "Privacy", href: "/privacy" },
+  { label: "Terms", href: "/terms" },
+];
+
 export default function Footer() {
   return (
     <footer className="w-full bg-white">
@@ -48,11 +54,25 @@ export default function Footer() {
             </a>
           </div>
 
-          <div className="grid gap-10 pt-5 sm:grid-cols-[minmax(160px,1fr)] sm:gap-16 lg:w-[360px] lg:gap-24 lg:pt-5">
+          <div className="grid gap-10 pt-5 sm:grid-cols-2 sm:gap-10 lg:w-[420px] lg:gap-16 lg:pt-5">
             <div>
               <h2 className="font-open-sauce text-[14px] font-semibold text-black">Site Map</h2>
               <nav className="mt-7 flex flex-col gap-6" aria-label="Site Map">
                 {siteMapLinks.map((link) => (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className="font-open-sauce text-[14px] text-black transition-colors hover:text-[#17458f]"
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+              </nav>
+            </div>
+            <div>
+              <h2 className="font-open-sauce text-[14px] font-semibold text-black">Lainnya</h2>
+              <nav className="mt-7 flex flex-col gap-6" aria-label="Lainnya">
+                {policyLinks.map((link) => (
                   <Link
                     key={link.href}
                     href={link.href}
