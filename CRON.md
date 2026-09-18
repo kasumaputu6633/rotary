@@ -21,7 +21,8 @@ Tambahkan variabel berikut pada file `.env` (atau `.env.local` untuk localhost):
 CRON_TYPE=lazycron
 
 # Secret Token untuk mengamankan API Route Cron (wajib disamakan di layanan eksternal jika CRON_TYPE=external)
-CRON_SECRET=rahasia-cron-token-anda-123
+# Gunakan nilai acak dari secret manager; jangan gunakan contoh ini di production.
+CRON_SECRET=replace-with-a-random-secret
 ```
 
 ---
