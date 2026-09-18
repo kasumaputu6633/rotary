@@ -39,7 +39,7 @@ Jika Anda men-deploy proyek ini ke **Vercel**, penjadwalan berjalan otomatis sec
 3.  Tambahkan key berikut:
     *   `CRON_TYPE` = `external`
     *   `CRON_SECRET` = (Isi dengan token rahasia acak pilihan Anda)
-4.  Deploy ulang proyek Anda. Vercel akan otomatis membaca file `vercel.json` dan memicu endpoint `/api/cron/deactivate-listings` sekali sehari secara gratis.
+4.  Pastikan `CRON_TYPE=external` sudah aktif sebelum deploy. Deploy ulang proyek Anda. Vercel akan otomatis membaca file `vercel.json` dan memicu endpoint `/api/cron/deactivate-listings` sekali sehari secara gratis.
 
 ---
 
