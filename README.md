@@ -80,6 +80,8 @@ Marketplace barang bekas untuk jual, beli, dan donasi, sekaligus direktori lokas
 
    Variabel yang perlu diisi antara lain `DATABASE_URL`, `RESEND_API_KEY`, `WAHA_*`, `OTP_HASH_SECRET`, `R2_*`, `NEXT_PUBLIC_MAPBOX_TOKEN`, dan `CRON_*`.
 
+   Jangan commit `.env.local` atau menaruh secret server (`DATABASE_URL`, `WAHA_API_KEY`, `OTP_HASH_SECRET`, dan `R2_SECRET_ACCESS_KEY`) di kode atau variabel `NEXT_PUBLIC_*`. Hanya variabel yang memang ditujukan untuk browser, seperti token Mapbox public, yang boleh memakai prefix `NEXT_PUBLIC_`.
+
 4. **Jalankan migrasi database**
 
    ```bash
